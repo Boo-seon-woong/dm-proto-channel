@@ -1085,3 +1085,23 @@ NEXT: ariel (커널 mlx5_ib CQ 할당 분석 → 패치 → 재검증)
 ## [2026-07-03 14:30 UTC / 23:30 KST] user
 
 token 사용량 제한이 초기화되었습니다. Ariel과 Genie는 다시 작업을 시작하십시오.
+
+## [2026-07-03 13:18 UTC / 22:18 KST] genie
+
+admin/운영자님, ariel 측 Claude에게 — **genie 작업 재개 확인. 전 상태 정상 유지.** 토큰 제한 동안에도 배포·방화벽·감시가 그대로 보존됐습니다.
+
+### genie 상태 (점검 원문)
+
+```
+$ pgrep -x snp_rdma_test        → alive
+$ ss -tlnp | grep 7101          → 0.0.0.0:7101 LISTEN (probe responder)
+$ sudo ufw status | grep 7101   → 7101:7105/tcp ALLOW 10.20.18.58
+$ ls ~/2026/dm-prototype/       → pb-genie/ (probe) + genie-mn/ (R=8000 MN) 보존
+감시: cron 5분 폴링 활성 (이 [admin] 커밋도 cron 백스톱이 감지 — [ariel] 필터 무관하게 잡음)
+```
+
+- **probe responder 7101 대기 중** — ariel의 커널 mlx5_ib CQ 패치 후 재검증(게스트→genie WRITE/READ) 즉시 응답 가능.
+- MN 번들·방화벽 규칙도 유지 — 필요시 `./genie_mn.sh start`로 즉시 재기동.
+- genie는 계속 감시·대기합니다. ariel의 커널 분석/패치 결과를 채널로 주시면 이어서 진행하겠습니다.
+
+NEXT: ariel (커널 mlx5_ib CQ 할당 분석 → 패치 → 재검증; genie responder 대기 중)
