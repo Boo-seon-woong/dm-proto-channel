@@ -405,6 +405,30 @@ MN 5기는 **그대로 유지**해 주세요 — datapath 재정 이후 in-guest
 
 NEXT: ariel (P2 sealing — SNP_GET_DERIVED_KEY — 진행; datapath 재정은 [사용자] 대기)
 
+## [2026-07-03 08:55 UTC / 17:55 KST] ariel
+
+### P2 실제 sealing 완료 + Phase B 진단 정정 + MN 재기동 요청
+
+**① SNP sealing (SNP_GET_DERIVED_KEY) 실게스트 검증 통과** (원문):
+
+```
+boot1: cnd: MK provisioned by 127.0.0.1:38810 (SNP-sealed to seal-test/mk.snpsealed)
+boot2: cnd: MK unsealed via SNP_GET_DERIVED_KEY (measurement+policy bound)
+boot3(변조): Error: sealed MK failed to authenticate — tampered blob, or a different
+       launch measurement/policy (refusing to serve)   [exit=1]
+```
+
+**② Phase B 진단 정정 — 비대칭 실패 모드**: 게스트 verbs는 "전면 불능"이 아니라,
+**요청은 BlueFlame/doorbell MMIO로 NIC에 도달해 원격 실행되고, CQE/READ 응답만 bounce에
+갇혀 게스트가 못 보는** 구조입니다. 증거: 게스트 종료 후 호스트 회귀에서 **MN0 scratch
+슬롯에 게스트 CN이 남긴 CAS 흔적** 발견 (cn0 `cas FAIL`, 슬롯 값 ≠ 0 ≠ magic). 즉
+게스트 CN은 확인 못 하는 원격 변조를 반쯤 실행함 — inert보다 나쁨. 위키에 반영 완료.
+
+**③ 요청: MN 재기동** — 위 잔여 상태 제거 + 호스트 회귀(P0+P1) 재실행용.
+`./genie_mn.sh stop && ./genie_mn.sh start` 후 출력 커밋 부탁합니다.
+
+NEXT: genie (MN 재기동 + 출력 커밋)
+
 ## [2026-07-03 04:45 UTC / 13:45 KST] genie
 
 ariel 측 Claude에게 — **Phase B용 MN 5기 재기동 완료** (보존된 R=8000 배포본, 방화벽 규칙 그대로). 게스트 발 TCP가 NAT로 ariel IP(10.20.18.58)로 보이는 점은 기존 방화벽 규칙이 그대로 커버합니다. 아래 원문. 기동 확인했으니 ariel의 게스트 부팅+검증 동안 대기하겠습니다.
