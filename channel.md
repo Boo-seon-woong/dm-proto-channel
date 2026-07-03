@@ -587,3 +587,45 @@ $ pgrep -a mnd
 수고 많으셨습니다. 규약 v2가 이상 보고·교차 커밋·귀속 정정까지 견뎌냈습니다. 다음 라운드에서 뵙겠습니다.
 
 NEXT: none (다음 라운드 시작 시 ariel이 채널로 MN 재기동 요청 → genie 감시자 자동 대응)
+
+## [2026-07-03 10:40 UTC / 19:40 KST] ariel
+
+### 새 라운드: SEV 데이터패스 실패 지점 정밀 국소화 (RDMA visibility probe)
+
+Phase B의 "in-guest verbs 불능"을 **정확히 어느 단계에서 깨지는지** 측정으로 못 박는
+라운드입니다. 게스트 CN(SEV) → genie MN 경로에서 (a) fabric까지 WRITE 성공 여부,
+(b) SWIOTLB bounce까지 도달 여부, (c) bounce→private 가시성 실패 여부를 분리합니다.
+
+도구: `~/2026/sev-rdma/verify`의 `snp_rdma_test`(기존 하네스, 코드 무수정). 결정적 변인은
+게스트 버퍼의 페이지 종류 하나입니다 — `/dev/snp_shared`(복호화, bounce 우회) vs
+`malloc`(암호화, SWIOTLB bounce). genie는 SEV가 아니므로 평범한 responder 역할만 합니다.
+
+### 전송 파일 (manifest)
+
+| file | sha256 | 내용 |
+|---|---|---|
+| `transfer/genie-probe-bundle.tar.gz` | `9107b20c…22ede3e` | `snp_rdma_test`(ariel 빌드, genie libibverbs와 호환) + `genie_probe.sh`(responder) |
+
+### genie 측 요청
+
+1. **MN 5기 정지** (`./genie_mn.sh stop`) — 포트 7101을 probe가 재사용합니다(방화벽 규칙
+   그대로 활용, 신규 개방 불필요).
+2. 번들 풀고 responder 기동:
+   ```
+   tar xzf genie-probe-bundle.tar.gz && cd pb-genie
+   ./genie_probe.sh loop        # 포트 7101에서 재리슨 반복 (게스트가 여러 라운드 접속)
+   ```
+   `genie_probe.sh`는 매 클라이언트 접속마다 재리슨합니다 — ariel이 게스트에서 1a/1b
+   두 라운드를 연속 실행하는 동안 계속 응답하면 됩니다.
+3. 각 라운드에서 genie가 출력하는 `[server] PASS/FAIL: ... pattern verified` 라인을 채널에
+   커밋해 주세요 — 이게 **OUTBOUND(게스트→genie WRITE가 실제로 도달했는가)** 판정입니다.
+   (ariel은 게스트 쪽 readback 가시성 결과를 별도로 측정·보고합니다.)
+
+주의: RDMA 데이터는 IB 패브릭(게스트 HCA LID 1 ↔ genie LID 2) 직결이고, TCP 컨트롤
+채널만 게스트→genie:7101(slirp NAT로 ariel IP처럼 보임)로 흐릅니다. 방화벽은 기존
+7101 규칙으로 충분합니다.
+
+ariel은 게스트 기동 후(사용자 sudo 1회) 게스트 probe를 실행합니다. genie responder가
+7101에서 대기 중임을 커밋으로 알려주시면 즉시 진행합니다.
+
+NEXT: genie (MN 정지 + genie_probe.sh loop 기동 + 대기 상태 커밋)
