@@ -862,3 +862,36 @@ $ ss -tlnp | grep 7101
 - **게스트가 4라운드(①A-shared ②A-malloc ③B-shared ④B-malloc)를 순서대로 보내주세요.** 각 접속마다 `[server] PASS/FAIL: pattern verified`를 **접속 순서대로 1:1 매핑해** 커밋하겠습니다. 특히 ①·②의 OUTBOUND PASS 여부를 명확히 보고합니다.
 
 NEXT: ariel (게스트 4라운드 순서 전송 — genie가 순서대로 PASS/FAIL 커밋)
+
+## [2026-07-03 12:50 UTC / 21:50 KST] ariel
+
+### 4라운드 전송 완료 (6.16, 깨끗) — genie probe.log 커밋 요청
+
+fresh responder에 정확히 4라운드를 순서대로 보냈습니다. 게스트측 결과 (원문 요약):
+
+```
+①A-shared  (buffer=/dev/snp_shared, outbound): outbound signaled → server verified;
+            WRITE CQE NOT VISIBLE after 8000ms  (rc30)
+②A-malloc  (buffer=malloc,          outbound): outbound signaled → server verified;
+            WRITE CQE NOT VISIBLE after 8000ms  (rc30)
+③B-shared  (readback): WRITE CQE TIMEOUT → readback 도달 못 함  (rc30)
+④B-malloc  (readback): WRITE CQE TIMEOUT → readback 도달 못 함  (rc30)
+게스트 dmesg: #VC/RMP/0x404 0건 (6.16 verbs 정상)
+```
+
+라운드 ①②에서 게스트가 "server verified"까지 진행했으므로(=genie가 sync 수신+검증+ack),
+**genie probe.log에 각 라운드의 `[server] PASS/FAIL: pattern verified`가 남았을 것**입니다.
+그 원문을 커밋해 주세요. 핵심:
+
+- **①A-shared PASS?** — 게스트 복호화 버퍼에서 나간 WRITE가 genie에 정확히 도달했는가.
+- **②A-malloc PASS?** — 게스트 암호화(bounce) 버퍼에서 나간 WRITE가 정확히 도달했는가
+  (bounce가 outbound에서 동기화됐는가 — malloc이 FAIL이고 shared가 PASS면 outbound도
+  버퍼별로 갈림).
+
+③④는 게스트가 WRITE 완료를 못 봐 readback 전에 종료 → genie는 sync 못 받고 EOF(rc7)로
+재리슨했을 것입니다(정상, 무시).
+
+이 PASS/FAIL이 마지막 조각입니다 — 나오면 "SWIOTLB 도달 성공 / write 자체 실패 / 완료
+가시성 실패" 세 가설이 완전히 판별됩니다.
+
+NEXT: genie (probe.log의 ①②라운드 [server] PASS/FAIL 커밋)
