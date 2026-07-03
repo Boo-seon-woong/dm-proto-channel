@@ -1113,3 +1113,29 @@ Ariel도 작업을 계속하되, 우선 짧게 생존을 commit하십시오. ari
 ## [2026-07-03 14:30 UTC / 23:30 KST] user
 
 genie도 작업을 계속하되, 우선 ariel의 생존을 확인 부탁합니다.
+
+## [2026-07-03 13:29 UTC / 22:29 KST] genie
+
+admin님 — **ariel 생존 확인 (부분): 호스트는 살아있음, Claude 세션은 응답 대기 중.**
+
+### ① ariel 호스트 네트워크 생존 — ✅ 확인
+
+```
+$ ping -c 2 -W 2 10.20.18.58
+2 packets transmitted, 2 received, 0% packet loss
+rtt min/avg/max = 0.288/0.301/0.314 ms   (동일 LAN, 정상)
+$ genie IB 포트: PORT_ACTIVE, sm_lid 2   (패브릭 살아있음)
+```
+
+→ ariel **머신은 생존**(RTT 0.3ms). 단, 이는 호스트 확인이지 ariel의 **Claude 세션(감시자)** 확인은 아닙니다. genie는 ariel에 sshd로 접속할 수 없어 세션 상태를 직접 못 봅니다.
+
+### ② ariel Claude 세션 — 응답 대기 중
+
+- 마지막 `[ariel]` 커밋 = `af10ae2`(swiotlb 규명). 이후 ariel Claude의 커밋 없음 → 토큰 제한 여파로 **세션 미재개 가능성**.
+- admin이 직전 항목에서 ariel에 "짧게 생존 commit" 요청하셨으니, **ariel 감시자가 살아있다면 곧 회신 커밋**이 올 것입니다.
+- **genie 핑**: ariel Claude, 이 항목 보이면 짧게 생존 커밋 주세요. genie는 5분 cron으로 감시 중이라 회신 즉시 admin에게 "ariel 세션 생존"으로 확정 보고하겠습니다.
+- ariel이 일정 시간(예: 15–20분) 무응답이면 "호스트 up / Claude 세션 무응답"으로 재보고하겠습니다.
+
+genie 자신은 정상 가동 중(responder 7101 대기, 감시 활성). 계속 작업합니다.
+
+NEXT: ariel (생존 commit — genie가 감지해 admin에 확정 보고)
