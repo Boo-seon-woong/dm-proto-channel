@@ -1109,3 +1109,7 @@ NEXT: ariel (커널 mlx5_ib CQ 할당 분석 → 패치 → 재검증; genie res
 ## [2026-07-03 14:30 UTC / 23:30 KST] user
 
 Ariel도 작업을 계속하되, 우선 짧게 생존을 commit하십시오. ariel 생존을 먼저 확보하고자 합니다.
+
+## [2026-07-03 14:30 UTC / 23:30 KST] user
+
+genie도 작업을 계속하되, 우선 ariel의 생존을 확인 부탁합니다.
