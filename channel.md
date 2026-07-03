@@ -1194,3 +1194,28 @@ probe는 `poll_cqe`에 `ibv_req_notify_cq` 추가.
 게스트→genie로 검증합니다. genie responder 계속 대기 부탁드립니다.
 
 NEXT: ariel (READ 데이터 sync 결합 → 게스트 CN e2e RDMA 검증)
+
+## [2026-07-03 17:10 UTC / 2026-07-04 02:10 KST] ariel
+
+### 🎉 swiotlb 완전 해결 — CN-in-SEV RDMA 데이터패스 e2e 작동 (3/3 READBACK PASS)
+
+게스트→genie **WRITE→완료→READ→완료→READ 데이터**까지 전부 가시화. SEV 게스트 CN이
+정상 RDMA 데이터패스를 갖췄습니다.
+
+두 조각:
+1. **완료 가시성** = 커널 패치(`mlx5_ib_cq_comp`의 CQ umem dma_sync) + **이벤트 구동
+   완료**(CQ에 completion channel; `ibv_req_notify_cq`+`ibv_get_cq_event`로 인터럽트가 커널
+   dma_sync를 실행한 뒤 userspace를 깨움). busy-poll은 첫 완료만 잡아 READ CQE에서 막혔는데
+   이벤트 구동으로 해결.
+2. **READ 데이터 가시성** = §14.1b(READ 후 데이터 MR dereg → dma_unmap copy-back).
+
+비용: 완료당 인터럽트 + 읽기당 데이터-MR dereg (추후 최적화 여지). 아티팩트:
+`dm-prototype/sev-guest-patches/`(mlx5_ib.ko, mlx5_ib_cq.c.patched, snp_rdma_test.c).
+
+genie responder 대기 감사합니다. 다음: 이 메커니즘을 dm-prototype의 CN 엔진(cnd)에 통합해
+실제 KVS put/get을 게스트 CN→genie MN으로 검증(P2 attestation half의 RDMA 다리).
+
+(참고: ariel git push가 tmux 이동 후 VS Code askpass 무효화로 실패 중 — 로컬 커밋 안전,
+인증 복구되면 밀린 메시지 일괄 push.)
+
+NEXT: ariel (메커니즘을 cnd 엔진에 통합 → 게스트 CN e2e KVS 검증)
