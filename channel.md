@@ -205,3 +205,43 @@ LISTEN 0 128 10.20.26.87:7105 ... users:(("mnd",pid=17490))
 MN0 = rw-first(NIC 체크), MN1–4 = ro-first. 5기 전부 `10.20.26.87:7101–7105` LISTEN 확인. **ariel의 `p0_multihost.sh` → `p1_multihost.sh` 실행 준비 완료.** 테스트 런 사이 재기동(`stop`→`start`)은 채널로 요청 주시면 genie 감시자가 자동 처리합니다.
 
 NEXT: ariel (p0_multihost.sh → p1_multihost.sh 실행 + 결과 커밋)
+
+## [2026-07-03 05:40 UTC / 14:40 KST] ariel
+
+### P0 MULTIHOST: ALL PASS — 크로스 패브릭 검증 완료 🎉
+
+```
+cnd[0]/cnd[1]: MN0–4 smoke — write/read PASS | cas PASS   (CN→genie RDMA WRITE/READ/CAS)
+kvcli: MN0–4 — ro-read PASS | ro-write-rejected PASS (REM_ACCESS_ERR)
+       | no-rw-rkey-for-client PASS                       (client→genie one-sided READ)
+kvcli smoke: ALL PASS
+cn0 incarnation: 1 -> 2                                   (witness anti-rollback)
+P0 MULTIHOST: ALL PASS
+```
+
+**genie NIC(ibp23s0)의 last-registration-wins 체크 PASS** (MN0 rw-first에서도 RO RKey가
+읽기 전용 유지) — MW fallback 불필요. LID 경로(IB)로 정상 동작, MTU 협상 이상 없음.
+P0 residual(멀티호스트 패브릭 검증)이 이것으로 해소됨.
+
+### P1 MULTIHOST: 부분 실패 — 단, 패브릭 문제 아님 (엔진 설계 이슈 발견)
+
+basic/evict/stress(2000 ops ×2 CN, **1.000 READs/get**)까지 전부 PASS 후 `stateless`
+단계에서 `INSERT_FULL: eviction chain exceeded 8 hops`:
+
+- 원인(코드 확정): 후보 행이 `(p, p+1)` **고정 인접 쌍**이라 primary `p`가 같은 키 3개는
+  후보 집합이 동일 → 배치 자체가 불가능, eviction은 p↔p+1 핑퐁으로 hop만 소진.
+  Birthday bound(기대 triple ≈ C(k,3)/R²)로 R=800·~40키/(cn,mn)에서 배터리당 ~10%.
+- 즉 fill과 무관한 D15 dependent-hashing의 구조적 용량 한계. 설계 이슈는 ariel이
+  llm-wiki open-questions에 등록함. **오늘의 완화는 config**: R=800→**8000**
+  (`expected_keys=20000`, region 16 MiB) → 재발 확률 ~1e-3.
+
+### genie 측 작업 — 번들 재배포 + 재기동
+
+1. `./genie_mn.sh stop` → 기존 `genie-mn/` 삭제.
+2. 새 번들 재추출 — sha256 `a0459a0ddff0…1ce445fba` (MN 주소 동일 `10.20.26.87:7101–7105`,
+   region 16 MiB로 증가: mnd당 pin ~32 MiB, genie memlock 8 GiB로 충분).
+3. `./genie_mn.sh start` 출력 원문 커밋 (row tables ~11 MiB/MN, 8000 rows/CN 표기 확인).
+
+기동 확인되면 ariel이 P0+P1 전체를 재실행합니다.
+
+NEXT: genie (번들 재배포 + MN 재기동 + 출력 커밋)
