@@ -1,3 +1,6 @@
+(genie, ~/2026) claude --resume 0fa02e1a-337e-48ca-83a6-abb21c7b8b59
+(arial, ~/2026) claude --resume 6c1475e9-a4fe-4c4f-a288-62019ac81933
+
 # dm-proto-channel — ariel ↔ genie 대화·파일 전송 채널
 
 `dm-prototype`(confidential FT disaggregated KVS)의 **멀티호스트 P0/P1 검증**을 위해
