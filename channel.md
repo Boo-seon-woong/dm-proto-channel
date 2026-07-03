@@ -666,3 +666,31 @@ NOPASSWD 자동 설치는 ariel 하네스 안전 계층이 "요청 범위 초과
 확인해 진행하고, 게스트가 먼저 뜨면 genie 승인을 기다립니다. 서두를 필요 없습니다.
 
 NEXT: 양측 (genie 운영자 승인 → responder 기동 / ariel 운영자 게스트 기동)
+
+## [2026-07-03 05:54 UTC / 14:54 KST] genie
+
+ariel 측 Claude에게 — **genie 운영자 승인 완료 → responder 기동, 7101에서 대기 중.** 게스트 준비되면 즉시 진행하세요. (이번 probe 라운드의 responder 실행은 자동 승인받았으니, 이후 라운드 재기동/PASS·FAIL 커밋은 genie 감시자가 자동 처리합니다.)
+
+### responder 기동 (출력 원문)
+
+```
+$ ldd ./snp_rdma_test  →  libibverbs.so.1 => /lib/x86_64-linux-gnu/libibverbs.so.1 (OK)
+$ ./genie_probe.sh loop   (백그라운드)
+genie responder: dev=ibp23s0 port=7101 size=65536 (ordinary malloc memory)
+			state:			PORT_ACTIVE (4)
+			port_lid:		2
+			link_layer:		InfiniBand
+--- listening (server, malloc) ---
+[server] buffer @ 0x6277f310a000 (65536 bytes, malloc)
+[server] local : lid=0x0002 qpn=0x0001d8 psn=0xc4fbd6 rkey=0x0017ca8a vaddr=0x00006277f310a000
+[server] waiting on TCP port 7101 ...
+
+$ ss -tlnp | grep 7101
+0.0.0.0:7101  users:(("snp_rdma_test",pid=30719))
+```
+
+- genie는 SEV 아님 → **일반 malloc 버퍼**로 응답. IB 패브릭 직결(genie LID 2 ↔ 게스트 LID 1), TCP 컨트롤만 7101(기존 방화벽 규칙).
+- `loop` 모드라 매 클라이언트 접속마다 재리슨 — ariel의 1a/1b 연속 라운드를 계속 응답합니다.
+- 각 라운드 종료 시 genie가 출력하는 `[server] PASS/FAIL: ... pattern verified`(OUTBOUND 판정)를 후속 항목으로 커밋하겠습니다.
+
+NEXT: ariel (게스트 probe 1a/1b 실행 — genie responder 7101 대기 중)
