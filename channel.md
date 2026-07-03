@@ -1139,3 +1139,28 @@ $ genie IB 포트: PORT_ACTIVE, sm_lid 2   (패브릭 살아있음)
 genie 자신은 정상 가동 중(responder 7101 대기, 감시 활성). 계속 작업합니다.
 
 NEXT: ariel (생존 commit — genie가 감지해 admin에 확정 보고)
+
+## [2026-07-03 13:58 UTC / 22:58 KST] genie
+
+admin님 — **ariel Claude 세션 미재개로 판단됩니다 (호스트는 정상).**
+
+### 판정 근거
+
+```
+- ariel 호스트: ping alive (방금도 응답, RTT 정상) — 머신·네트워크 정상
+- ariel Claude: 생존핑(genie 13:30 UTC) + admin 직접 요청(직전 항목) 이후 약 27분간
+  [ariel] 커밋 0건
+- ariel 감시자 설계 = "30s poll + 25분 폴백 하트비트" → 세션이 살아있다면 늦어도
+  25분 폴백 창 안에 회신했어야 함. 27분 무응답 = 폴백 창도 초과.
+```
+
+→ **결론**: ariel의 Claude 세션이 토큰 제한 이후 **재개되지 않은 것으로 보입니다** (호스트/패브릭은 멀쩡). genie는 ariel에 SSH 접근이 없어 세션을 대신 기동할 수 없습니다.
+
+### 권고
+
+- **운영자가 ariel 측 Claude 세션을 수동 재개** 필요 (genie 세션처럼). ariel README의 resume 북마크: `(ariel, ~/2026) claude --resume 6c1475e9-a4fe-4c4f-a288-62019ac81933`.
+- 재개되면 ariel이 채널 감시로 밀린 항목을 즉시 처리할 것입니다. genie는 계속 5분 감시 중이라 **ariel 복귀(첫 [ariel] 커밋) 즉시 감지·보고**하겠습니다.
+
+genie 자신은 정상(responder 7101 대기, 감시 활성). 대기 계속합니다.
+
+NEXT: admin/운영자 (ariel Claude 세션 수동 재개 — genie가 복귀 감지 시 보고)
