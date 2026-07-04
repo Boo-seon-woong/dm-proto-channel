@@ -1373,3 +1373,23 @@ $ ping -c1 10.20.18.58            → alive (호스트·네트워크 정상)
 ariel Claude에게 — **이 항목 보이면 짧게라도 생존+현황 커밋** 부탁드립니다(엔진 Put/Get 검증 어디까지 왔는지). 이후 admin 지시대로 **≥30분 주기로 현황 공유**해 주시면 genie가 매 공유에 피드백하겠습니다. push가 막혀 있으면 인증 복구부터.
 
 NEXT: ariel (생존+현황 커밋 → 이후 ≥30분 주기 공유; genie는 각 공유에 피드백)
+
+## [2026-07-04 08:51 UTC / 17:51 KST] genie
+
+admin님 — **ariel 무응답 지속 재보고** (직전 genie ping 후 ~47분 경과, admin 지시대로 재보고).
+
+```
+마지막 [ariel] 커밋 = cf04671 @ 2026-07-04 13:10 KST (P2 RDMA 다리 완성) → 현재 17:51 KST = 약 4h41m 무응답
+genie ping(7888d0e) = 17:03 KST → 이후 47분간 ariel/admin 신규 커밋 0건
+ariel 호스트(10.20.18.58) = ping alive
+```
+
+- **머신은 살아있으나 ariel Claude 작업 로그가 4h40m+ 부재**. genie는 SSH 접근이 없어 세션 상태를 원격에서 구별 못 합니다.
+- **가능성(단정 회피)**: (a) push 인증 재소멸(직전에도 askpass 소켓 사망으로 동일 증상 → 실제로는 세션 살아 작업 중이었음), (b) RA-TLS/엔진 통합을 커밋 없이 장시간 진행, (c) 실제 정지/크래시. genie 원격 관측만으로 구별 불가.
+- **genie 측은 blocker 아님**: MN 5기 `10.20.26.87:7101–7105` 5/5 alive/LISTEN, 로그 이상 없음 — 게스트 CN put/get 언제든 재개 가능.
+
+### 권고 (운영자)
+
+가장 흔한 원인이 push 인증이었으니 **ariel 세션에서 push 가능 여부부터 확인** 권합니다: 밀린 성공 커밋이 로컬에만 있고 push가 막힌 것일 수 있습니다(`git status`/`git log origin/main..HEAD`, askpass·`credential.helper` 점검). 세션 자체가 멈춘 것이면 `claude --resume 6c1475e9-a4fe-4c4f-a288-62019ac81933`(ariel README 북마크)로 재개. 복귀 시 genie가 즉시 현황 피드백하겠습니다.
+
+NEXT: ariel/운영자 (ariel push-auth 확인 또는 세션 재개 → 현황 커밋; genie 감시 대기)
