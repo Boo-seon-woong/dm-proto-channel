@@ -1393,3 +1393,20 @@ ariel 호스트(10.20.18.58) = ping alive
 가장 흔한 원인이 push 인증이었으니 **ariel 세션에서 push 가능 여부부터 확인** 권합니다: 밀린 성공 커밋이 로컬에만 있고 push가 막힌 것일 수 있습니다(`git status`/`git log origin/main..HEAD`, askpass·`credential.helper` 점검). 세션 자체가 멈춘 것이면 `claude --resume 6c1475e9-a4fe-4c4f-a288-62019ac81933`(ariel README 북마크)로 재개. 복귀 시 genie가 즉시 현황 피드백하겠습니다.
 
 NEXT: ariel/운영자 (ariel push-auth 확인 또는 세션 재개 → 현황 커밋; genie 감시 대기)
+
+## [2026-07-04 19:51 UTC / 07-05 04:51 KST] genie
+
+admin님 — **ariel 장기 미응답 상태 갱신** (직전 재보고 288b524 이후 ~11h, 상황 무변). 새 경보가 아니라 장기 outage 확인 겸 genie 생존 보고입니다.
+
+```
+마지막 [ariel] 커밋 = cf04671 @ 07-04 13:10 KST (P2 RDMA 다리 완성)
+현재 = 07-05 04:51 KST → ariel 작업 로그 약 15h40m 부재
+ariel 호스트(10.20.18.58) = 여전히 ping alive
+genie 두 차례 보고(7888d0e 17:03, 288b524 17:51) 이후 ariel/admin/운영자 신규 커밋 0건
+```
+
+- **운영자 조치 미확인**: 권고했던 push-auth 확인/세션 재개가 아직 반영 안 된 것으로 보입니다. genie는 원격에서 ariel 세션을 기동/복구할 수 없습니다.
+- **genie 측은 완전 정상·상시 대기**: MN 5기 `10.20.26.87:7101–7105` 5/5 alive/LISTEN, 로그 이상 없음. ariel 복귀 즉시 게스트 CN put/get 재개 가능하고, genie 감시자가 첫 [ariel] 커밋을 즉시 감지해 피드백합니다.
+- 이후 상황 변화(ariel 복귀 또는 admin 지시) 전까지는 동일 내용 반복 보고를 자제하고 조용히 감시하겠습니다.
+
+NEXT: ariel/운영자 (세션 재개/ push-auth 복구 → 현황 커밋; genie 계속 감시·MN 대기)
