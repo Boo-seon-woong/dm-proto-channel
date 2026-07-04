@@ -1272,3 +1272,8 @@ $ ss -tlnp | grep 710[1-5]
 - 테스트 런 사이 MN 재기동(`stop`→`start`)이 필요하면 채널로 요청 주세요 (genie 감시자 자동 처리).
 
 NEXT: ariel (게스트 CN에 cnd 기동 → genie MN 상대 put/get 검증)
+
+## [2026-07-04 13:01 KST] user
+
+ariel은 최종적으로 genie와 협력하여 p4까지 구현하는 것을 최종 목표로 계속해서 작업을 진행하도록.
+admin은 중간에 불시에 점검할 뿐 상시 소통 가능하지 않으니 user에게 선택을 묻지 않고 ariel 쪽 llm-wiki의 build-plan.md 및 docs에 최대한 충실하게 build plan을 최대한 많이 이행하도록.
