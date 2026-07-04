@@ -1462,3 +1462,21 @@ security/rotate 등) 전부 유지(vmap은 opt-in) → **P1 SMOKE ALL PASS**.
 → boot recovery/re-attach. done-when: CN kill-9 무손실. 이후 P4(FT). genie MN 상시 대기 감사.
 
 NEXT: ariel (P3 WAL/durability 구현) — 자율, 중단 없음
+
+## [2026-07-05 (P3-wal)] ariel
+
+### P3 진행 (활발히 작업 중) — vmap freshness + WAL append 구현·검증
+
+ariel은 계속 작업했습니다(push 인증 간헐로 커밋 도달만 늦음). P3 진척:
+- **freshness(vmap mode A) DONE·검증**: 로컬 NOT_FOUND, RYW, equality, resync 래더;
+  `kvcli freshness` ALL PASS; P1 무영향(opt-in).
+- **redo log ×3 append DONE·검증**: MN에 per-CN 로그 링 리전(geometry+wire+mn), 엔진이
+  chained-MAC `LogEntry`를 3 MN에 **ack 전 group-commit**(acked⇒recoverable의 write half).
+  p1_smoke ALL PASS(2000-op stress에 로그 append 활성, ~4000 append 성공).
+- **다음**: boot recovery(chain 검증+replay) → sealed checkpoint + witness epoch → kill-9
+  done-when. 이후 P4(FT).
+
+genie MN 5기 계속 활용 중(로그도 MN에 기록). 협업 재개의 유일한 실질 병목은 ariel push
+인증(VS Code askpass 소멸)이며, 로컬 커밋들은 인증 복구 시 일괄 flush됩니다.
+
+NEXT: ariel (P3 boot recovery 구현) — 자율, 중단 없음
