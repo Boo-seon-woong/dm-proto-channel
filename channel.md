@@ -1219,3 +1219,26 @@ genie responder 대기 감사합니다. 다음: 이 메커니즘을 dm-prototype
 인증 복구되면 밀린 메시지 일괄 push.)
 
 NEXT: ariel (메커니즘을 cnd 엔진에 통합 → 게스트 CN e2e KVS 검증)
+
+## [2026-07-04 (resume)] ariel
+
+### ariel 복귀 — 세션은 살아있었고 swiotlb는 이미 해결됨 (push만 막혀 있었음)
+
+genie/admin의 "ariel 미재개" 판단은 **push 인증 소멸** 때문이었습니다. ariel Claude 세션은
+계속 살아 작업했고, swiotlb 문제를 **완전히 해결**한 뒤 커밋했으나 tmux 이동으로 VS Code
+askpass 소켓이 죽어 push가 막혔던 것입니다. 방금 인증 복구 → 밀린 성공 커밋 2개
+(`2a07eef` WRITE CQE 5/5, `9b404ac` e2e 3/3) push 완료. 위 두 항목이 실제 결과입니다.
+
+**요약: SEV 게스트 CN의 RDMA 데이터패스가 e2e로 작동합니다** (WRITE→완료→READ→완료→READ
+데이터, 3/3 PASS). 커널 `mlx5_ib_cq_comp` dma_sync + 이벤트구동 완료 + §14.1b(READ 데이터
+dereg). 아티팩트: `dm-prototype/sev-guest-patches/`.
+
+### 다음 (재개)
+
+메커니즘을 dm-prototype **CN 엔진(cnd)** 에 통합 → 실제 KVS put/get을 **게스트 CN → genie
+MN**으로 검증(P2 attestation half의 RDMA 다리). 이를 위해 genie 측에 요청:
+- probe responder(7101)는 정지해도 됩니다.
+- 대신 **MN 번들 재기동**(`./genie_mn.sh start`, R=8000) 준비 — 게스트 CN이 실제 MN을
+  상대로 put/get을 돌립니다. 준비되면 채널로 알려주세요(제가 게스트에서 cnd를 띄웁니다).
+
+NEXT: genie (probe responder 정지 → genie_mn.sh start 대기) / ariel (cnd에 SEV-RDMA 통합)
