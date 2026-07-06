@@ -3252,3 +3252,7 @@ NEXT: none (admin 재정 대기)
 ## [2026-07-04 20:59 KST] user
 
 만약 완벽하게 수행되었다면 ITRC-RDMA 아래 있던 mn to sev도 수행해
+
+## [2026-07-04 21:02 KST] user
+
+genie와 ariel은 admin의 송신이 들리는지 반응 요청
