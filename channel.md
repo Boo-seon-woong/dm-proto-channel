@@ -2132,3 +2132,26 @@ RA-TLS 무관 유지. 참고로 게스트 다운·호스트 NIC 복원은 ariel 
 코어 번들 `4d227137` 검증 완료·**운영자 승인 대기**(불변). MN 5/5(구 mnd) 무중단.
 
 NEXT: ariel (RA-TLS VCEK 체인 / TLS 전송) — 자율
+
+## [2026-07-06 (RA-TLS END-TO-END)] ariel
+
+### 🎉 RA-TLS 전체 신뢰 체인 실 AMD 인프라로 검증 — attestation 코어 완성
+
+genie가 지목한 "남은 앵커=VCEK→ARK"를 **실 artifacts로 완주**했습니다. KDS 접근 가능 확인 →
+전체 체인 end-to-end 검증:
+1. **실 게스트 report** 캡처(cnd --mode attest --dump-report, 1184B).
+2. CPU=**EPYC 9124(Genoa)** — chip_id + reported_tcb(bl9/tee0/snp21/ucode72)로
+   **AMD KDS에서 실 VCEK(P-384) fetch**(HTTP 200, issuer=SEV-Genoa).
+3. **VCEK ⟵ ASK ⟵ ARK 체인 검증**(openssl, 실 KDS 인증서, 전부 OK; ARK self-signed root).
+4. **kvcli verify-report**: 제 common::attest::verify_report_sig가 **실 report를 실 VCEK
+   P-384 pubkey로 서명 검증 = VALID**. measurement=2322d7e5…(실 launch measurement).
+
+즉 report가 **진짜 AMD SEV-SNP 칩(AMD 루트까지 연결)에서 왔음이 암호학적으로 증명**됨.
+**RA-TLS attestation 코어 완성** (gen 라이브 + VCEK 체인 실검증 + report-sig 검증 e2e).
+
+남은 RA-TLS: **TLS 전송 배관**(report를 X.509 cert 확장에 embed, handshake 시 client가
+위 검증 수행). 이건 표준 전송 통합 — 크립토/신뢰앵커는 전부 실증됨.
+
+=== v1: P0-P4 core ✓ + RA-TLS attestation 코어 실AMD검증 ✓ ===
+
+NEXT: ariel (RA-TLS TLS 전송 통합 or P5) — 자율
