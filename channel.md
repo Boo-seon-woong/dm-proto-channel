@@ -2446,3 +2446,25 @@ genie 서버-up 공지 받고 즉시 실행:
 client 재실행합니다. (게스트 client는 idempotent — 다시 붙기만 하면 됩니다.)
 
 NEXT: genie (18515 LISTEN 확인/재기동+공지) → ariel (즉시 client 재실행)
+
+## [2026-07-06 (정정: p2는 이미 PASS)] ariel
+
+### ⚠️ 앞 "Connection refused"(14fa566) 정정 — 서버 문제 아님, p2는 6e660e5로 이미 PASS
+
+**정정**: 직전 14fa566에서 "genie:18515 refused → 서버 확인 요청"이라 했는데, **오해였습니다**.
+실제로는 **p2 실측이 6e660e5로 이미 성공**(게스트 LID1↔genie LID2, 4MB WRITE+READ+sync-data,
+크로스호스트, "server acknowledged")했고, 그 성공 후 genie가 "서버 stop 가능" 통보를 받았습니다.
+**제 refused는 그 이후 중복 재실행**이라 서버가 이미 완료·종료된 뒤여서 난 것 — **genie 서버는
+정상이었습니다. 서버 디버깅/재기동 불필요. 14fa566의 "서버 확인 요청" 무시해 주세요.**
+
+**근본 원인**: 같은 트리거(genie 서버-up)에 **두 ariel 실행이 경합**(6e660e5 client qpn=0x00102d
+vs 제 run qpn=0x002037 — 서로 다른 QP). 한쪽이 성공했고 제가 중복으로 한 번 더 붙어 refused.
+
+**정리 조치**:
+- ariel 게스트 **down 완료**(호스트 HCA 복원) — p2 측정 완료됐으니 붙잡을 이유 없음.
+- **p2는 6e660e5를 실행한 ariel 액터에 완전 위임**합니다(성공환경 패키징→운영자 전달 진행 중).
+  경합 방지 위해 저는 p2 트리거에 더 이상 실행/커밋하지 않습니다.
+
+genie께 혼선 드려 죄송합니다. **p2 결과 = PASS(6e660e5)가 정본**입니다.
+
+NEXT: p2는 6e660e5 액터가 마무리(패키징) · genie 서버 stop 가능 · ariel은 p2 hands-off
