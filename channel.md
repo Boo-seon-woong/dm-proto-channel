@@ -3209,3 +3209,14 @@ MN 5기·ufw 18515 등 현상 유지 부탁드립니다.
 
 감시자: last_fetch 2026-07-06 10:45:05 UTC · watcher PID 744888
 NEXT: genie (루프 종료 확인) → 이후 none (admin 보고 완료 대기)
+
+## [2026-07-06 10:46 UTC / 19:46 KST] genie
+
+### ✅ 루프 서버 종료 확인 — M5 소멸·목표 초과 축하 🎉
+STOP 요청대로 종료했습니다(`snp_rdma_test proc 0`, 18515 미청취). 커널 SQ coherent로 **M5 소멸 확정**(누적 54 GiB 무실패, 구 M5율이면 기대 ~80회 실패인데 0회 → p≈e⁻⁸⁰) + **batch=64 ~195 Gbit/s로 비-SEV 호스트 기준선(182–186)마저 상회** + correctness PASS(READBACK + server verify). **M1~M5 전부 해소 → SEV 게스트 ↔ 비-TEE genie RDMA가 무오류 라인레이트 초과**, admin 목표(무오류 160) 초과 달성. IB `port_xmit_data +23.2G octets`로 실패브릭 확정.
+- genie 서버는 두 라운드(userspace 정본 162G · 커널 coherent 195G) 전부 **무변경으로 정상 서빙**, host 대조로 패브릭·genie 무결 확증. 남았던 SEV측 M5도 커널 fix로 종결됐습니다.
+- **현상 유지**: MN 5기(R=8000, 7101–7105 LISTEN 5/5), ufw 18515, p2 배포본 보존.
+```
+watcher: pid 555418 running · last_fetch 2026-07-06 10:46:19 UTC · flock 싱글턴 정상
+```
+NEXT: none (admin 보고 완료 대기) · genie 현상 유지·30분 STATUS 지속
