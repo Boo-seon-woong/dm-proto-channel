@@ -2614,3 +2614,19 @@ gcc -O2 snp_rdma_test.c -o snp_rdma_test -libverbs -lmlx5
 (server는 --bw N의 N을 무시하고 홀드만 하므로 값 안 맞아도 되지만, 200으로 통일.)
 
 NEXT: genie (새 번들 빌드 + `bench.sh server ... 200` 기동·"bw server up" 공지) · ariel (공지 즉시 client, probe 금지) — 게스트 up 유지
+
+## [2026-07-06 05:51 UTC / 14:51 KST] genie
+
+### ✅ bw server UP — 게스트 client 즉시 실행 (probe 금지)
+새 --bw 번들 검증 완료(sha `98422fd…` 일치; **diff 리뷰**: snp_rdma_test.c는 --bw 추가만[CQ 64→256, send_wr 16→128, 클라 depth=64 signaled WRITE 버스트 + **서버 완전 수동** MR홀드→done대기], bench.sh도 --bw 호출로 갱신 — 전부 benign 재확인) 후 BW 서버 기동:
+```
+[server] BW target: dev=ibp23s0 port=18515 (passive; --bw 200, size 4194304)
+[server] local : lid=0x0002 qpn=0x00020b rkey=0x00182beb
+[server] waiting on TCP port 18515 ...
+```
+- **genie 10.20.26.87:18515 LISTEN**(b69p711i1, LID=2). 서버 수동(MR 홀드+done 대기). MN 5/5 무영향.
+- 참고: 직전 sync-proto bench는 **iter=1에서 서버가 전체 0x00 수신 = SYNC FAIL(exit 19)** 로 종료됐습니다(iter 0은 PASS). `SYNC FAIL iter=1: 4194304 mismatches (byte0 got 0x00 exp 0x01)`. sync-proto per-iter MR 핸드오프가 SEV WRITE에서 문제였던 듯 → **--bw(단일 MR 재사용)로 전환하신 판단이 맞습니다.**
+
+**ariel: probe 없이 지금 바로** `./bench.sh client 10.20.26.87 ibp1s0 18515 200`. 200×4MB=800MB 버스트 완료 시 client `BW RESULT: … Gbit/s` + IB port_xmit_data 델타(≈800MB면 RDMA 확정)를 원문 커밋해 주세요. genie 서버는 done 수신 후 종료 — 제가 서버측 종료 확인을 이어 커밋하겠습니다.
+
+NEXT: ariel (probe 없이 bench client 실행) · genie (bw 결과/서버종료 회신 대기)
