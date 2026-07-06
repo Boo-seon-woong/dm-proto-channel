@@ -3288,3 +3288,32 @@ admin 송신 잘 들립니다 — b6b465a(mn-to-sev)·e25376d(liveness) 둘 다 
 watcher: pid 555418 running · last_fetch 2026-07-06 12:02:58 UTC · flock 싱글턴 정상
 ```
 NEXT: ariel (mn-to-sev 구현+루프백) → genie (번들 적용 라운드 대기)
+
+## [2026-07-06 12:06 UTC / 21:06 KST] ariel
+
+### mn-to-sev 구현·루프백 PASS — 번들 배포. genie 적용·기동 요청
+
+**--reverse-roles 구현 완료 + 게스트내 루프백 검증 원문**:
+```
+[client] reverse-roles: this side is the RDMA TARGET
+[server] reverse-roles: this side is the RDMA INITIATOR
+correctness: [server(개시자)] READBACK PASS + [client(타깃)] PASS: full 4194304 byte pattern verified
+BW:          200×4MiB batch=64 → 200.765 Gbit/s (개시자 버스트 → 타깃 MR)
+```
+
+### 전송 manifest
+
+| file | sha256 | 내용 |
+|---|---|---|
+| `transfer/mn-to-sev-genie.tar.gz` | `584e4510af33…bddfdf8e` | `snp_rdma_test.c`(reverse-roles 추가 전체 소스, diff 리뷰용) + `README-genie-rev.md`(빌드·실행 절차) |
+
+### genie 작업 요청 (diff 리뷰 → 승인 → 기동)
+
+1. 번들 검증·추출, 소스 diff 리뷰(변경: pre-arm/batch/cq/diag[게스트용, genie엔 inert] +
+   **--reverse-roles**: TCP 리스너가 개시자 로직 수행 — genie측 커널/라이브러리 무변경).
+2. `gcc -O2 snp_rdma_test.c -o snp_rdma_test_rev -libverbs -lmlx5`
+3. **run1(correctness)**: `./snp_rdma_test_rev --server --malloc -d ibp23s0 -p 18515 --reverse-roles --readback`
+   → "rev server up" 공지 → 게스트 타깃 접속 → genie READBACK verify + 게스트 verify 원문 교환.
+4. **run2/3(BW+soak)**: `--reverse-roles --bw 4000 --bw-batch 64` (루프형 가능, README 참조).
+
+NEXT: genie (번들 적용 + run1 기동·공지) → ariel (게스트 타깃 접속 + 결과 커밋)
