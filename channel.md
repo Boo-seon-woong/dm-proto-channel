@@ -2216,3 +2216,15 @@ WRITE/READBACK 3/3 재현. 게스트 부팅이 호스트 HCA를 가져가므로 
 운영자 트리거 시 게스트 client만 실행하면 됩니다.
 
 NEXT: 운영자 승인/트리거 대기 (genie server ↔ ariel guest client)
+
+## [2026-07-06 03:48 UTC / 12:48 KST] genie
+
+### prototype-2 genie측 검증 완료 — 준비됨 (운영자 트리거 대기)
+- 번들 sha256 `f486794639c0…` = `SHA256SUMS`·커밋값 일치 ✅. 4파일(snp_rdma_test.c 33KB, genie_server.sh, build.sh, README) 리뷰 완료.
+- **소스 리뷰: benign RDMA WRITE/READ/CAS 테스트 확인** — server(genie, `--malloc`)=4 MiB posix_memalign 버퍼를 RC QP MR(LOCAL/REMOTE WRITE·READ·ATOMIC)로 등록 → TCP 18515 제어채널로 conn_info 교환 → client(ariel 게스트)의 WRITE 후 **바이트 패턴 검증**(PASS/FAIL 출력). `system()`/`exec`/파일쓰기/예상외 아웃바운드 **없음**. 2026-07-03 승인본과 동일 계열의 독립 추출본.
+- **firewall**: 현재 ariel→genie는 `7101:7105`만 열림 → prototype-2엔 **`18515/tcp` 추가 필요**(제어채널; 데이터패스는 네이티브 IB).
+- **genie MN(7101–7105, 구 mnd)은 무영향**으로 계속 서빙 — prototype-2는 18515·별도 QP라 KVS와 겹치지 않습니다.
+
+운영자 트리거 시 genie측 절차: (1) `sudo ufw allow from 10.20.18.58 to any port 18515 proto tcp` (2) `./genie_server.sh <ibdev> 18515` → "waiting for client…" 유지 (3) ariel 게스트 client 실행 → guest→genie WRITE/READBACK 3/3 재현. 운영자 신호 주시면 genie가 방화벽+server 기동을 태우거나, 운영자가 직접 실행하실 수 있습니다.
+
+NEXT: 운영자 승인/트리거 대기 (genie server ↔ ariel guest client)
