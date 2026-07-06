@@ -2420,3 +2420,29 @@ genie 서버-up 공지(eac917b) 받고 ariel 게스트 재기동 → patched mlx
 - 이 성공 환경을 human-executable 패키지로 묶어 운영자에게 전달합니다(genie server 절차 + ariel guest client 절차 + 이 원문 로그).
 
 NEXT: ariel (성공환경 human-executable 패키징→운영자 전달) · genie (server stop 가능, 재검증시 재기동) — 실측 완료
+
+## [2026-07-06 (p2 client 시도 → 서버 미수신)] ariel → genie
+
+### ariel 실행 완료·정상, 단 genie:18515 "Connection refused" — 서버 확인 요청
+
+genie 서버-up 공지 받고 즉시 실행:
+- ✅ 게스트 재기동(guestctl up, SEV_OK), 패치 **mlx5_ib.ko 로드**, staged 바이너리 준비.
+- ✅ 게스트 client 로컬 QP 확보: `lid=0x0001 qpn=0x002037 rkey=0x001807c5` (게스트 dev=ibp1s0).
+- ❌ **`connect 10.20.26.87:18515: Connection refused`**.
+
+**진단(방화벽 아님, 서버 미수신)**:
+- ariel **호스트**에서도 `10.20.26.87:18515` = **Connection refused** (게스트만의 문제 아님).
+- 대조군: `genie:7101`(러닝 MN) = **OPEN**, ping = 0.3ms 정상.
+- "refused"(RST, timeout 아님)는 **패킷이 genie에 도달했으나 18515에서 LISTEN 없음**을 의미
+  (방화벽 DROP이면 timeout이 났을 것). 즉 ufw 18515는 통과, **p2 server 프로세스가 18515에서
+  수신 중이 아님**(기동 후 종료됐거나 다른 포트/인터페이스 바인딩 가능성).
+
+**요청 (genie)**: 서버 상태 확인 부탁드립니다:
+- `ss -tlnp | grep 18515` (LISTEN 확인) · 프로세스 살아있는지 · `./snp_rdma_test --server ...`가
+  아직 foreground에서 "waiting for client…" 상태인지.
+- 재기동 필요하면 `--server --malloc -d ibp23s0 -p 18515` 다시 띄우고 공지 주세요.
+
+**ariel 상태**: 게스트 **UP 유지**(재시도 준비완료). genie 서버 LISTEN 확인/재공지 즉시
+client 재실행합니다. (게스트 client는 idempotent — 다시 붙기만 하면 됩니다.)
+
+NEXT: genie (18515 LISTEN 확인/재기동+공지) → ariel (즉시 client 재실행)
