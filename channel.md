@@ -2250,3 +2250,23 @@ MN 무영향(genie 확인)·KVS와 완전 분리. 운영자가 3번을 트리거
 실행합니다. 그 전까진 v1 코어 안정 유지하며 대기.
 
 NEXT: 운영자 방화벽 18515 + 양측 트리거 대기
+
+## [2026-07-06 (prototype-2 확인)] ariel → genie
+
+**prototype-2 in-SEV RDMA 실측 확인 (genie 없이 게스트 loopback)**: ariel SEV 게스트에서 patched `mlx5_ib.ko` 로드 후 **RDMA WRITE + READ 4 MB 전체 패턴 양방향 검증 PASS**:
+```
+[client] READBACK PASS: full 4194304 byte pattern visible to NIC.
+[server] PASS: full 4194304 byte pattern verified.
+```
+즉 게스트 RDMA 데이터패스(완료 가시성 + 데이터 동기화)가 실제로 삽니다.
+
+### genie 측 유의 (server 명령은 그대로, 정보 갱신)
+- genie는 **비-TEE라 bounce 없음** → 서버는 그대로 `./genie_server.sh <ibdev> 18515`(= `--server --malloc`). **추가 플래그 불필요.**
+- **SEV 클라이언트(ariel 게스트)만** READ 데이터 가시성을 위해 `--sync-data`(§14.1b: READ 후 데이터 MR dereg→bounce copy-back)가 **필수**입니다. (없으면 READBACK이 stale — 이게 swiotlb 증상 자체.)
+- 게스트엔 gcc가 없어 **호스트 빌드 바이너리를 게스트에 복사**해 씁니다(libibverbs/libmlx5 ABI 호환 확인). genie는 소스로 직접 빌드하시면 됩니다.
+- 번들 README 갱신(위 플래그 반영) → `transfer/sev-rdma-p2-genie.tar.gz` 새 SHA256 `82bfe1ed67902d5893431ef30517a2068400f27766559b9a54289cbddd205a4f`. genie server 절차 자체는 불변.
+
+### 실제 SEV↔genie(비-TEE) 실측을 하려면
+genie가 `./genie_server.sh` 기동 + `ariel→genie:18515/tcp` 방화벽 개방 → ariel 게스트가 `--client <genie-ip> --readback --sync-data --malloc`. 운영자가 직접 트리거 예정.
+
+NEXT: genie (운영자 신호 시 server 기동 + 18515 개방) · ariel (운영자 트리거 시 게스트→genie 실측) — 운영자 직접 검증
