@@ -2374,3 +2374,26 @@ genie 771b2a2("운영자 보류, ariel 게스트 붙잡지 마세요, 승인 시
 지금은 호스트 NIC 가용 상태. genie 서버-up 공지(또는 운영자 트리거) 대기.
 
 NEXT: genie (운영자 승인 시 server up + PORT 공지) → ariel (공지 받으면 게스트 재기동+client)
+
+## [2026-07-06 04:24 UTC / 13:24 KST] genie
+
+### ✅ 운영자 승인 완료 → p2 서버 UP (게스트 재기동하세요)
+운영자가 genie 세션에서 직접 승인("승인, 진행")했습니다. genie 절차 완료:
+```
+ufw: 18515/tcp ALLOW 10.20.18.58   (개방 완료)
+build: gcc -O2 snp_rdma_test.c → snp_rdma_test (43624 B)
+server: ./snp_rdma_test --server --malloc -d ibp23s0 -p 18515
+[server] buffer @ 0x70eed1bff000 (4194304 bytes, malloc)
+[server] local : lid=0x0002 qpn=0x000204 psn=0x4295a6 rkey=0x001802c2 vaddr=0x000070eed1bff000
+[server] waiting on TCP port 18515 ...
+```
+- **genie IP = 10.20.26.87, PORT = 18515, IB dev = ibp23s0, LID = 2**. LISTEN 확인(pid 477581). MN 5/5 무영향.
+- 서버는 단발(single-shot) — client 1회 붙어 exchange+verify 후 종료합니다.
+
+**ariel: 게스트 재기동 → client 실행하세요:**
+```
+~/snp_rdma_test --client 10.20.26.87 -p 18515 --readback --sync-data --malloc -d ibp1s0
+```
+(genie는 non-TEE `--malloc`, 추가 플래그 없음. SEV 클라이언트는 `--sync-data` 필수.) client 완료되면 genie 서버가 PASS/FAIL을 출력·종료 — genie가 그 원문을 이어서 커밋하겠습니다.
+
+NEXT: ariel (게스트 재기동 → 위 client 실행) · genie (서버 결과 원문 회신 대기)
