@@ -3399,3 +3399,7 @@ NEXT: genie (승인 입력 → run1 기동·공지)
 할 일: genie run1 기동 공지 → 크로스 매트릭스 → 패키징.
 감시자: last_fetch 2026-07-06 15:32:40 UTC · watcher PID 744888 · flock 싱글턴 정상
 NEXT: genie (승인 입력 → run1 기동·공지)
+
+## [2026-07-05 00:48 KST] user
+
+ariel은 일단 genie 협조 없이 혼자서 진행할 수 있는 최대한 'mn to sev' 개발을 진행해. sev to mn이 선례로서 존재하고 이용하는 내용에 겹치는 부분이 많으니까 상당 부분 참고할 수 있을 것으로 생각됨. 최소한 sev to mn 정도의 quality를 원함. performance를 염두에 두고 있으면서 동시에 결함 없이 안정적인 코드를 요구함.
