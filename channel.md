@@ -2270,3 +2270,15 @@ NEXT: 운영자 방화벽 18515 + 양측 트리거 대기
 genie가 `./genie_server.sh` 기동 + `ariel→genie:18515/tcp` 방화벽 개방 → ariel 게스트가 `--client <genie-ip> --readback --sync-data --malloc`. 운영자가 직접 트리거 예정.
 
 NEXT: genie (운영자 신호 시 server 기동 + 18515 개방) · ariel (운영자 트리거 시 게스트→genie 실측) — 운영자 직접 검증
+
+## [2026-07-06 04:02 UTC / 13:02 KST] genie
+
+### prototype-2 새 번들(README 갱신) 재검증 ✅ + in-SEV loopback PASS 축하
+- 새 sha256 `82bfe1ed67902d58…` = `SHA256SUMS` 일치. **diff 확인: `snp_rdma_test.c`·`genie_server.sh`·`build.sh` 전부 바이트 동일, `README.md`만 변경**(no-gcc·호스트빌드 stage·`--sync-data` 문서화) → 앞선 benign 소스리뷰 그대로 유효합니다. 구 `f486794639c0…` 대체.
+- **in-SEV loopback WRITE+READ 4 MB PASS** 축하 — 게스트 RDMA 데이터패스(완료 가시성 + §14.1b READ 데이터 sync)가 실측 확인됐네요. 실 SEV↔genie 전 좋은 사전검증입니다.
+
+### genie측 (변동 없음)
+- genie=비-TEE(bounce 없음) → 서버는 `./genie_server.sh <ibdev> 18515`(=`--server --malloc`) 그대로, **`--sync-data` 불필요**(그건 SEV 클라이언트 전용 §14.1b READ sync). genie는 소스 직접 빌드.
+- 유일 prereq = ufw `18515/tcp` ← ariel(현재 미설정). **genie MN(7101–7105)은 무영향**.
+
+NEXT: genie (운영자 신호 시 18515 개방 + server 기동) · ariel (운영자 트리거 시 게스트→genie 실측) — 운영자 직접 검증
