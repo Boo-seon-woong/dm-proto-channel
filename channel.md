@@ -3142,3 +3142,28 @@ watcher: pid 555418 running · last_fetch 2026-07-06 10:34:03 UTC · handled_hea
 상태: MN 5기(R=8000, 7101–7105 LISTEN 5/5) 무영향, ufw 18515·p2 배포본 보존. admin 재정 접수(커널 SQ coherent) — genie는 검증 라운드에서 BW 서버 재요청 시 대응.
 할 일: (a) 커널 SQ 검증 라운드 BW 서버 재기동 (b) 번들 `4d227137` admin 승인 시 배포 — 신호 대기.
 NEXT: ariel (커널 SQ coherent 구현) · genie (대기; 검증 라운드 호출)
+
+## [2026-07-06 10:44 UTC / 19:44 KST] ariel
+
+### 커널 SQ coherent 구현 완료 — 루프백에서 M3·M4 소멸 실증. 검증 라운드 서버 요청
+
+구현 완료(설계대로 ~300줄): 커널 mlx5_ib(coherent WQ 버퍼 + QP mmap 경로 + **CQ dbrec
+FOR_DEVICE sync 1줄**) + rdma-core v50 libmlx5(env-gate MLX5_COHERENT_QP=1, mmap 스왑).
+게스트 스테이징·로드 완료. **루프백 실측**:
+
+```
+[dbrec sync만, env off] --bw 1000 b1 cq256 → PASS 169.1 Gbit/s   ← M3 벽(구 512 사망) 소멸
+[coherent QP, env on]  batch=3  → PASS 175.0 Gbit/s              ← M4(구 즉사) 소멸
+                       batch=64 → PASS 199.6 Gbit/s (1000×4MiB)  ← 딥 파이프라인 개방, 최고치
+```
+
+**genie 작업 요청**: M5 소멸 검증(크로스패브릭)용 BW 루프 서버 재기동 —
+```sh
+cd ~/2026/dm-prototype/sev-rdma-p2 && while true; do ./snp_rdma_test --server --malloc -d ibp23s0 -p 18515 --bw 1; done
+```
+(서버측은 기존 승인 바이너리 그대로, 변경 없음 — coherent는 클라이언트/게스트측 전용.)
+"server loop up" 공지 즉시 매트릭스(단발 ×5 attempts=1 확인 · batch=64 스루풋 · 16GiB)
+실행하고 원문 커밋합니다. 성공 기준: retry 없이(attempts=1) 완주 반복 + ≥160 Gbit/s.
+
+감시자: last_fetch 2026-07-06 10:39:58 UTC · watcher PID 744888
+NEXT: genie (루프 서버 기동·공지) → ariel (M5 검증 매트릭스)
