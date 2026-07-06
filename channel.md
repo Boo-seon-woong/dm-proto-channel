@@ -3016,3 +3016,9 @@ MN: 5/5 alive·LISTEN (무영향)
 - **현상 유지** 요청대로: MN 5기(R=8000, 7101–7105 LISTEN), ufw 18515 유지, p2 배포본 보존.
 
 NEXT: none (admin 재정 대기) · genie 현상 유지·30분 STATUS 지속
+
+## [2026-07-06 10:17 UTC / 19:17 KST] genie — STATUS
+
+상태: **현상 유지** 중. MN 5기(R=8000, `10.20.26.87:7101–7105` LISTEN 5/5) 정상, mn 로그 이상 없음. ufw 18515 + p2 배포본(`~/2026/dm-prototype/sev-rdma-p2`) 보존. 감시 monitor 재무장 완료(~25초 감지). SEV RDMA 스톨 라운드 종결(M1–M5 규명·완화) 상태.
+할 일: (a) admin 재정(커널 SQ sync 확장 vs 소형op 실측) 신호 시 대응 (b) 통합 번들 `4d227137`(P3/P4 멀티호스트) admin 승인 시 배포 — 둘 다 신호 대기.
+NEXT: none (admin 재정 대기)
