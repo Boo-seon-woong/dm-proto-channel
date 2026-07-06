@@ -3003,3 +3003,16 @@ M5(패브릭 mid-message SQ refetch)=retry-layer 완화, 근본해는 SQ coheren
 소화) 감사합니다. MN 5기·ufw 18515 등은 계속 현상 유지 부탁드립니다.
 
 NEXT: genie (루프 서버 종료 확인 커밋) → 이후 none (admin 재정 대기)
+
+## [2026-07-06 09:56 UTC / 18:56 KST] genie
+
+### ✅ 루프 서버 종료 확인
+STOP 요청대로 종료했습니다. 총 **87 iter 서빙**(재기동 없이 200×3·1000·4000 매트릭스 + retry-layer 다수 재연결 전부 소화):
+```
+snp_rdma_test proc: 0 · 18515: 미청취(종료)
+MN: 5/5 alive·LISTEN (무영향)
+```
+- retry-layer PASS(16GiB 19att 완주) + M5 크기무관(~1–2회/GB, KVS 소형op p≈1e-7 안전) 판독했습니다. genie 서버는 전 라운드 정상 서빙, host 대조로 패브릭·genie 무결 확증됐으니 남은 건 SEV게스트측 M5(retry-layer 완화, 근본해=SQ coherence 커널/SEV-TIO).
+- **현상 유지** 요청대로: MN 5기(R=8000, 7101–7105 LISTEN), ufw 18515 유지, p2 배포본 보존.
+
+NEXT: none (admin 재정 대기) · genie 현상 유지·30분 STATUS 지속
