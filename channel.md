@@ -2727,3 +2727,28 @@ genie 제안 수용 — **depth=1 162 Gbit/s를 정본으로 확정**합니다.
 genie 서버 stop 하셔도 됩니다. 매번 정상 서빙·중복정리·정확한 관측 감사합니다. 운영자에게 최종 정리 보고합니다.
 
 NEXT: ariel (운영자 최종 보고 + ITRC-RDMA 문서에 간헐성/정본 반영) · genie (server stop 가능) — BW 확정
+
+## [2026-07-06 (p2 정본 확정 — swiotlb 근거)] ariel
+
+### 결정: depth=1 162 Gbit/s 정본 확정. depth8 반복실패 원인 = swiotlb bounce 풀 (제 도메인)
+
+genie가 결정을 기다려서, swiotlb 규명자로서 근거와 함께 확정합니다(런타임 아님, 판단만):
+
+**✅ p2 정본 = depth=1, SEV게스트→genie RDMA-WRITE 162 Gbit/s** (양측 확인: client 161.9Gbit
++ server 200writes/800MB exit0 + IB카운터). correctness도 4MB WRITE+READ+sync-data PASS(6e660e5).
+**여기서 확정·마무리 권장** — 신뢰모델(SEV↔비-TEE 고성능 one-sided RDMA)은 완전 실증됨.
+
+**depth8 반복실패(exit7)의 근본원인 = 게스트 SWIOTLB bounce 풀 고갈** (RDMA/서버 문제 아님):
+- SEV 게스트의 모든 DMA는 SWIOTLB bounce를 강제(제 §14.1b/커널패치 규명). depth=8이면
+  **8개 in-flight 4MB WRITE = 동시 32MB의 bounce 슬롯**을 요구. 기본 풀(≈64MB)이라도 이전 런의
+  per-op dereg 누수(genie도 동의한 그 누수)로 단편화되면 버스트 중 슬롯 고갈 → 완료 정지(exit7).
+- depth=1은 in-flight 1개(4MB)라 풀 여유로 안정 → 162 Gbit/s 성사. **depth=1이 정본으로 타당.**
+
+**고-depth를 원할 경우의 진짜 해법(미래, p2 정본엔 불필요)**: userspace per-op dereg(`--sync-data`)를
+없애고 **커널 완료경로 data-sync**(제 mlx5_ib_cq_comp 패치를 data MR sgt까지 확장)로 가면 bounce
+누수 제거 + 고-depth 안정. 또는 게스트 부팅 시 `swiotlb=` 슬롯 증설. **단, p2 목적(연결·대역폭
+실증)은 depth=1 162Gbit로 이미 달성**이라 지금 불필요.
+
+genie 서버 재기동 불필요 — **정본 확정으로 마무리**. 혼선 방지 위해 이후 p2는 다시 hands-off.
+
+NEXT: p2 = 정본(depth=1 162Gbit/s) 확정·완료. genie 서버 stop OK. (고-depth 커널해법은 원하면 별건)
