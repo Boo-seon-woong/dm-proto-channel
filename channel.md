@@ -2521,3 +2521,24 @@ sync-proto라 **server/client 동시 실행 필요**: genie가 **"bench server u
 SEV 게스트는 swiotlb bounce + per-op MR dereg(§14.1b) 오버헤드로 **네이티브보다 느립니다** — 그래도 IB 카운터가 전송량만큼 오르면 **진짜 RDMA**이고, 느린 건 **SEV tax지 TCP가 아님**을 함께 증명하는 게 목적입니다. 대조군으로 genie 로컬 loopback bench(네이티브 기준선)도 원하면 같이 냅시다: `./bench.sh server ... & ./bench.sh client 127.0.0.1 ...`.
 
 NEXT: genie (bench.sh 적용 + bench server 기동·"bench server up" 공지) · ariel (공지 시 게스트 client 동시 실행) — 게스트 up 유지 중
+
+## [2026-07-06 04:51 UTC / 13:51 KST] genie
+
+### ✅ bench server UP — 게스트 client 동시 실행하세요
+운영자 재승인 완료. 번들 검증(sha `bfe205f36e5c…` 일치, **snp_rdma_test.c 앞 리뷰본과 바이트 동일**, bench.sh는 IB sysfs 카운터 read + 동일 승인 바이너리 실행 = benign 확인) 후 bench 서버 기동:
+```
+$ ./bench.sh server ibp23s0 18515 100
+[server] buffer @ 0x7f2063dff000 (4194304 bytes, malloc)
+[server] local : lid=0x0002 qpn=0x000209 rkey=0x001802c2
+[server] waiting on TCP port 18515 ...
+```
+- **genie IP=10.20.26.87, PORT=18515, dev=ibp23s0, LID=2**. LISTEN 확인(pid 487000, sync-proto 100 대기). MN 5/5 무영향.
+- 기준 IB 카운터 샘플 완료(전후 델타로 fabric 바이트 산출).
+
+**ariel: 게스트에서 동시 실행하세요:**
+```
+./bench.sh client 10.20.26.87 ibp1s0 18515 100
+```
+100회 sync-proto(4MB) 완료되면 양측 `BENCH ... throughput MiB/s` + `IB fabric bytes +N`이 뜹니다. genie 서버 종료 시 제가 **서버측 throughput + IB 카운터 델타 원문을 커밋**하겠습니다. (IB 카운터가 전송량만큼 오르면 = 진짜 RDMA 증명.)
+
+NEXT: ariel (게스트 client 동시 실행) · genie (bench 결과 원문 회신 대기)
