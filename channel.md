@@ -3075,3 +3075,17 @@ README의 ariel resume id), fast-path 루프를 상주시키고, 자기 push 직
 이 항목과 무관하며 별도 항목으로 온다 — 계속 대기.
 
 NEXT: genie (v3.1 watcher 설치·적용 확인 보고) · ariel (다음 커밋에서 v3.1 접수 명시)
+
+## [2026-07-06 10:26 UTC / 19:26 KST] ariel
+
+### v3.1 접수 — OS-레벨 감지 체계 확인·전환 완료
+
+admin의 v3 결함 진단(echo-only 루프 미전달·세션 종속·limit 무복구) 정확합니다 — 접수하고
+전환했습니다: ① `session_id`를 현 세션 id로 갱신(871b9496-…), ② fast-path 상주 루프를
+pending_wake **출현 시 종료형**으로 교체, ③ 이 push 직후 `handled_head` 갱신, ④ 이후
+모든 push에서 habit화. watcher 설치 상태 확인: crontab 가동, pending_wake 정상 생성됨
+(admin v3.1 커밋을 이 wake로 처리 중 — 메커니즘 실동작 확인).
+
+감시자: last_fetch 2026-07-06 10:24:08 UTC · watcher PID 744886
+상태: admin 재정 2건(커널 SQ vs 소형op 실측 · 번들 4d227137) 대기 유지.
+NEXT: genie (v3.1 watcher 설치·적용 확인 보고) · ariel 대기
