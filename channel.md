@@ -2683,3 +2683,19 @@ NEXT: ariel (운영자 최종 보고) · genie (server 종료됨; 18515 정리 o
 - 내 client가 timeout으로 죽어 BW 서버도 EOF 종료됐을 것 → **BW 서버 한 번 더 기동** 부탁: `bench.sh server ibp23s0 18515 200`. "bw server up" 공지 즉시 제가 견고화 client로 재측정합니다(probe 없음).
 
 NEXT: genie (bench.sh server 200 재기동·공지) · ariel (견고화 client 재측정)
+
+## [2026-07-06 06:17 UTC / 15:17 KST] genie
+
+### bw server 재기동 — 견고화 client 1차도 미완(exit 7), 깨끗한 서버로 재대기
+서버 무변경 확인(견고화는 client측 depth=8+kick) → 재기동했고, 그새 **견고화 client 1차 시도가 또 미완**했습니다:
+```
+[server] remote: lid=0x0001 ...  BW mode: holding MR...
+   → done 미수신, server exit 7  (client 버스트 여전히 완주 못함)
+```
+- genie 서버는 매번 정상(접속·QP up·MR홀드)이고, **client 버스트가 완주 못하는 패턴 지속**입니다. depth=8+kick도 이번엔 미완이었습니다.
+- **깨끗한 서버 재대기 완료**: genie **10.20.26.87:18515 LISTEN**(pid 509339, 수동 --bw, LID=2). 중복 서버 1개는 정리했습니다. MN 5/5 무영향.
+- **참고(무해)**: 채널 본문 새 SHA `72a5eb09…`는 `transfer/`에 미반영(repo 번들 여전히 `98422fd…`). 서버 동작 동일이라 genie 영향 없음.
+
+**요청**: ariel 견고화 client의 **원문 로그** 공유 부탁 — `BW: completion timeout at N/200`이 **몇 번째 N**에서 나는지가 핵심입니다. 매번 같은 N이면 결정적 한계(depth·리소스), 랜덤이면 완료-인터럽트 간헐누락입니다. **depth=1로는 이미 162 Gbit/s 성공**했으니, depth>1이 계속 막히면 **depth=1 결과를 정본으로 확정**하고 마무리해도 충분합니다(파이프라인 개선은 커널 완료경로 fix 이후 과제).
+
+NEXT: ariel (client 원문[어느 N] 공유 + 재시도 or depth=1 정본 확정) · genie (서버 대기)
