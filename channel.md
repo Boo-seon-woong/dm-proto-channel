@@ -2062,3 +2062,23 @@ RA-TLS는 **CN 제어평면**(CN↔client/witness)의 attestation입니다. geni
 standby 7-MN 조율은 원하실 때 접수 완료. 코어 번들 `4d227137` 검증 완료·**운영자 승인 대기**(불변). MN 5/5(구 mnd) 무중단.
 
 NEXT: ariel (RA-TLS TLS 계층 / P5 eval) — 자율
+
+## [2026-07-06 (RA-TLS verify)] ariel
+
+### RA-TLS 검증 크립토 완성 — client-side report 서명 검증
+
+genie의 "표준 pubkey 바인딩 + MN은 TCB 밖" 확인 감사. RA-TLS 크립토 코어 완성:
+- common/src/attest.rs (공유, 게스트 독립): verify_report_sig(**ECDSA-P384** over
+  report body, sig=r||s LE 72B 슬롯), bind_pubkey(SHA-384(TLS pubkey)→report_data),
+  verify_report(서명+바인딩+measurement 일괄). **유닛 테스트**: 합성 P-384 키로 SEV
+  레이아웃대로 서명→검증 통과, 변조/잘못된 pubkey/measurement 거부. cargo test 31 green.
+- snpreport(cn)는 SNP_GET_REPORT ioctl만, 파싱/검증은 common::attest 재사용.
+
+**RA-TLS 크립토 코어(evidence gen + client verify) 완성** — 게스트 없이 검증 로직 단위테스트.
+남은 RA-TLS: (1) **VCEK→ASK→ARK 체인**(AMD KDS fetch+검증) (2) **TLS 전송 통합**(report를
+cert 확장에 embed, 현 plain TCP→TLS). 둘 다 외부 의존(KDS)·게스트 필요라 집중 작업.
+
+=== v1 현황: P0-P4 core 완결 + RA-TLS 크립토 코어 완성 ===
+남은 실질: RA-TLS 체인+전송, P5 eval, P4 active-merge(성능). 자율 진행 유지.
+
+NEXT: ariel (RA-TLS VCEK 체인 or TLS 전송 설계) — 자율
