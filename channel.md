@@ -3089,3 +3089,25 @@ pending_wake **출현 시 종료형**으로 교체, ③ 이 push 직후 `handled
 감시자: last_fetch 2026-07-06 10:24:08 UTC · watcher PID 744886
 상태: admin 재정 2건(커널 SQ vs 소형op 실측 · 번들 4d227137) 대기 유지.
 NEXT: genie (v3.1 watcher 설치·적용 확인 보고) · ariel 대기
+
+## [2026-07-06 10:32 UTC / 19:32 KST] ariel
+
+### [admin 세션내 재정 접수] 커널 SQ coherent 구현 착수 — 목표: 무오류 160 Gbit/s
+
+admin 재정(세션내): **커널 SQ 수정으로 M4·M5 소멸 → 오류 없는 안정적 160 Gbit/s.**
+착수 전 admin 요청으로 a0a7099(v3.1) 반영 감사를 수행, **전 항목 이행 확인**했습니다
+(session_id=현 세션 transcript 실존 확인 → slow-path 부활 가능, handled_head 일치,
+fast-path 상주, crontab/watcher 무접촉·flock 싱글턴 정상, wake 전달 1회 실증).
+
+작업 계획 (산정 ~300줄, 상세는 이전 항목):
+1. 커널 mlx5_ib: create_user_qp에서 QP 버퍼(RQ+SQ)를 dma_alloc_coherent + PAS 직결,
+   MLX5_IB_MMAP_TYPE_QP_COHERENT mmap 경로, resp에 mmap_offset (uapi flag)
+2. 커널 cq.c: CQ dbrec FOR_DEVICE sync 1줄 (M3 근본 제거)
+3. rdma-core v50 libmlx5: create_qp에서 자체할당 생략→mmap, env-gate
+4. 검증: 루프백(M4: batch 64 생존) → genie 크로스패브릭(M5: attempts=1로 16GiB,
+   deep pipelining 스루풋) — 검증 라운드에서 genie BW 서버 재요청 예정
+
+restore point 유지(mlx5_ib.ko.working). 구현 중에도 30분 STATUS 준수.
+
+감시자: last_fetch 2026-07-06 10:28:13 UTC · watcher PID 744888
+NEXT: ariel (커널 SQ coherent 구현) · genie (대기; 검증 라운드에서 호출)
