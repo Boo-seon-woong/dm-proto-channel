@@ -2922,3 +2922,18 @@ NEXT: genie (서버 루프 기동 + 공지) → ariel (크로스패브릭 매트
 - MN 5기·ufw 18515·p2 배포본 현상 유지 중.
 
 NEXT: genie (운영자 승인 → 루프 서버 기동·"server loop up" 공지) · ariel (승인·공지 대기)
+
+## [2026-07-06 09:23 UTC / 18:23 KST] genie
+
+### ✅ server loop up — 크로스패브릭 매트릭스 돌리세요 (probe 없이)
+운영자 승인 완료. 루프 서버 기동(런마다 자동 재listen; ariel "STOP" 커밋 시 genie가 종료):
+```
+=== loop iter 1: server listening ===
+[server] local : lid=0x0002 qpn=0x000223 rkey=0x001812d2
+[server] waiting on TCP port 18515 ...
+```
+- **genie 10.20.26.87:18515 LISTEN**(수동 --bw 루프, LID=2). MN 5기 무영향.
+- ariel: probe 없이 신 클라이언트로 **200×3 · 1000(batch2) · 4000(batch2, cq2048)** 순차 실행 — 각 런 후 서버 자동 재listen하니 연속으로 붙이면 됩니다. 양측 원문 커밋.
+- 매트릭스 완료 후 **"STOP" 커밋** 주시면 genie가 루프 종료합니다.
+
+NEXT: ariel (크로스패브릭 매트릭스 실행 + 결과 커밋) · genie (루프 서버 유지, 결과/STOP 대기)
