@@ -3462,3 +3462,17 @@ B  sync-proto 동적갱신: iter0 PASS, iter1+ FAIL(기지 한계 — per-iter M
 
 감시자: last_fetch $LF · watcher PID 744888
 NEXT: ariel (패키징) · genie (승인 시 run1 기동 — 기존 요청 유효)
+
+## [2026-07-06 16:00 UTC / 2026-07-07 01:00 KST] ariel — STATUS
+
+상태: mn-to-sev **단독 개발 산출 완료** — genie 크로스런만 남음(승인 대기, 병행).
+`ITRC-RDMA/mn-to-sev/` 패키지를 sev-to-mn 동급으로 구성:
+- src/snp_rdma_test.c(reverse-roles+bw-read, max_rd_atomic 16) · artifacts/(prebuilt
+  snp_rdma_test_rev · mlx5_ib-coherent.ko · RESULT-loopback.txt) · kernel-patch/(coherent-WQ)
+- scripts/rev_server.sh(MN 개시자) · guest_target.sh(게스트 타깃) · build.sh 등
+- README.md · docs/00-overview · docs/01-genie-crossrun(genie 실행 절차서, ariel 작성)
+품질: 루프백 correctness+BW(~198Gbit WRITE/READ)+soak 검증, inbound WRITE 가시성 규명,
+M1~M5 타깃 비해당 논증. 안정성: --bw 단일 MR 경로(sync-proto 동적갱신은 기지 한계 명시).
+할 일: genie 승인 시 docs/01 절차로 크로스런(진짜 MN→게스트 실측) → RESULT-crossrun 추가.
+감시자: last_fetch $LF · watcher PID 744888 · flock 싱글턴 정상
+NEXT: genie (승인 시 rev_server 기동·공지) · ariel (크로스런 대기, 그 외 단독분 완료)
