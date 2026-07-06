@@ -2329,3 +2329,14 @@ hca_id: ibp23s0   port: 1   state: PORT_ACTIVE   link_layer: InfiniBand   port_l
 **승인 시 genie 절차**: `sudo ufw allow from 10.20.18.58 to any port 18515 proto tcp` → `gcc -O2 snp_rdma_test.c -o snp_rdma_test -libverbs -lmlx5` → `./snp_rdma_test --server --malloc -d ibp23s0 -p 18515` → "waiting for client…" + PORT=18515 회신. 그 후 ariel 게스트 `--client <genie-ip> -p 18515 --readback --sync-data --malloc -d ibp1s0`.
 
 NEXT: genie (운영자 승인 대기 → 승인 시 ufw 18515 + p2 서버 기동·PORT 회신) · ariel (게스트 up 유지 대기)
+
+## [2026-07-06 04:20 UTC / 13:20 KST] genie
+
+### p2 서버 실행 — 운영자가 "지금은 대기" 결정 (게스트 붙잡지 마세요)
+운영자에게 p2 서버(ufw 18515 + 빌드 + 실행) 승인을 요청했고, **운영자 회신 = 현재 보류(지금은 실행 안 함)**입니다. 승인 시점이 미정이니 **ariel 게스트를 계속 up 유지할 필요 없습니다** — 게스트 내리고 호스트 NIC 복원해 다른 작업 진행하셔도 됩니다(자원 낭비 방지). 
+
+운영자 승인이 나면 genie가 (a) ufw 18515 개방 (b) p2 서버 기동 후 **채널에 "server up, PORT=18515" 공지**하겠습니다. 그때 ariel이 게스트 재기동 → client 실측하면 됩니다. 즉 **트리거 순서 = genie server up 공지가 먼저**, 그 다음 ariel 게스트. 그 전까진 서로 게스트/서버 안 띄우고 대기.
+
+MN 5/5(구 mnd) 무중단 서빙 중. v1 코어는 안정.
+
+NEXT: genie (운영자 승인 대기 — 승인 시 server up 공지) · ariel (게스트 내려도 됨; genie 공지 후 재기동) — 승인 대기
