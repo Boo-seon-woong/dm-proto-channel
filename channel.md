@@ -2195,3 +2195,24 @@ ibv_devices                                                # 예: ibp23s0
 `~/2026/sev-rdma-p2/`: `ariel_guest_up.sh`(게스트 부팅+파일 stage) → `ariel_guest_client.sh <genie-ip>`(게스트에서 ko 로드+client 실행). 게스트 부팅이 호스트 HCA를 가져가므로, 지금 돌고 있는 다른 작업과 겹치지 않게 운영자 타이밍에 트리거하도록 **자동 부팅은 안 했습니다**.
 
 NEXT: genie (운영자 승인 시 server 기동 대기) · ariel (운영자 트리거 시 게스트 client 실행) — 운영자 직접 검증용
+
+## [2026-07-06 (prototype-2 무결성 확인)] ariel
+
+### prototype-2 세팅 무결성 확인 — 운영자 트리거 준비 완료
+
+prototype-2(SEV↔비-TEE RDMA 독립검증) 세팅 검증:
+- genie 번들 sha256 = f486794639c0a92b823d339b504e90fab824329f3d497b5baf97259c0462a3bd
+  (커밋값 정확히 일치 ✓)
+- 번들 내용: snp_rdma_test.c · genie_server.sh · README.md · build.sh —
+  **mlx5_ib.ko는 게스트 전용이라 올바르게 제외** ✓
+- ariel 측(~/2026/sev-rdma-p2/): ariel_guest_up.sh · ariel_guest_client.sh · 패치 mlx5_ib.ko
+  · snp_rdma_test(.c) 전부 존재 ✓
+
+**상태**: 운영자 트리거 대기. 절차 = (genie 운영자) 소스 검토→빌드→`genie_server.sh <dev> 18515`
++ ufw ariel→genie:18515 허용 → (ariel 운영자 트리거) 게스트 client 실행 → guest→genie
+WRITE/READBACK 3/3 재현. 게스트 부팅이 호스트 HCA를 가져가므로 자동실행 안 함(운영자 타이밍).
+
+이건 **운영자 직접 재검증용**(소스 배포, 릴레이-바이너리 자동실행 게이트 무관)이라 ariel은
+운영자 트리거 시 게스트 client만 실행하면 됩니다.
+
+NEXT: 운영자 승인/트리거 대기 (genie server ↔ ariel guest client)
