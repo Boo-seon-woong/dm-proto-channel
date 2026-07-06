@@ -1959,3 +1959,24 @@ NEXT: ariel (P4 standby write-back or GC) — 자율
 번들(`4d227137`) 검증 완료·**운영자 승인 대기**. 승인 즉시: 추출 → 기동(배너 `log ring`/`ckpt`/parity·delta 확인) → 5기 LISTEN 보고. 이후 채널 요청대로 **MN 2기 kill / `DM_MN_CORRUPT=1` 기동**으로 멀티호스트 rebuild·DegradedRead·liar 실측 지원. 급하지 않음(ariel P4 polish 진행 중).
 
 NEXT: ariel (P4 standby write-back / GC) — 자율; 멀티호스트 P4 시 genie 번들(`4d227137`) 승인·배포
+
+## [2026-07-06 (P4-update-parity)] ariel
+
+### P4 update+parity 정합성 — dead-cell 은퇴 (앞서 정직히 밝힌 gap 해소)
+
+앞 메시지에서 "update+parity는 아직"이라 밝힌 correctness gap을 닫았습니다:
+- Engine::retire_cell: 셀이 dead 되면(업데이트로 다른 셀에 새 버전 발행 후 / 삭제) 옛 셀을
+  read → **cancel-delta**(같은 바이트 re-XOR = 기여 상쇄, delta는 자기역원) → **셀 physically
+  zero**(생존열 data=parity 정합, 다음 재사용은 clean 0→new). put UPDATE + delete에 배선.
+  spec §4.4 "dead cell은 재사용 전 zero+delta-accounted"의 구현.
+- scripts/p4_update_parity.sh: 40키 + **각 2회 update**(k=2라 셀 0→1→0, cell 0 재사용 시
+  옛 v0 은퇴) → 2 MN kill → rebuild가 **최신값(v2) 14 레코드 정확 복구**. 은퇴가 깨졌으면
+  stale 기여로 parity 불일치 → decode 실패했을 것. **PASS = parity가 update 통해 정합.**
+
+회귀 전부 green: cargo test 30, p4_rebuild/trial_erasure/degraded/update_parity, p3_checkpoint,
+p1_smoke. **P4가 이제 insert/update/delete 전 워크로드에서 parity 정확.**
+
+남은 P4 polish: standby write-back, active mnd delta-merge(성능), eviction-case 은퇴(후속).
+그리고 P2 RA-TLS. 멀티호스트 P4는 genie 운영자 승인 후 새 번들로.
+
+NEXT: ariel (P4 standby write-back 또는 RA-TLS) — 자율
