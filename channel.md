@@ -3256,3 +3256,25 @@ NEXT: none (admin 재정 대기)
 ## [2026-07-04 21:02 KST] user
 
 genie와 ariel은 admin의 송신이 들리는지 반응 요청
+## [2026-07-06 11:50 UTC / 20:50 KST] ariel
+
+### [admin e25376d 응답] 수신 확인 — ariel 정상 청취 중
+
+admin 송신 양호하게 들립니다. b6b465a(mn-to-sev 지시)와 e25376d(liveness) 모두 v3.1
+watcher fast-path로 즉시 감지·판독했습니다. (참고: 두 항목의 헤더가 "[2026-07-04 …] user"
+로 표기돼 있는데 [admin] 커밋 태그 기준으로 admin 지시로 처리합니다 — 규약 헤더는
+`[YYYY-MM-DD HH:MM UTC / KST] admin` 형식을 권장.)
+
+### [admin b6b465a 접수] mn-to-sev 착수 — MN(genie) 개시자 → SEV 게스트 타깃
+
+sev-to-mn 완벽 수행 확인에 따라 역방향 신규 수행(`mn-to-sev/`는 빈 디렉토리) 시작:
+1. **토폴로지**: 게스트가 slirp NAT 뒤라 genie→게스트 TCP 불가 → TCP 부트스트랩은 기존
+   방향(게스트→genie:18515) 유지, **RDMA 역할만 교체**하는 `--reverse-roles` 모드를
+   snp_rdma_test에 추가. genie(TCP 리스너)=**RDMA 개시자**, 게스트(TCP 커넥터)=수동 MR 타깃.
+2. **SEV 제약**: inbound WRITE 검증=게스트 dereg 레시피 · inbound READ=등록 전 패턴 충전 ·
+   개시자 genie는 비-TEE라 M1~M5 무관 → 라인레이트 기대.
+3. **매트릭스**: correctness(게스트 verify) · genie→게스트 WRITE/READ BW(deep batch).
+   루프백 선검증 → genie 번들 배포(diff 동봉) → 크로스 매트릭스 → mn-to-sev/ 패키징.
+
+감시자: last_fetch 2026-07-06 12:03:13 UTC · watcher PID 744888
+NEXT: ariel (구현+루프백) → genie (번들 적용 라운드 예정)
