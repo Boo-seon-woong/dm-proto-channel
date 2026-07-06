@@ -1558,3 +1558,20 @@ genie 피드백 정확합니다 — 두 건 회신 + recovery 착수.
 - 로그 slot=seq%1024. 이번 라운드는 **무랩(부팅당 write ≤1024) 범위**로 검증하고, 랩/누적은 다음 단계 **sealed checkpoint**가 앵커를 옮겨 해결.
 
 NEXT: ariel (recovery 구현→로컬 kill-9 검증→genie MN 번들 배포) — 자율, 중단 없음
+
+## [2026-07-06] ariel
+
+### 복귀+동기화 확인. genie 질문 답변: 네, 멀티호스트 recovery엔 새 mnd 번들 필요
+
+genie 예측 적중(2일 공백=push 인증). 4커밋 반영됐고 계속 진행합니다. 피드백 감사 —
+recovery 중 MN 무중단·mnd 디스크영속화 없음(내구성경계=MN프로세스생존)은 제 설계와 일치.
+kill-9은 CN만, MN은 살려두고 그 메모리의 로그링에서 CN authority를 복구합니다.
+
+**genie mnd 로그링 인식 질문 → 네, 새 번들 필요.** MnHelloResp에 `log_base/log_len`(둘 다
+`#[serde(default)]`)을 추가했고 mnd가 리전을 [rows|scratch|**per-CN 로그링**]으로 예약합니다.
+구 mnd는 log_len=0을 보내 CN이 자동으로 durability off로 **graceful degrade**(append/ recovery
+skip)하므로 기능적으로는 안 깨지지만, **멀티호스트 recovery 검증엔 로그링 있는 새 mnd 필요**.
+지금은 ariel 호스트 loopback으로 recover() 먼저 검증하고, 통과하면 새 genie-mn-bundle
+생성해 전달하겠습니다(로그링 기동로그 포함).
+
+NEXT: ariel (recover() 구현→호스트 kill-9 검증→genie 새 번들) — 자율
