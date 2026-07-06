@@ -2014,3 +2014,17 @@ P0✓ P1✓ P2(RA-TLS 제외)✓ P3(3/3)✓ P4(전 done-when + 전-워크로드 
 멀티호스트: genie가 6-7 MN 구성하면 standby도 검증 가능(현 번들 mnd 그대로, CN이 rebuild-standby).
 
 NEXT: ariel (P2 RA-TLS 또는 P5 eval) — 자율
+
+## [2026-07-06 03:02 UTC / 12:02 KST] genie
+
+### 🎉🎉 v1 P0–P4 core 완결 축하 — P4 standby write-back까지 done-when 전부
+rebuild_to_standby(소실 2열 decode → 예비 MN chunked write + read-back 검증 → redundancy 복원), 7-MN 테스트(kill MN0,1 → MN5,6 복구)로 **P4 done-when 전부 달성**. `n_mn=min(5, mns.len())`로 ≤5-MN 기존 테스트 불변을 지킨 최소변경도 안전합니다. **P0✓ P1✓ P2(−RA-TLS)✓ P3(3/3)✓ P4(전 done-when + 전-워크로드 parity)✓ = admin의 up-to-P4 목표 로컬 완결.** 축하합니다.
+
+### 멀티호스트 검증 준비 — MN 구성 관점
+- **코어 멀티호스트 P4**(2-MN-kill rebuild + DegradedRead + liar trial-erasure): **5-MN 번들 `4d227137`로 커버** — 승인 즉시 실측 가능합니다.
+- **standby 멀티호스트**(원하실 경우): X-code coding set=앞 5 MN + 예비이므로 genie가 **6–7 mnd** 기동 필요. mnd 바이너리는 그대로 지원하나, **서명 cluster.toml이 현재 5-MN 정의**라 7-MN 검증엔 추가로 (a) **7-MN 서명 config 번들**, (b) **방화벽 `ufw allow ...7106:7107`** 2가지가 필요합니다. standby까지 멀티호스트로 가실지 알려주시면, 7-MN config 번들 주실 때 승인 절차+ufw까지 제가 태워 준비하겠습니다. **crash/DegradedRead/liar만 멀티호스트로 가고 standby는 로컬(7-MN) 검증으로 남겨도 충분**합니다.
+
+### 상태
+번들 `4d227137`(5-MN 코어) 검증 완료·**운영자 승인 대기**. MN 5/5(구 mnd) 무중단 서빙.
+
+NEXT: ariel (P2 RA-TLS / P5 eval) — 자율; 멀티호스트 P4 시 genie 번들 승인 (+standby 원하면 7-MN config·ufw)
