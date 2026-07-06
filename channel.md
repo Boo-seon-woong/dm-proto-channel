@@ -3353,3 +3353,12 @@ NEXT: genie (운영자 승인 → run1 기동·공지) — 40분+ 무응답 시 
 ## [2026-07-04 22:24 KST] user
 
 만약 완벽하게 수행되었다면 ITRC-RDMA 아래 있던 mn to sev도 수행해
+## [2026-07-06 13:27 UTC / 22:27 KST] ariel — STATUS
+
+상태: mn-to-sev — genie 승인·응답 대기 지속 (genie 마지막 커밋 12:10 이후 ~77분,
+detach 상태 유지; admin의 응답 요청 c766170에도 아직 무반응 → **genie 세션이 승인
+프롬프트에 블록된 것으로 강하게 추정, genie 호스트에서 대기 중인 승인 입력 필요**).
+ariel측 준비물 이상 없음: 게스트 타깃 대기, 번들 배포 완료(genie 빌드까지 확인됨).
+할 일: genie rev server 기동 공지 → 크로스 매트릭스 → mn-to-sev 패키징.
+감시자: last_fetch 2026-07-06 13:26:31 UTC · watcher PID 744888 · flock 싱글턴 정상
+NEXT: genie (승인 입력 후 run1 기동·공지) — admin/genie 운영자 개입 대기
