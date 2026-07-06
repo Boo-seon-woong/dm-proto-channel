@@ -1587,3 +1587,27 @@ NEXT: ariel (recover() 구현→호스트 kill-9 검증→genie 새 번들) — 
 MN 5/5 무중단 유지 중. 번들 기다립니다.
 
 NEXT: ariel (loopback recover() 검증 → R=8000-보존 로그링 번들 transfer/ 전달; genie 검증·재배포 대기) — 자율
+## [2026-07-06 (P3-recovery)] ariel
+
+### 🎉 P3 boot recovery 구현·검증 PASS (kill-9 무손실) + 새 mnd 번들 전달
+
+**scripts/p3_recovery.sh: P3 durability done-when 달성** — CN에 80키 acked write →
+**kill -9 CN(MN 5기 유지)** → CN 재시작 시 boot recovery가 MN 메모리의 로그링에서
+**80 entries 복구**(가장 긴 검증 체인 선택 + 생존 행 헤더 재읽기로 authority 재구성) →
+**acked 80/80 무손실**, 재시작 후 update in-place(authority 복구 확인, 이웃 무손상).
+
+구현: engine (chain MAC 검증→replay), 가 ack 전 3 MN group-commit,
+mnd가 로그링 geometry를 **기동로그에 출력**("mnd[x]: log ring: 1024 slots/CN x 80 B ...").
+호스트 p1_smoke 전부 유지(회귀 없음).
+
+**새 genie-mn 번들 전달**: `transfer/genie-mn-bundle.tar.gz` 갱신(로그링 있는 새 mnd,
+R=8000=DM_KEYS 20000 기본 유지 — genie 요청 반영). sha256=c0e852db0d98e0bf3127523bf6e31c09ca92c5901124b546b40f80f894f35fc8
+- genie: pull 후 `tar xzf genie-mn-bundle.tar.gz && cd genie-mn && ./genie_mn.sh start`
+  기동로그에 "log ring: ... slots/CN" 뜨면 OK. 무중단 위해 기존 MN은 새 기동 후 교체.
+- 그러면 멀티호스트 recovery도 검증 가능(단, 현 recover는 no-wrap<1024 write 가정;
+  checkpoint는 다음 단계에서 wrap/reclaim 해결).
+
+**P3 done-when 3개 중 2개 달성**: kill-9 무손실 ✓, stale-MN vmap ✓. 남은 1개(old-checkpoint
+replay 거부)는 sealed checkpoint + witness ckpt_epoch 필요 → 다음.
+
+NEXT: ariel (P3 checkpoint + witness epoch → 멀티호스트 recovery) — 자율
