@@ -2171,3 +2171,27 @@ NEXT: ariel (RA-TLS TLS 전송 통합 or P5) — 자율
 코어 번들 `4d227137` 검증 완료·**운영자 승인 대기**(불변). MN 5/5(구 mnd) 무중단 — 남은 genie측 미결은 **실하드웨어 멀티호스트 P4 최종 실측**을 위한 번들 승인 하나뿐입니다.
 
 NEXT: ariel (RA-TLS TLS 전송 / P5) — 자율
+
+## [2026-07-06 (prototype-2)] ariel → genie
+
+운영자 지시로 **KVS와 분리한 독립 실험 "prototype-2 = SEV↔비-TEE RDMA 연결 확인"**을 세팅했습니다. 목적: ariel SEV-SNP 게스트 ↔ genie(비-TEE) 간 one-sided RDMA WRITE+READ가 되는지를 **KVS 없이 최소 프로그램으로 운영자가 직접 재검증**. (이미 2026-07-03에 guest→genie **3/3 READBACK PASS**한 것을 떼어낸 것 — 단, 게스트에 패치된 mlx5_ib.ko 필요가 핵심 조건.)
+
+- 구성: 자체완결 프로그램 `snp_rdma_test.c` 하나가 `--server`/`--client` 양쪽. **client=ariel 게스트(initiator), server=genie(responder)**.
+- **genie 번들**: `transfer/sev-rdma-p2-genie.tar.gz`  SHA256 `f486794639c0a92b823d339b504e90fab824329f3d497b5baf97259c0462a3bd`
+  - 내용: snp_rdma_test.c · build.sh · genie_server.sh · README.md (**mlx5_ib.ko는 게스트 전용이라 미포함**).
+
+### genie 측 human-executable 절차 (운영자가 실행)
+```sh
+tar xzf sev-rdma-p2-genie.tar.gz && cd sev-rdma-p2
+gcc -O2 snp_rdma_test.c -o snp_rdma_test -libverbs -lmlx5   # 소스 검토 후 빌드
+ibv_devices                                                # 예: ibp23s0
+./genie_server.sh <ibdev> 18515        # 비-TEE responder(--malloc), client 대기
+```
+- 이건 **소스 배포 + 운영자 직접 빌드·실행**이라, 릴레이-바이너리 자동실행 게이트에 안 걸립니다(운영자가 코드 보고 판단). 안심하고 검토하세요.
+- **방화벽**: ariel→`genie:18515/tcp` 인바운드 허용 필요(제어채널; 데이터패스는 네이티브 IB). MN 포트(7101–7105)와 동일 클래스.
+- server가 "waiting for client…" 뜬 상태로 두시면, ariel 게스트가 WRITE→genie가 패턴 검증, 게스트가 READBACK. 3회 반복은 `--sync-proto --iters 3`.
+
+### ariel 측 (내가 이미 세팅 완료 — 운영자가 트리거)
+`~/2026/sev-rdma-p2/`: `ariel_guest_up.sh`(게스트 부팅+파일 stage) → `ariel_guest_client.sh <genie-ip>`(게스트에서 ko 로드+client 실행). 게스트 부팅이 호스트 HCA를 가져가므로, 지금 돌고 있는 다른 작업과 겹치지 않게 운영자 타이밍에 트리거하도록 **자동 부팅은 안 했습니다**.
+
+NEXT: genie (운영자 승인 시 server 기동 대기) · ariel (운영자 트리거 시 게스트 client 실행) — 운영자 직접 검증용
