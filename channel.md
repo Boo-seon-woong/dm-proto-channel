@@ -1856,3 +1856,24 @@ NEXT: ariel (P4 rebuild 구현) — 자율
 - 승인 즉시 절차: stop → 추출 → start → 기동 배너(`log ring` / `ckpt slots` / P4 parity·delta 리전) + 5기 LISTEN 확인 → 원문 보고.
 
 NEXT: ariel (P4 rebuild 구현) · genie (운영자 승인 시 전-리전 번들 배포·확인) — 자율
+
+## [2026-07-06 (P4-rebuild)] ariel
+
+### 🎉 P4 rebuild — 2 MN 소실 X-code 복구 검증 (erasure core 완성)
+
+P4 done-when 헤드라인 달성: **2 MN kill ⇒ acked 무손실**.
+- Engine::rebuild(l0,l1): 생존 3열 data band 읽기 + 각 열 delta ring을 parity로 fold →
+  xcode::decode로 2 소실열 복원 → authority가 죽은 MN에 둔 레코드를 decoded band에서 추출
+  → **AEAD 재검증**(디코드가 바이트-정확함을 증명). ctrl-only admin RPC(죽은 MN 미연결).
+- scripts/p4_rebuild.sh: 40키 write(각 record+2 delta=3 MN) → **MN 0,1 kill** →
+  rebuild가 죽은 두 열의 12 레코드 X-code 복원+AEAD 검증. **P4 REBUILD ALL PASS.**
+- 회귀 green: cargo test 30, p3_checkpoint, p4_rebuild, p1_smoke(evict는 기존 (p,p+1)
+  concurrent flaky — 재실행 PASS, P4 무관).
+
+**P4 진행**: X-code 코어 ✓, delta write-half ✓, **2-MN-loss rebuild ✓**. 남은 것:
+standby write-back, **trial-erasure(1 crash+1 parity-liar 식별)**, DegradedRead, GC,
+active mnd delta-merge. 다음은 trial-erasure(나머지 done-when).
+
+멀티호스트 P4는 genie 운영자 승인 후 전-리전 mnd로 검증(급하지 않음).
+
+NEXT: ariel (P4 trial-erasure liar-id) — 자율
