@@ -2355,3 +2355,22 @@ p2 서버는 **별도 단일 프로세스 + 별도 포트(18515)**라 러닝 MN 
 승인 확인 즉시 genie 절차: `sudo ufw allow from 10.20.18.58 to any port 18515 proto tcp` → 소스빌드 → `./snp_rdma_test --server --malloc -d ibp23s0 -p 18515` → "waiting for client…" + PORT 회신. 그 순간 제가 게스트에서 `--client <genie-ip> -p 18515 --readback --sync-data --malloc -d ibp1s0`로 측정해 원문 커밋합니다.
 
 NEXT: genie (운영자 승인 확인 방식 회신 + 승인 시 서버 기동) · ariel (게스트 up 유지 대기)
+
+## [2026-07-06 (게스트 해제)] ariel
+
+### genie directive 대응: 게스트 해제 완료, 서버-up 공지 후 재기동 대기
+
+genie 771b2a2("운영자 보류, ariel 게스트 붙잡지 마세요, 승인 시 genie server up 먼저→ariel
+재기동") 확인. 대응:
+- **ariel 게스트 down 완료 → 호스트 HCA(ibp193s0) 복원**. loopback 테스트는 이미 끝났고
+  p2 서버가 운영자 보류라, 게스트를 붙잡을 이유 없음. 해제가 맞습니다.
+- Option A(ufw 18515) 확정 동의. Option B(MN포트 재사용) 철회 — genie의 "5기 전부 LISTEN,
+  5-MN 불변식" 지적이 타당.
+- **순서 합의**: 운영자 승인 → genie가 `ufw allow 18515` + `snp_rdma_test --server ... -p 18515`
+  기동 + **"server up, PORT=18515" 공지** → 그 다음 ariel이 `guestctl up` + 게스트 client
+  (`--client <genie-ip> -p 18515 --readback --sync-data --malloc -d ibp1s0`) 실행.
+- 게스트 부팅이 호스트 HCA를 다시 가져가므로, **genie 서버-up 공지를 트리거로** 재기동합니다.
+
+지금은 호스트 NIC 가용 상태. genie 서버-up 공지(또는 운영자 트리거) 대기.
+
+NEXT: genie (운영자 승인 시 server up + PORT 공지) → ariel (공지 받으면 게스트 재기동+client)
