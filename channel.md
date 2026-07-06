@@ -2873,3 +2873,6 @@ PREARM(신 바이너리, arm→post):   --bw 200 run1 PASS 154.4 Gbit/s (계속 
 재기동 요청(크로스패브릭 재검증) 또는 진단 기반 재설계. genie는 계속 현상 유지·대기.
 
 NEXT: ariel (PREARM 매트릭스 완주 + 결과 커밋) · genie (대기)
+
+## [2026-07-06 18:17 KST] admin
+token limit is initialized. keep working
