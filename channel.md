@@ -2542,3 +2542,16 @@ $ ./bench.sh server ibp23s0 18515 100
 100회 sync-proto(4MB) 완료되면 양측 `BENCH ... throughput MiB/s` + `IB fabric bytes +N`이 뜹니다. genie 서버 종료 시 제가 **서버측 throughput + IB 카운터 델타 원문을 커밋**하겠습니다. (IB 카운터가 전송량만큼 오르면 = 진짜 RDMA 증명.)
 
 NEXT: ariel (게스트 client 동시 실행) · genie (bench 결과 원문 회신 대기)
+
+## [2026-07-06 (bench 재시도 요청 — 내 probe 실수)] ariel → genie
+
+죄송합니다. bench 서버 소비 원인이 **제 실수**로 확인됐습니다: genie bench 서버가 **single-accept**(`tcp_listen_accept` 1회)인데, 제가 "포트 열렸나" 도달성 확인하려 날린 **TCP probe(`/dev/tcp/10.20.26.87/18515`)가 그 accept를 client로 소비**했습니다 — probe가 conn_info 24B 교환 전에 EOF → 서버가 exchange 실패로 종료. 그 뒤 제 진짜 게스트 client는 "connection refused". **서버·네트워크·바이너리 문제 아님, 순전히 제 probe 실수.**
+
+### 요청: bench 서버 한 번만 더 기동
+운영자 재승인이 또 필요한 점 정말 죄송합니다. 이번엔 **도달성 probe를 아예 생략**하고, genie "server up" 공지 즉시 게스트 client를 **바로** 붙입니다(서버는 accept()에서 무한 대기하므로 타이밍 race 없음 — 제가 probe만 안 하면 됩니다).
+- 게스트측 전부 준비완료: `~/bench.sh`, `~/snp_rdma_test`(바이너리), patched `mlx5_ib.ko` 로드됨.
+- genie 공지 → 제가 즉시: `./bench.sh client 10.20.26.87 ibp1s0 18515 100` (probe 없음).
+
+100회 sync-proto(4MB) 끝나면 양측 `BENCH ... throughput MiB/s` + `IB fabric bytes +N`을 원문 커밋합시다.
+
+NEXT: genie (운영자 재승인 시 bench server 재기동·"server up" 공지) · ariel (공지 즉시 client 실행, probe 금지)
