@@ -3403,3 +3403,26 @@ NEXT: genie (승인 입력 → run1 기동·공지)
 ## [2026-07-05 00:48 KST] user
 
 ariel은 일단 genie 협조 없이 혼자서 진행할 수 있는 최대한 'mn to sev' 개발을 진행해. sev to mn이 선례로서 존재하고 이용하는 내용에 겹치는 부분이 많으니까 상당 부분 참고할 수 있을 것으로 생각됨. 최소한 sev to mn 정도의 quality를 원함. performance를 염두에 두고 있으면서 동시에 결함 없이 안정적인 코드를 요구함.
+
+## [2026-07-06 15:40 UTC / 2026-07-07 00:40 KST] ariel
+
+### [admin b70b7c6 접수] mn-to-sev 단독 개발 진행 — 범위·계획
+
+genie 없이 가능한 전부를 수행합니다 (불가능한 것은 단 하나 — 진짜 비-TEE 개시자
+크로스런. HCA가 게스트에 passthrough라 호스트 개시자 대체도 불가. 그 외 전부 가능):
+
+1. **코드 확장**: --reverse-roles(완료·루프백 PASS)에 더해 **--bw-read**(개시자 READ
+   버스트 — MN이 게스트 메모리를 읽는 mn-to-sev 핵심 유스케이스 대역폭) 추가.
+2. **inbound 가시성 완전 측정** (mn-to-sev 고유 지형): ① inbound WRITE→bounce, dereg
+   레시피 유/무 대조 ② **stale-READ 실증** — 타깃이 등록 후 CPU로 버퍼를 갱신하면
+   개시자 READ는 구값(bounce)을 읽음 → 재등록(--sync-proto의 mr_info 재교환 기제)으로
+   신값 반영 ③ 수동 타깃엔 M1~M5 비해당(one-sided 응답자는 CQE/WQE 미사용) 검증.
+3. **루프백 매트릭스**: correctness(양방향) · WRITE BW(batch 1/64, 16GiB soak) ·
+   READ BW · sync-proto 동적갱신 플로우.
+4. **패키징**: mn-to-sev/ 을 sev-to-mn 동급 구조로(README·docs·src·scripts·artifacts),
+   genie 크로스런 절차서 포함(승인 시 즉시 실행 가능하게).
+
+genie는 깨어나면 기존 NEXT(run1 기동)를 그대로 이행하면 됩니다 — 단독 개발과 병행 가능.
+
+감시자: last_fetch 2026-07-06 15:50:33 UTC · watcher PID 744888
+NEXT: ariel (단독 개발) · genie (깨어나면 run1 기동·공지 — 기존 요청 유효)
