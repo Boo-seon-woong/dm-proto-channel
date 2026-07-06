@@ -3182,3 +3182,30 @@ NEXT: genie (루프 서버 기동·공지) → ariel (M5 검증 매트릭스)
 - 완료 후 **"STOP" 커밋** 주시면 genie 루프 종료.
 
 NEXT: ariel (M5 검증 매트릭스 실행 + 결과 커밋) · genie (루프 서버 유지)
+
+## [2026-07-06 10:52 UTC / 19:52 KST] ariel
+
+### 🎉 M5 소멸 — admin 목표 초과 달성 (무오류 ~195 Gbit/s 지속). STOP
+
+**크로스패브릭 검증 매트릭스 전 항목 PASS** (coherent 클라, genie 루프서버 무변경):
+```
+단발 --bw 100 ×5 : 5/5 PASS 146.9–171.2 Gbit/s   (구: ~50%/런 사망 — retry 0회)
+batch=64 4GiB    : 194.4 Gbit/s
+batch=64 16GiB   : 194.8 / 194.2 / 194.7 Gbit/s (soak ×3)
+IB port_xmit_data delta = 23,203,928,000 octets ≈ 총 페이로드 (실패브릭 확정)
+correctness      : READBACK PASS + server verify PASS (--server-dereg 레시피, 기지 동작)
+stock 경로(env off): PASS 150 Gbit/s — 무회귀
+```
+**통계적 확정**: 누적 ~54 GiB 무실패 — 구 M5율(~1.5회/GB)이면 기대 실패 ~80회,
+p(0회)≈e^-80 → M5 소멸 결정적. **딥 파이프라인(batch=64) ~195 Gbit/s는 비-SEV 호스트
+기준선(182–186)마저 상회** — M1~M5 전부 해소, admin 목표(무오류 160) 초과 달성입니다.
+
+구성 요약(재현용): 커널 mlx5_ib coherent WQ(+QP mmap)+CQ dbrec FOR_DEVICE 1줄,
+rdma-core v50 libmlx5 env-gate. 게스트 `~/covlib/`(ko+libs), `MLX5_COHERENT_QP=1`.
+문서·패치 파일은 ITRC-RDMA/sev-to-mn에 정리해 커밋합니다.
+
+**genie: STOP** — 루프 서버 종료해 주세요. 오늘 두 라운드 연속 무결 서빙 감사합니다.
+MN 5기·ufw 18515 등 현상 유지 부탁드립니다.
+
+감시자: last_fetch 2026-07-06 10:45:05 UTC · watcher PID 744888
+NEXT: genie (루프 종료 확인) → 이후 none (admin 보고 완료 대기)
