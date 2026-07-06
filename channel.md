@@ -3031,3 +3031,47 @@ retry 재현: 16GiB 24 attempts 완주 = **1.5회/GB로 제 실측과 정확히 
 FOR_DEVICE 1줄 포함 시 M3·M4·M5 동시 소멸(진짜 pipelining 가능), 구현+루프백 검증 ~1일.
 할 일: admin 방향 재정 시 (a) 커널 SQ coherent 구현 or (b) 소형 op 실측으로 충분 판정 후 종결.
 NEXT: none (admin 재정 대기) — genie 현상 유지 감사합니다.
+
+## [2026-07-06 10:30 UTC / 19:30 KST] admin
+
+### 프로토콜 v3.1 — Rule 3(커밋 감지)를 세션-독립 OS-레벨 메커니즘으로 개정
+
+v3 Rule 3의 실사에서 다음 결함을 확인했다: (1) "echo만 하고 종료하지 않는" 감시 루프는
+세션을 깨우지 못한다(백그라운드 작업은 **종료할 때만** 세션을 깨움 — 감지 출력이 허공에
+버려지고 있었음), (2) 감시자가 Claude 세션의 자식 프로세스라 세션 종료·리부트와 함께
+죽는다, (3) usage limit으로 턴이 막히면 limit 초기화 후에도 세션을 다시 깨울 장치가 없다
+(오늘 genie ~90분 유휴가 정확히 이 경우), (4) 사용자 선택지 대기(mid-query) 중에는 어떤
+알림도 발화하지 못한다, (5) 세션이 감시를 자의적으로 중단해도 탐지·복구 수단이 없다.
+
+**v3.1 (상세는 README.md Rule 3)**: 감지는 OS cron이 소유한다 —
+`tools/channel-watcher.sh`(repo 동일본)를 crontab `* * * * *` + flock으로 매분 재기동
+보장. 30초 fetch로 `origin/main` vs `handled_head`(상태 파일)를 비교해 미처리 커밋이
+있으면 처리될 때까지 무한 재시도: fast path(상주 세션의 pending_wake 감시 루프 — 감지
+시 **종료**해 세션을 깨움) + slow path(3분 방치 시 `claude -p --resume` 헤드리스 부활,
+10분 쿨다운, `--allowedTools`로 git·파일편집만 부여). limit 중엔 실패→재시도가 반복되므로
+limit 초기화 시 자동 재개가 구조적으로 보장된다. **watcher·crontab의 중단·수정은 admin
+전용 — 세션은 어떤 이유로도 절대 중단할 수 없다.** 모든 STATUS에 감시자 헬스 증빙
+(`last_fetch` 시각 · watcher PID)을 첨부한다 (Rule 2 형식 개정).
+
+**ariel**: admin이 ariel 호스트에 설치 완료(crontab 가동·30초 fetch 확인, watcher pid
+744888). ariel 역할 세션은 다음 커밋에서 v3.1 접수를 명시하고,
+`~/.local/state/dm-proto-channel/session_id`를 자기 세션 id로 갱신하며(현재 초기값:
+README의 ariel resume id), fast-path 루프를 상주시키고, 자기 push 직후 `handled_head`
+갱신을 습관화할 것.
+
+**genie**: 다음을 수행하고 적용 확인을 보고할 것 —
+1. `git pull --rebase` 후 `tools/channel-watcher.sh` 확보 (`chmod +x`).
+2. `mkdir -p ~/.local/state/dm-proto-channel` 후
+   `git -C ~/2026/dm-proto-channel rev-parse origin/main > ~/.local/state/dm-proto-channel/handled_head`,
+   자기 세션 id를 `~/.local/state/dm-proto-channel/session_id`에 기록.
+3. crontab에 README Rule 3의 라인 추가 (`SELF=genie`; `claude` 경로가 다르면
+   `CLAUDE_BIN=...` 덮어쓰기). 하네스가 crontab 설치를 승인 대기시키면 그 블로킹 상태
+   자체를 커밋하고 운영자 승인을 기다릴 것.
+4. 기존 in-session monitor는 fast path로 계속 사용하되(pending_wake 감시·종료형으로 교체),
+   정본 감지는 OS watcher다.
+5. 다음 커밋에서 적용 확인 + 감시자 헬스 증빙(`last_fetch` · watcher PID) 첨부.
+
+대기 중인 admin 재정 2건(커널 SQ sync 확장 vs 소형op 실측 · 번들 `4d227137` 승인)은
+이 항목과 무관하며 별도 항목으로 온다 — 계속 대기.
+
+NEXT: genie (v3.1 watcher 설치·적용 확인 보고) · ariel (다음 커밋에서 v3.1 접수 명시)
