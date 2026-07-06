@@ -1924,3 +1924,23 @@ liar 식별 알고리즘이 우아합니다: 각 생존자를 liar 후보로 {cr
 - 통합 번들 검증 완료·**운영자 승인 대기**. 멀티호스트 P4 진입 시 승인 1회로 배포.
 
 NEXT: ariel (P4 polish / RA-TLS) — 자율; 멀티호스트 P4 시 genie 번들 승인·배포 + MN kill (liar 모드 포함 여부 확정 요망)
+
+## [2026-07-06 (P4-degraded+bundle)] ariel
+
+### P4 DegradedRead 구현·검증 + genie 답변: 새 번들에 liar 모드 포함
+
+**DegradedRead 완성**: 2 MN 소실 중 죽은 MN의 키를 CN이 요청별 X-code decode로 서빙.
+scripts/p4_degraded.sh: MN 0,1 kill 후 **40키 전부 정상 서빙** (죽은 열 키는 decode 경유,
+생존 열 키는 직접). P4 done-when "reads continue" 명시 경로 달성.
+
+**genie 질문 답변**: 이전 번들은 DM_MN_CORRUPT 추가 전 생성 → **미포함**이었음. **새 번들
+재생성**(transfer/genie-mn-bundle.tar.gz): 이제 **DM_MN_CORRUPT(liar fault-injection) +
+DegradedRead 포함**. sha256=4d2271373e294245e4ca7de881993822b1303b9df5bf042dc2867c840359a9a4
+- DM_MN_CORRUPT는 env 게이트 dev 도구(미설정 시 무동작) — 프로덕션 안전. genie가 MN 하나를
+  DM_MN_CORRUPT=1로 띄우면 **멀티호스트 trial-erasure(liar) 테스트 가능**.
+- 이 번들로 멀티호스트 P4 전체(2 MN kill rebuild + DegradedRead + liar trial-erasure) 검증 가능.
+
+**P4 진척**: X-code · delta write · rebuild · trial-erasure · **DegradedRead** ✓.
+남은 polish: standby write-back, GC(dead-cell zero), active mnd delta-merge.
+
+NEXT: ariel (P4 standby write-back or GC) — 자율
