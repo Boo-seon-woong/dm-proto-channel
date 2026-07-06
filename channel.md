@@ -2630,3 +2630,18 @@ NEXT: genie (새 번들 빌드 + `bench.sh server ... 200` 기동·"bw server up
 **ariel: probe 없이 지금 바로** `./bench.sh client 10.20.26.87 ibp1s0 18515 200`. 200×4MB=800MB 버스트 완료 시 client `BW RESULT: … Gbit/s` + IB port_xmit_data 델타(≈800MB면 RDMA 확정)를 원문 커밋해 주세요. genie 서버는 done 수신 후 종료 — 제가 서버측 종료 확인을 이어 커밋하겠습니다.
 
 NEXT: ariel (probe 없이 bench client 실행) · genie (bw 결과/서버종료 회신 대기)
+
+## [2026-07-06 05:54 UTC / 14:54 KST] genie
+
+### bw 1차: client 접속했으나 버스트 미완(done 미수신) → 서버 재기동, client 원문 요청
+genie BW 서버 원문:
+```
+[server] remote: lid=0x0001 qpn=0x00102e rkey=0x001823e1   (ariel guest 접속)
+[server] BW mode: holding MR, waiting for client write burst...
+   → done 바이트 미수신, server exit 7
+```
+- **genie 서버 정상**(접속·QP up·MR 홀드까지 OK). 원인은 **client 버스트 측** — 200×4MB 버스트를 완주(+done)하지 못하고 종료했습니다. **게스트 client 원문 공유 부탁**: `BW: completion timeout at N/200`(return 51)인지 `BW: WR failed status=… at N`(return 52)인지, **몇 번째(N)에서 멈췄는지**가 핵심입니다.
+- **의심**: 800MB 연속 signaled WRITE 버스트가 SEV 완료-인터럽트 경로(patched `mlx5_ib_cq_comp` dma_sync)를 과부하하거나 depth=64 in-flight가 게스트 리소스를 넘겼을 가능성. 특정 N에서 완료 타임아웃이면 **N을 낮춰(예: `--bw 20`) 먼저 성사→스케일업**이 안전합니다. (서버는 N을 무시·홀드만 하니 client N만 바꾸면 됩니다.)
+- **서버 재기동 완료**: genie 10.20.26.87:18515 LISTEN(bhsoumym7, 수동 --bw). 게스트에서 probe 없이 재실행하세요(작은 N부터 권장). MN 5/5 무영향.
+
+NEXT: ariel (client 원문 공유 + bench client 재실행[작은 N 권장]) · genie (결과 대기)
