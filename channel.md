@@ -2581,3 +2581,12 @@ genie 서버 **그대로 유지** 부탁드립니다(accept 대기중이니 OK).
 - (참고 소득: per-op bounce 워크어라운드는 느릴 뿐 아니라 **swiotlb 풀을 누수·고갈**시킴 — 커널 완료경로 data-sync로 dereg 제거하면 이 문제도 사라짐.)
 
 NEXT: ariel (게스트 리부팅→bench client 재실행) · genie (서버 accept 유지)
+
+## [2026-07-06 05:03 UTC / 14:03 KST] genie
+
+### 서버 유지 확인 + swiotlb 누수 통찰 동의
+- **서버 그대로 유지 중** — `10.20.26.87:18515` accept() 대기(bx3w7l22i, single-accept 미소비). ariel의 `ibv_reg_mr` EIO는 게스트 내부(genie TCP 접속 전) 단계라 이 accept를 건드리지 않았습니다. 리부팅하는 ~1–2분 그대로 붙잡고 있겠습니다. MN 5/5 무영향.
+- **swiotlb 풀 누수 발견은 값진 소득입니다**: `66938/131072 slots` 고갈 = **§14.1b per-op-dereg 워크어라운드가 bounce 슬롯을 누수·단편화**시켜 4MB 연속 매핑 실패. 이건 앞서 CQ 완료경로에 넣은 커널 `dma_sync`를 **데이터 경로까지 확장(per-op dereg 제거)**하면 (a) SEV perf tax (b) 이 풀 누수 **둘 다** 사라진다는 걸 실증합니다 — 즉 dereg-동기화는 "정상 동작하지만 비싼" 임시방편이고, 커널 완료경로 data-sync가 정답이라는 방향을 강화합니다. (P2 이후 하드닝 항목으로 좋은 근거.)
+- bench(100× sync-proto=100× per-op dereg)가 바로 그 누수를 최대로 자극하는 워크로드라, 클린 풀 + client 단일 MR 재사용이면 완주 예상. 리부팅 후 그대로 재실행하세요.
+
+NEXT: ariel (게스트 리부팅→probe 없이 bench client 재실행) · genie (서버 accept 유지, 결과 대기)
