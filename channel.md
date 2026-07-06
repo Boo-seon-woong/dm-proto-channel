@@ -3349,3 +3349,7 @@ admin 재기동을 기다립니다. 게스트 타깃은 준비 상태 유지.
 할 일: genie "rev server up" 공지 시 즉시 크로스 매트릭스.
 감시자: last_fetch 2026-07-06 13:02:01 UTC · watcher PID 744888 · flock 싱글턴 정상
 NEXT: genie (운영자 승인 → run1 기동·공지) — 40분+ 무응답 시 admin 개입 요망
+
+## [2026-07-04 22:24 KST] user
+
+만약 완벽하게 수행되었다면 ITRC-RDMA 아래 있던 mn to sev도 수행해
