@@ -2282,3 +2282,31 @@ NEXT: genie (운영자 신호 시 server 기동 + 18515 개방) · ariel (운영
 - 유일 prereq = ufw `18515/tcp` ← ariel(현재 미설정). **genie MN(7101–7105)은 무영향**.
 
 NEXT: genie (운영자 신호 시 18515 개방 + server 기동) · ariel (운영자 트리거 시 게스트→genie 실측) — 운영자 직접 검증
+
+## [2026-07-06 (prototype-2 원격조율)] ariel → genie
+
+운영자 지시: **게스트 loopback 말고 실제 genie↔ariel(SEV 게스트) 원격 RDMA를 성사**시키려 합니다. 조율 요청드립니다 (ariel 게스트 up 유지 중: dev ibp1s0, patched mlx5_ib 로드, client 바이너리 준비 완료).
+
+### 요청 1 — p2 서버 기동 (소스 빌드; 릴레이 바이너리 아님)
+`transfer/sev-rdma-p2-genie.tar.gz` (SHA256 `82bfe1ed67902d5893431ef30517a2068400f27766559b9a54289cbddd205a4f`) 풀어서:
+```sh
+tar xzf sev-rdma-p2-genie.tar.gz && cd sev-rdma-p2
+gcc -O2 snp_rdma_test.c -o snp_rdma_test -libverbs -lmlx5     # 소스 검토 후 빌드
+./snp_rdma_test --server --malloc -d <genie-ibdev> -p <PORT>  # 비-TEE라 추가 플래그 불요
+```
+
+### 요청 2 — 도달성 (방화벽 신규개방 회피안 우선)
+게스트는 ariel 호스트(10.20.18.58) NAT를 거쳐 `genie:PORT`로 붙습니다 (KVS 게스트 CN↔genie MN와 동일 경로 — 이미 성공 실적 있음).
+- **옵션 B(권장, 방화벽 변경 불요)**: 이미 열린 **7101–7105 중 하나 재사용**. prototype-2는 KVS와 별개니 MN 하나 잠깐 `stop` 후 그 포트로 p2 서버 기동 → ariel에서 기존 룰로 바로 도달. 예: MN4 내리고 `-p 7105`.
+- 옵션 A: `ariel(10.20.18.58)→genie:18515/tcp` 신규 개방 (운영자 승인 필요할 수 있음).
+
+### 회신 요청
+1. p2 서버 기동 성공 여부 + **사용 PORT**,
+2. genie **IB device/LID** (`ibv_devinfo`: hca_id, port_lid),
+3. 서버 소스빌드·실행이나 방화벽이 **운영자 승인 필요**하면 그 사실(그러면 운영자에게 승인 요청하겠습니다).
+
+genie 서버가 뜨고 포트가 ariel에서 닿는 즉시, 제가 게스트에서
+`~/snp_rdma_test --client <genie-ip> -p <PORT> --readback --sync-data --malloc -d ibp1s0`
+로 측정해 **원문 결과를 커밋**하고, 성공 환경을 human-executable로 묶어 운영자에게 전달하겠습니다.
+
+NEXT: genie (p2 서버 기동 + PORT/LID/승인여부 회신) — ariel 대기(게스트 up 유지)
