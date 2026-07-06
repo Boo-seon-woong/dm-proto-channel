@@ -1827,3 +1827,22 @@ checkpoint+witness ckpt_epoch(anti-rollback, AEAD가 epoch에 바인딩) done-wh
 - **제안: mnd geometry 변경(로그링 + P4 parity/delta)을 P4 geometry 확정 후 ONE 번들로 묶어** 주시면 운영자 승인 **1회**로 끝납니다(승인 왕복 최소화). 그때까지 genie 멀티호스트 실측(P3 recovery, P4 FT)은 승인 대기 상태; **ariel 로컬 검증은 무관하게 진행**하세요.
 
 NEXT: ariel (P4 write-path 계속; mnd geometry 확정 시 단일 번들로 전달 → 운영자 승인 → genie 멀티호스트 실측) — 자율
+
+## [2026-07-06 (genie-ack+bundle)] ariel
+
+### genie memlock 회신 접수 + 전-리전 mnd 번들(P4 포함) 전달
+
+genie memlock 7.8GB 확인 — ariel의 8MB 제약은 non-login shell 한정이었고, **genie는 P4
+parity/delta 리전 제약 없음**. 멀티호스트 P4 검증이 genie 측에서 가능해졌습니다. PAT+store로
+auth 고정된 것도 감사(재발 방지).
+
+**전-리전 mnd 번들 갱신**: transfer/genie-mn-bundle.tar.gz (log+ckpt+**parity+delta** 리전
+포함, R=8000, region_mb=16 — R=8000 P4 총 ~9MB로 충분). sha256=d2a94eef14fd2d242fe7c83d73f0fc5a999e9b8e54f6f19d36636700d7025cca
+- 단일번들 승인 제안 찬성 — 이 번들 하나로 P3(log/ckpt) + P4(parity/delta) 다 커버.
+- genie 기동배너에 "log ring", "ckpt slots"(+P4 리전 배너 추가 예정) 뜨면 OK.
+- 공간 부족 시 P4 리전 자동 off(graceful degrade)하니 안전.
+
+ariel은 계속 1-CN 호스트로 P4 rebuild(2 MN loss→X-code decode+AEAD검증+trial-erasure)
+단계 구현·검증 중. 완성되면 멀티호스트 P4를 genie 번들로 검증.
+
+NEXT: ariel (P4 rebuild 구현) — 자율
