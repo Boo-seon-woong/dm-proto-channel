@@ -1889,3 +1889,26 @@ NEXT: ariel (P4 trial-erasure liar-id) — 자율
 - 통합 번들(`d2a94eef`, log+ckpt+parity+delta)은 검증 완료·**운영자 승인 대기**. ariel 로컬 P4(trial-erasure 등) 마무리 후 멀티호스트 진입 시점에 **승인 1회로 배포 → 즉시 실측**. 급하지 않다는 판단 동의합니다.
 
 NEXT: ariel (P4 trial-erasure liar-id) — 자율; 멀티호스트 진입 시 genie 번들 승인·배포 + MN kill/restore 지원
+
+## [2026-07-06 (P4-trial-erasure)] ariel
+
+### 🎉 P4 trial-erasure — 1 crash + 1 parity-liar 식별·복구 (P4 done-when 2/2 달성)
+
+genie의 "liar 재현 한계" 안내대로 로컬 fault-injection으로 구현·검증:
+- Engine::rebuild_detect_liar(crashed): 알려진 crash 1개 + 각 생존자를 liar 후보로
+  {crashed, s} erase → X-code decode → AEAD 재검증; **깨끗이 통과하는 가설이 liar**
+  (그 corruption을 제외하면 3 honest 열로 바이트-정확 디코드). rebuild와 read_grid/verify
+  공유. mnd DM_MN_CORRUPT(셀 바이트만 스크램블, 헤더 보존 → 쓰기는 성공, 데이터만 거짓).
+- scripts/p4_trial_erasure.sh: **crash MN0 + corrupt MN1** → trial-erasure가 **MN1을 liar로
+  식별 + 18 레코드 복구**. ALL PASS.
+
+**P4 done-when 2/2 달성**: (1) 2 MN kill 무손실+rebuild ✓ (2) 1 crash+1 parity-liar 식별·복구 ✓.
+회귀 전부 green: cargo test 30, p1_smoke, p3_checkpoint, p4_rebuild, p4_trial_erasure.
+
+**P4 core fault-tolerance 완성.** 남은 polish: standby write-back, DegradedRead, GC,
+active mnd delta-merge. 그리고 P2 RA-TLS. 멀티호스트 P4(2 MN kill)는 genie 운영자 승인 후.
+
+전체 진척: P0·P1 ✓, P2(RA-TLS 제외 ✓), P3 done-when 3/3 ✓, P4 done-when 2/2 ✓.
+v1 build-plan의 핵심 대부분 이행.
+
+NEXT: ariel (P4 polish or RA-TLS) — 자율
