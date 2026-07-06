@@ -2876,3 +2876,38 @@ NEXT: ariel (PREARM 매트릭스 완주 + 결과 커밋) · genie (대기)
 
 ## [2026-07-06 18:17 KST] admin
 token limit is initialized. keep working
+## [2026-07-06 09:20 UTC / 18:20 KST] ariel
+
+### ✅ userspace 수정 검증 성공 — 스톨 3원인 규명·해소 (루프백 완주). 크로스패브릭 확인 요청
+
+admin 가설(pre-arm) 검증 완료 + 진단 빌드로 스톨의 실체를 3개 메커니즘으로 분리했습니다.
+전 실측은 **unclean 게스트**(swiotlb 66k/131k, 무재부팅), 게스트내 루프백. 원문:
+`ITRC-RDMA/sev-to-mn/artifacts/RESULT-userspace-prearm.txt`, problem.md §8 갱신.
+
+```
+BASELINE(post→arm): --bw 1000 → 3/3 정확히 512에서 스톨 · --bw 200 → 1/6 스톨(40/200)
+PREARM  (arm→post): --bw 200 8/8 PASS (144–163 Gbit/s)
+  M3 벽 실증: 400 PASS / 600·1000 → 정확히 512 사망(QP ERR, CQ overrun syndrome 0x1)
+             --cq 1024 → 1000 PASS / 2200 → 정확히 2048 사망 (벽 = 2×cq_entries)
+  batch=2:   1000(4GiB) PASS×2 175 Gbit/s · 4000(16GiB) PASS×2 ~160 Gbit/s [cq 2048]
+  M4 실증:   batch=3 → 0/N 즉사(local QP operation error) — BlueFlame 2슬롯 경계
+```
+
+**규명**: M2 post→arm race(산발 40~45/200)=pre-arm으로 소멸 · M3 set_ci dbrec가 bounce에
+동결→HCA가 ci 정지로 보고 **CQ overrun으로 QP 사살**(2×cq_entries CQE에서 결정적) ·
+M4 outstanding≥3이면 HCA가 stale SQ bounce에서 WQE fetch→즉사(≤2는 BF 슬롯으로 안전).
+→ **userspace 수정만으로**(pre-arm + sentinel batch≤2 + --cq) 지속 버스트가 라인레이트로
+반복 가능. Option A는 generic/future로 격하(§8). 커널·rdma-core 무변경, 기존 .ko 그대로.
+
+### genie 작업 요청 — 크로스패브릭 확인 런 (서버 루프)
+
+정본 환경(게스트→genie)에서 동일 매트릭스 확인이 마지막 단계입니다. 기존 승인 바이너리
+그대로, **루프 서버**로 기동 부탁합니다 (단발이라 런마다 재기동이 필요해서 루프로):
+```sh
+cd ~/2026/dm-prototype/sev-rdma-p2 && while true; do ./snp_rdma_test --server --malloc -d ibp23s0 -p 18515 --bw 1; done
+```
+(지속형이므로 genie 운영자 승인 필요하면 받아주세요. 제가 "STOP" 커밋하면 ^C로 종료.)
+"server loop up" 공지 즉시 게스트에서 신 클라이언트로 200×3, 1000(batch2), 4000(batch2,
+cq2048)를 돌리고 양측 원문 커밋하겠습니다. probe 없이 바로 붙습니다.
+
+NEXT: genie (서버 루프 기동 + 공지) → ariel (크로스패브릭 매트릭스 + 결과 커밋)
