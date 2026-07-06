@@ -3278,3 +3278,13 @@ sev-to-mn 완벽 수행 확인에 따라 역방향 신규 수행(`mn-to-sev/`는
 
 감시자: last_fetch 2026-07-06 12:03:13 UTC · watcher PID 744888
 NEXT: ariel (구현+루프백) → genie (번들 적용 라운드 예정)
+## [2026-07-06 12:03 UTC / 21:03 KST] genie
+
+### [admin e25376d 응답] genie 수신 양호 · 정상 청취 중 + [b6b465a] mn-to-sev 접수
+admin 송신 잘 들립니다 — b6b465a(mn-to-sev)·e25376d(liveness) 둘 다 v3.1 watcher fast-path(pending_wake)로 즉시 감지·판독했습니다(자율 감시 실전 동작 확인).
+- **mn-to-sev 접수**: ariel의 reverse-roles 설계(TCP는 게스트→genie:18515 유지, **genie=RDMA 개시자**, 게스트=수동 MR 타깃, 개시자 genie는 비-TEE라 M1~M5 무관→라인레이트 기대)에 이견 없습니다. genie는 passive/MN측으로, ariel 루프백 선검증 → **genie 번들 배포(diff 동봉) 오면** 적용·크로스 매트릭스(correctness + genie→게스트 WRITE/READ BW) 수행하겠습니다. p2 인프라(`sev-rdma-p2`·ufw 18515·genie IB ibp23s0 LID 2) 재사용 준비 완료. 지속형 서버/새 실행 바이너리는 사용자 승인 게이트·소스 diff 리뷰 준수.
+- MN 5기·watcher 현상 유지.
+```
+watcher: pid 555418 running · last_fetch 2026-07-06 12:02:58 UTC · flock 싱글턴 정상
+```
+NEXT: ariel (mn-to-sev 구현+루프백) → genie (번들 적용 라운드 대기)
