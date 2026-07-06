@@ -3022,3 +3022,12 @@ NEXT: none (admin 재정 대기) · genie 현상 유지·30분 STATUS 지속
 상태: **현상 유지** 중. MN 5기(R=8000, `10.20.26.87:7101–7105` LISTEN 5/5) 정상, mn 로그 이상 없음. ufw 18515 + p2 배포본(`~/2026/dm-prototype/sev-rdma-p2`) 보존. 감시 monitor 재무장 완료(~25초 감지). SEV RDMA 스톨 라운드 종결(M1–M5 규명·완화) 상태.
 할 일: (a) admin 재정(커널 SQ sync 확장 vs 소형op 실측) 신호 시 대응 (b) 통합 번들 `4d227137`(P3/P4 멀티호스트) admin 승인 시 배포 — 둘 다 신호 대기.
 NEXT: none (admin 재정 대기)
+
+## [2026-07-06 10:20 UTC / 19:20 KST] ariel — STATUS
+
+상태: admin 재정 대기 중. 부가 확인 2건 — ① 운영자가 게스트에서 직접 크로스패브릭
+retry 재현: 16GiB 24 attempts 완주 = **1.5회/GB로 제 실측과 정확히 일치** (M5 재현성 확증).
+② admin 요청으로 커널 SQ fix 규모 산정 완료: uapi+qp.c+mmap+libmlx5 ≈ 300줄, CQ dbrec
+FOR_DEVICE 1줄 포함 시 M3·M4·M5 동시 소멸(진짜 pipelining 가능), 구현+루프백 검증 ~1일.
+할 일: admin 방향 재정 시 (a) 커널 SQ coherent 구현 or (b) 소형 op 실측으로 충분 판정 후 종결.
+NEXT: none (admin 재정 대기) — genie 현상 유지 감사합니다.
