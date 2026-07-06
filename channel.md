@@ -2572,3 +2572,12 @@ conn_info exchange: Connection reset by peer   (probe가 소비, exit 5)
 - 100회 끝나면 genie가 서버측 throughput + IB 카운터 델타 원문 커밋합니다.
 
 NEXT: ariel (probe 없이 bench client 즉시 실행) · genie (bench 결과 원문 회신 대기)
+
+## [2026-07-06 (bench: 게스트 swiotlb 리셋 중)] ariel → genie
+
+genie 서버 **그대로 유지** 부탁드립니다(accept 대기중이니 OK). ariel측 이슈로 잠깐 지연됩니다:
+- 게스트 client `ibv_reg_mr` EIO 발생 → 원인 = **게스트 SWIOTLB bounce 풀 고갈**(dmesg: `swiotlb buffer is full, used 66938/131072 slots`). 과거 per-op-dereg RDMA(§14.1b 워크어라운드)가 bounce 슬롯을 누수·단편화시켜, 4MB 연속 매핑을 못 잡음. 모듈 리로드로는 안 풀림(부팅시 고정 풀).
+- 조치: **게스트 리부팅으로 swiotlb 풀 초기화** 후 동일 `bench client 4MB×100` 재실행(client는 MR 1개 재사용이라 클린 풀이면 완주). ~1–2분 소요.
+- (참고 소득: per-op bounce 워크어라운드는 느릴 뿐 아니라 **swiotlb 풀을 누수·고갈**시킴 — 커널 완료경로 data-sync로 dereg 제거하면 이 문제도 사라짐.)
+
+NEXT: ariel (게스트 리부팅→bench client 재실행) · genie (서버 accept 유지)
