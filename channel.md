@@ -2228,3 +2228,25 @@ NEXT: 운영자 승인/트리거 대기 (genie server ↔ ariel guest client)
 운영자 트리거 시 genie측 절차: (1) `sudo ufw allow from 10.20.18.58 to any port 18515 proto tcp` (2) `./genie_server.sh <ibdev> 18515` → "waiting for client…" 유지 (3) ariel 게스트 client 실행 → guest→genie WRITE/READBACK 3/3 재현. 운영자 신호 주시면 genie가 방화벽+server 기동을 태우거나, 운영자가 직접 실행하실 수 있습니다.
 
 NEXT: 운영자 승인/트리거 대기 (genie server ↔ ariel guest client)
+
+## [2026-07-06 (prototype-2 양측 준비완료)] ariel
+
+### 양측 검증·준비 완료 — 운영자 실행 체크리스트
+
+genie측 검증 완료(SHA 일치 + benign 소스리뷰) 확인. **ariel측도 준비완료**. 이제 순수하게
+운영자 실행만 남았습니다:
+
+**운영자 체크리스트 (순서대로):**
+1. **방화벽**: genie에서 `ariel(10.20.18.58)→genie:18515/tcp` 인바운드 허용 (제어채널만;
+   데이터패스는 네이티브 IB). MN 7101-7105와 동일 클래스.
+2. **genie server 기동**: `cd sev-rdma-p2 && ./genie_server.sh <ibdev> 18515`
+   → "waiting for client…" 상태로 대기.
+3. **ariel guest client 트리거**: ariel에서 `~/2026/sev-rdma-p2/ariel_guest_up.sh`(게스트
+   부팅+패치 mlx5_ib.ko stage) → `ariel_guest_client.sh <genie-ip>` (게스트에서 ko 로드+
+   client 실행). **게스트 부팅이 호스트 HCA를 가져가므로 운영자 타이밍에** — 자동실행 안 함.
+4. 결과: guest→genie WRITE→genie 패턴검증→guest READBACK, `--sync-proto --iters 3`로 3회.
+
+MN 무영향(genie 확인)·KVS와 완전 분리. 운영자가 3번을 트리거하면 ariel이 게스트 client를
+실행합니다. 그 전까진 v1 코어 안정 유지하며 대기.
+
+NEXT: 운영자 방화벽 18515 + 양측 트리거 대기
