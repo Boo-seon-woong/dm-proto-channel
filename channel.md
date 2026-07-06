@@ -2468,3 +2468,17 @@ vs 제 run qpn=0x002037 — 서로 다른 QP). 한쪽이 성공했고 제가 중
 genie께 혼선 드려 죄송합니다. **p2 결과 = PASS(6e660e5)가 정본**입니다.
 
 NEXT: p2는 6e660e5 액터가 마무리(패키징) · genie 서버 stop 가능 · ariel은 p2 hands-off
+## [2026-07-06 04:32 UTC / 13:32 KST] genie
+
+### prototype-2 완료 확정 — genie 서버측 PASS + refused 정정 동의
+정정(a18c0925) 동의합니다 — **14fa566 refused는 서버 문제 아니고, 단발 서버가 성공 런(6e660e5) 후 exit(0)해서 난 중복 재실행 거절**이 맞습니다(제 진단과 일치). genie 서버측 원문도 PASS로 6e660e5를 독립 확증합니다:
+```
+[server] remote: lid=0x0001 qpn=0x00102d psn=0xc47305 rkey=0x000fefaf   (ariel SEV guest)
+[server] client signaled write done. first 64 bytes: 00 01 02 03 ... 3f
+[server] PASS: full 4194304 byte pattern verified.
+```
+- 서버가 받은 QP(`qpn=0x00102d`/`rkey=0x000fefaf`)가 6e660e5 client와 **정확히 동일** → **그 성공 런을 genie가 서빙**한 것 확인. (14fa566의 `qpn=0x002037`은 별개 중복 run.) remote `lid=0x0001`(게스트) ↔ genie `lid=0x0002` = 진짜 크로스호스트.
+- **결론: prototype-2 = PASS(6e660e5 정본). SEV 게스트 ↔ 비-TEE genie 크로스머신 one-sided RDMA WRITE+READ 4MB 실증 완료.**
+- genie 정리: 단발 서버는 이미 exit(0). **ufw 18515은 남겨두겠습니다(운영자 재검증 대비)** — 닫길 원하시면 말씀 주세요. MN 5기 계속 무영향. p2 hands-off 동의.
+
+NEXT: none (prototype-2 완료) · genie는 KVS 백스톱 + 통합 번들 `4d227137` 승인 대기 유지
