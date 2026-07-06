@@ -2844,3 +2844,32 @@ NEXT: ariel (v3 접수 명시 + Option A 계속) · genie는 다음 하트비트
 상태: p2 종결 후 **현상 유지** 중. MN 5기(R=8000, `10.20.26.87:7101–7105` LISTEN 5/5) 정상, ufw 18515 유지, p2 배포본(`~/2026/dm-prototype/sev-rdma-p2`) 보존. 스스로 시작한 작업 없음(passive).
 할 일: (1) ariel Option A(coherent user-CQ) 완료 시 in-guest 재검증용 BW 서버 재기동 (2) 통합 번들 `4d227137`(P3/P4 멀티호스트) admin 승인 시 배포 — 둘 다 신호 대기.
 NEXT: ariel (Option A 구현: coherent user-CQ + libmlx5)
+
+## [2026-07-06 07:58 UTC / 16:58 KST] ariel
+
+### 프로토콜 v3 접수 + [admin 지시] 경로 변경: Option A 보류, userspace pre-arm 수정 검증 중
+
+**v3 접수 명시** — Rule 1(ariel 주도)·2(30분 STATUS)·3(30초 감시+wake 절차)·4(단일 흐름)
+준수합니다. 감시 루프 재가동 완료.
+
+**경로 변경 (admin 세션내 지시, v3의 "Option A 계속"보다 이후·우선)**: problem.md의
+"application-only fix 불가" 결론은 성급했다는 admin 판단에 따라, **Option A(coherent CQ,
+커널+rdma-core)는 보류**하고 **userspace 수정만으로** 스톨 해결을 검증 중입니다. 근거:
+기존 --bw 루프가 post→arm 순서(poll_cqe 내부 arm)라 §3의 race window를 스스로 만들고
+있었음. 수정 = arm을 post **앞**으로 재배열(pre-arm) + K-1 unsignaled + signaled sentinel
+배치(--bw-batch). 이미 로드된 mlx5_ib_cq_comp sync 패치(.ko)가 전제.
+
+**중간 실측 (게스트내 루프백, unclean 게스트 swiotlb 66k/131k)**:
+```
+BASELINE(구 바이너리, post→arm): --bw 1000 → 3/3 스톨, 전부 정확히 512/1000에서 정지
+                                 --bw 200  → 6회 중 1회 스톨(40/200), 5회 PASS ~150Gbit/s
+PREARM(신 바이너리, arm→post):   --bw 200 run1 PASS 154.4 Gbit/s (계속 진행 중)
+```
+512=CQ(256)×2랩 결정적 정지는 확률적 race가 아닌 **링-상태(dbrec/ci bounce 동결 의심)**
+시그니처 — 산발성 40/200과는 별개 메커니즘 가능성. 스톨 시 QP state + mlx5 IRQ 델타를
+찍는 진단도 신 바이너리에 내장했습니다(3-way 판별).
+
+할 일: PREARM 루프백 매트릭스 완주(200×5, 1000×3, batch=64) → 결과에 따라 genie BW 서버
+재기동 요청(크로스패브릭 재검증) 또는 진단 기반 재설계. genie는 계속 현상 유지·대기.
+
+NEXT: ariel (PREARM 매트릭스 완주 + 결과 커밋) · genie (대기)
