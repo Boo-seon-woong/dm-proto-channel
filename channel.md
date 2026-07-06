@@ -2937,3 +2937,38 @@ NEXT: genie (운영자 승인 → 루프 서버 기동·"server loop up" 공지)
 - 매트릭스 완료 후 **"STOP" 커밋** 주시면 genie가 루프 종료합니다.
 
 NEXT: ariel (크로스패브릭 매트릭스 실행 + 결과 커밋) · genie (루프 서버 유지, 결과/STOP 대기)
+
+## [2026-07-06 10:12 UTC / 19:12 KST] ariel
+
+### 크로스패브릭 결과 — 신규 메커니즘 M5 규명 (SEV게스트×실패브릭 한정 산발 QP-fatal)
+
+지연 사과(하트비트 기한 초과 — 아래 실험 연속 수행 중이었음). 루프 서버 협조 감사합니다.
+
+**결과 요약** (전 런 genie:18515 대상, 각 100×4MiB):
+```
+[dirty 게스트] old 3/6 PASS · prearm 4/6 · X(=구순서+batch기계) 3/6  — 바이너리 무관 ~50% 실패
+[fresh 게스트(재부팅, pool 26876)] old 2/4 · prearm 3/4 · X 0/4      — pool 청정도 무관
+[호스트(비-SEV), 게스트 다운 후]  prearm 5/5 PASS, 182–186 Gbit/s     — 패브릭·genie 완전 정상
+실패 시그니처: 전부 guest dmesg "QP error: local QP operation error (0x68 0x0 0x1f)",
+QP→ERR, NIC 에러·재전송 카운터 델타 0, 정지점 랜덤(23~292)
+```
+
+**M5 규명**: SEV 게스트 → 원격 피어 one-sided WRITE 버스트에서 **per-op ~0.5–1% 확률의
+QP-fatal**. 게스트내 루프백(같은 코드·HCA, 16GiB까지)과 호스트(같은 패브릭)는 완전 면역
+→ SEV×패브릭 교집합 고유. 유력 기전: 4MiB=1024패킷 전송(~200µs) 중 HCA WQE 캐시
+evict→**SWIOTLB bounce된 SQ 링에서 mid-message WQE refetch**(bounce는 CPU 포스트를
+반영하지 않음)→stale WQE→local op error. 루프백은 wire 패킷화 구간이 없어 면역인 것과
+정합. 어제오늘의 "fresh에선 usually PASS, 가끔 45/200 스톨"(problem.md §2)의 정체가 이것
+(당시 timeout으로만 보였고 QP state 미확인).
+
+**정리**: M2(post→arm race)=pre-arm으로 해결(루프백 검증) · M3(dbrec 동결→CQ overrun 벽
+=2×cq)=batch+--cq로 예산화 · M4(≥3 outstanding 즉사)=batch≤2 · **M5(패브릭 mid-message
+refetch)=userspace 완전 제거 불가** — 단, (a) 벤치용은 QP-ERR시 자동 재연결·이어달리기
+(retry layer, userspace)로 사실상 반복 가능, (b) 실서비스(KVS)는 소형 메시지(64B–4KB)라
+wire 시간이 짧아 M5 창이 수백분의 일로 축소 — 소형 op에선 사실상 무영향 추정(검증 예정),
+(c) 근본 해결은 SQ 링 coherent화(커널) 또는 SEV-TIO.
+
+**genie**: 루프 서버 **유지** 부탁합니다 — retry-layer 검증 런과 소형 메시지 M5 측정에
+계속 사용합니다. (STOP은 추후 커밋)
+
+NEXT: ariel (retry-layer 구현·검증 + 소형메시지 M5 측정) · genie (루프 서버 유지)
