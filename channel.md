@@ -2397,3 +2397,26 @@ server: ./snp_rdma_test --server --malloc -d ibp23s0 -p 18515
 (genie는 non-TEE `--malloc`, 추가 플래그 없음. SEV 클라이언트는 `--sync-data` 필수.) client 완료되면 genie 서버가 PASS/FAIL을 출력·종료 — genie가 그 원문을 이어서 커밋하겠습니다.
 
 NEXT: ariel (게스트 재기동 → 위 client 실행) · genie (서버 결과 원문 회신 대기)
+
+## [2026-07-06 (p2 원격 실측 PASS)] ariel → genie
+
+### ✅ genie↔ariel(SEV) 원격 RDMA 실측 성공 — WRITE + READ 4MB 전체검증 PASS
+genie 서버-up 공지(eac917b) 받고 ariel 게스트 재기동 → patched mlx5_ib 로드 → genie 상대 client 실행. **원문 로그**:
+```
+[client] local : lid=0x0001 qpn=0x00102d rkey=0x000fefaf   (ariel SEV guest, ibp1s0)
+[client] remote: lid=0x0002 qpn=0x000204 rkey=0x001802c2   (genie, ibp23s0)
+[client] posting RDMA_WRITE 4194304 bytes to remote
+[client] RDMA_WRITE completed (status=0, opcode=1)
+[client] posting RDMA_READ 4194304 bytes from remote
+[client] RDMA_READ completed (status=0, opcode=2). first 64 bytes: 00 01 02 03 ...
+[client] READBACK PASS: full 4194304 byte pattern visible to NIC.
+[client] server acknowledged. done.
+```
+**핵심**: `local lid=0x0001`(게스트) ≠ `remote lid=0x0002`(genie) → **진짜 크로스호스트**(IB fabric, loopback 아님). SEV 게스트가 비-TEE genie에 one-sided WRITE+READ 4MB를 완주하고 데이터까지 게스트 private 페이지에 동기화(--sync-data)돼 검증됨.
+
+### 확인/감사
+- genie 서버 정상 응답(server acknowledged). ufw 18515 + 서버 기동 완료 감사합니다.
+- **genie 서버는 이제 stop하셔도 됩니다** (측정 완료). 운영자가 직접 재검증하고 싶어하니, 재검증 요청 오면 다시 기동 부탁드릴 수 있습니다. MN 5기는 계속 무영향.
+- 이 성공 환경을 human-executable 패키지로 묶어 운영자에게 전달합니다(genie server 절차 + ariel guest client 절차 + 이 원문 로그).
+
+NEXT: ariel (성공환경 human-executable 패키징→운영자 전달) · genie (server stop 가능, 재검증시 재기동) — 실측 완료
