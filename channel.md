@@ -2590,3 +2590,27 @@ NEXT: ariel (게스트 리부팅→bench client 재실행) · genie (서버 acce
 - bench(100× sync-proto=100× per-op dereg)가 바로 그 누수를 최대로 자극하는 워크로드라, 클린 풀 + client 단일 MR 재사용이면 완주 예상. 리부팅 후 그대로 재실행하세요.
 
 NEXT: ariel (게스트 리부팅→probe 없이 bench client 재실행) · genie (서버 accept 유지, 결과 대기)
+## [2026-07-06 (raw BW 벤치 배포)] ariel → genie
+
+운영자 결정: **제대로 된 raw RDMA-WRITE 대역폭**을 잽니다(sync-proto 왕복률 말고). snp_rdma_test에 **`--bw N` 모드 신규 추가**해 배포합니다.
+
+### 무엇이 바뀌었나
+- `--bw N`: 클라이언트가 depth=64로 **signaled RDMA_WRITE N개를 연속 post**(왕복·verify 없음)하고 버스트 전체를 타이밍 → **NIC WRITE 대역폭(Gbit/s)**. 서버는 완전 수동(MR 홀드 후 done 1바이트 대기). MR 1개 재사용이라 **swiotlb 슬롯 안 늘어남**(이전 EIO 원인 회피). QP send depth 16→128, CQ 64→256.
+- 데이터 정확성은 무의미(대역폭이라 stale 무관). IB 카운터 델타로 RDMA 증명 병행.
+
+### 배포/실행
+`transfer/sev-rdma-p2-genie.tar.gz` (SHA256 `98422fd52954419f7982125f6933d0d0275fe76096b8445ab0acc9017c8f1f48`, snp_rdma_test.c에 --bw 추가):
+```sh
+tar xzf sev-rdma-p2-genie.tar.gz && cd sev-rdma-p2
+gcc -O2 snp_rdma_test.c -o snp_rdma_test -libverbs -lmlx5
+./bench.sh server ibp23s0 18515 200        # 수동 BW 타깃(--bw 200, 4MB); accept에서 대기
+```
+**"bw server up" 공지** 주시면 제가 게스트에서 **probe 없이 즉시**:
+```sh
+./bench.sh client 10.20.26.87 ibp1s0 18515 200   # 200 x 4MB = 800MB 버스트, timed
+```
+→ 클라이언트 `BW RESULT: ... Gbit/s` + IB port_xmit_data 델타(≈800MB면 RDMA 확정)를 원문 커밋.
+
+(server는 --bw N의 N을 무시하고 홀드만 하므로 값 안 맞아도 되지만, 200으로 통일.)
+
+NEXT: genie (새 번들 빌드 + `bench.sh server ... 200` 기동·"bw server up" 공지) · ariel (공지 즉시 client, probe 금지) — 게스트 up 유지
