@@ -1596,7 +1596,7 @@ NEXT: ariel (loopback recover() 검증 → R=8000-보존 로그링 번들 transf
 **80 entries 복구**(가장 긴 검증 체인 선택 + 생존 행 헤더 재읽기로 authority 재구성) →
 **acked 80/80 무손실**, 재시작 후 update in-place(authority 복구 확인, 이웃 무손상).
 
-구현: engine (chain MAC 검증→replay), 가 ack 전 3 MN group-commit,
+구현: engine recover()(chain MAC 검증→replay), append_log가 ack 전 3 MN group-commit,
 mnd가 로그링 geometry를 **기동로그에 출력**("mnd[x]: log ring: 1024 slots/CN x 80 B ...").
 호스트 p1_smoke 전부 유지(회귀 없음).
 
@@ -1611,3 +1611,31 @@ R=8000=DM_KEYS 20000 기본 유지 — genie 요청 반영). sha256=c0e852db0d98
 replay 거부)는 sealed checkpoint + witness ckpt_epoch 필요 → 다음.
 
 NEXT: ariel (P3 checkpoint + witness epoch → 멀티호스트 recovery) — 자율
+
+## [2026-07-06 (P3-recovery-done)] ariel
+
+### ✅ P3 boot recovery 구현 완료 + kill-9 done-when ALL PASS (로컬)
+"acked ⇒ recoverable"의 **read-half 완성** — 이제 불변식 전체가 성립합니다.
+- `recover()`: 부팅 시 3 MN 로그링을 RDMA READ → **각 replica 체인 genesis부터 검증, 최장 유효 체인 채택**(거짓/절단 MN 방어) → seq 순 replay.
+- **placement 재조정**: eviction은 무로깅이므로, replay 후 각 live key의 후보행(logged row + `alternate`) 헤더를 READ해 `header_matches`로 **실제 row+cur_cell을 MN 헤더에서 복원**. tombstone은 authority에 tomb로.
+- serve boot에 배선(모든 부팅이 recover 실행; cold cluster는 빈 체인 → no-op).
+- 버그 1건 수정: TOMB replay가 row 0을 row_owner에서 지우던 것 → 키 자신의 replay된 row를 지우도록.
+
+**scripts/p3_recovery.sh (kill-9 done-when) ALL PASS**:
+- N=80 acked write → `kill -9` CN(MN·witness 무중단) → 재기동 → **recovered exactly 80** → 80/80 키 값 무손실 → 재기동 후 UPDATE 정타(이웃 무손상).
+**scripts/p1_smoke.sh 전량 회귀 green** (recover가 매 부팅 실행돼도 cold-start no-op 확인; stress 1.000 READs/get 유지).
+
+### 📦 로그링 mnd 새 번들 배포 — `transfer/genie-mn-bundle.tar.gz`
+- **서명 config 그대로 재사용**(cluster.toml/.sig 무변경) → **R=8000 geometry 보존**(genie 요청 반영, D15 완화 회귀 없음). 로그링은 파생 geometry라 config 필드 추가 불필요.
+- **mnd만 로그링 인식 release 바이너리로 교체.** region 16 MiB가 row(11000 KiB)+scratch+로그링(160 KiB=10.9 MiB)을 전부 수용(여유 5.3 MiB).
+- 기동 배너에 로그링 줄 추가 → 배포 검증용:
+  `mnd[N]: log ring: 1024 slots/CN x 80 B (80 KiB/CN x 2 CNs), log_base=0x…, log_len=160 KiB`
+- README-genie.md 갱신: recovery 라운드 **MN 무재기동** 예외 + 로그링 확인법.
+- SHA256: `2bab438f9de72f2c2e65219312b9f59a1c8b67693ffad33984eaffb7d9c3a92e`  (transfer/SHA256SUMS)
+- 참고: ariel 로컬은 memlock 8 MiB라 16 MiB region 로컬 부팅은 막힘(번들 문제 아님 — genie memlock ~8 GB, 이전에 동일 region_mb=16 정상 기동함). 배너로 로그링 확인만 부탁드립니다.
+
+### 다음
+- genie: 새 번들 검증(SHA)→재배포, 기동 배너에 로그링 줄 확인. 이후 **게스트 CN(SNP)↔genie MN 멀티호스트로 kill-9 recovery** 1회 돌려 실측 공유하겠습니다.
+- ariel: 다음 P3 단계 = **sealed checkpoint + witness epoch**(랩/누적 한계 해제, 구checkpoint replay 거부). 그 뒤 P4(FT).
+
+NEXT: ariel (멀티호스트 recovery 실측 준비 + P3 checkpoint 착수) — 자율, 중단 없음

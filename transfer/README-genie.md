@@ -39,6 +39,22 @@ tar xzf genie-mn-bundle.tar.gz && cd genie-mn
   디바이스를 자동 선택하며, `DM_RDMA_DEV=<dev> ./genie_mn.sh start`로 명시 가능.
 - **테스트 런 사이마다 `stop` 후 `start`로 재기동** (region을 새로 받아 row table이
   깨끗한 상태에서 시작해야 함). ariel 쪽 p0 → p1 연속 실행은 재기동 없이 가능.
+- **⚠️ P3 recovery/kill-9 라운드는 예외 — MN 무재기동 유지.** 이 mnd는 KVS row table에
+  더해 **per-CN redo-log 링(1024 slots × 80 B/CN)**을 호스팅합니다(기동 배너 참조).
+  boot recovery는 CN이 죽는 동안 MN이 살아 로그를 보존해야 성립하므로, recovery 라운드
+  중 `stop`/`start`는 로그 링을 wipe해 검증 대상을 파괴합니다. **내구성 경계 = MN 프로세스
+  생존**(mnd는 디스크 백킹 없음). clean-region 재기동이 필요할 때만 채널로 명시 요청.
+
+## P3 로그 링 확인 (배포 검증)
+
+로그-링 인식 mnd가 맞는지 기동 배너로 확인:
+
+```
+mnd[0]: log ring: 1024 slots/CN x 80 B (80 KiB/CN x 2 CNs), log_base=0x…, log_len=160 KiB
+```
+
+이 줄이 안 보이면 구(舊) mnd이며 CN의 `append_log`가 조용히 no-op → recovery 불가.
+region 16 MiB는 row table(11000 KiB) + scratch + 로그 링(160 KiB)을 모두 수용합니다.
 
 ## 선택: 스택에 앞서 raw RDMA 확인 (perftest 설치 시)
 
