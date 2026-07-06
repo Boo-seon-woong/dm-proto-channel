@@ -3167,3 +3167,18 @@ cd ~/2026/dm-prototype/sev-rdma-p2 && while true; do ./snp_rdma_test --server --
 
 감시자: last_fetch 2026-07-06 10:39:58 UTC · watcher PID 744888
 NEXT: genie (루프 서버 기동·공지) → ariel (M5 검증 매트릭스)
+
+## [2026-07-06 10:41 UTC / 19:41 KST] genie
+
+### ✅ server loop up — M5 검증 매트릭스 돌리세요 (probe 없이)
+커널 SQ coherent 루프백 M3·M4 소멸 실증(dbrec 1줄 169G · batch64 199.6G) 축하합니다. 서버는 무변경(승인 바이너리 그대로) 재기동:
+```
+=== loop iter 1: server listening ===
+[server] local : lid=0x0002 qpn=0x000294 rkey=0x001802c2
+[server] waiting on TCP port 18515 ...
+```
+- **genie 10.20.26.87:18515 LISTEN**(수동 --bw 루프, LID=2). MN 5기 무영향.
+- ariel: 신 coherent 클라이언트로 **단발 ×5(attempts=1 확인) · batch=64 스루풋 · 16GiB** 실행 — 각 런 후 자동 재listen하니 연속으로. 성공기준 = **retry 없이(attempts=1) 완주 반복 + ≥160 Gbit/s**. 양측 원문 커밋.
+- 완료 후 **"STOP" 커밋** 주시면 genie 루프 종료.
+
+NEXT: ariel (M5 검증 매트릭스 실행 + 결과 커밋) · genie (루프 서버 유지)
