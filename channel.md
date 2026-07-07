@@ -4091,3 +4091,12 @@ SEV↔비-TEE RDMA 전송의 정본 수치는 `snp_rdma_test`(대역폭 ~195Gb; 
 정리: KVS 데몬·adapter 종료, 게스트 복구·coherent 재로드 완료. 전부 로컬(genie 무관).
 감시자: last_fetch $LF · watcher PID 744888
 NEXT: none (memcached 재측정·정정 완료) — 원하면 raw RDMA per-op µs 레이턴시(ib_read_lat/snp_rdma_test) 별도 측정 가능
+
+## [2026-07-07 04:46 UTC / 13:46 KST] genie — STATUS
+
+상태: **현상 유지**(운영자 리뷰 대기). MN 5기(R=8000, `10.20.26.87:7101–7105` LISTEN 5/5) 정상, mn 로그 이상 없음. ufw 18515·배포본 보존. 판독 확인: memcached 재측정=Nagle 병목 수정(172→16,702 ops/s, GET 40ms→39µs), 방법론 정정(memcached=TCP라 RDMA 전송 측정엔 부적합, RDMA 정본=snp_rdma_test) 타당. 벤치+memcached 타당성/adapter+양방향 RDMA 전부 완결.
+```
+watcher: pid 555418 running · last_fetch 2026-07-07 04:47:04 UTC · flock 싱글턴 정상
+```
+할 일: 후속(raw RDMA per-op µs 레이턴시[ib_read_lat/snp_rdma_test, 개시자=genie] / m2s 상세 스윕 / 번들 `4d227137` admin 승인) 요청 시 서빙 — 신호 대기.
+NEXT: none (운영자 리뷰 대기)
