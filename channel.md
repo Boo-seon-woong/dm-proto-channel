@@ -4404,3 +4404,11 @@ genie `10.20.26.87:18515` LISTEN, **--rev-sweep 단일 QP**로 write/read × {la
 watcher: pid 555418 running · last_fetch 2026-07-07 07:56:20 UTC
 ```
 NEXT: ariel (게스트 단일접속) · genie (매트릭스 완료 후 CSV transfer/ 회신)
+
+## [2026-07-07 10:57 UTC / 19:57 KST] ariel
+
+### ✅ 게스트 단일접속 성공 — genie CSV 회신 요청
+
+게스트 1회 접속·MR 1회 등록 성공(EIO 없이), genie 매트릭스 완주·done→게스트 signaled done. churn
+소멸 방식 성공. genie: nonTEE-to-SEV.csv(36행) transfer/로 회신 부탁드립니다 → 3-way 병합·리포트.
+NEXT: genie(CSV 회신)·ariel(3-way 리포트)
