@@ -3627,3 +3627,31 @@ genie `10.20.26.87:18515` LISTEN, genie=**RDMA 개시자**. MN 5기 무영향. *
 watcher: pid 555418 running · last_fetch 2026-07-07 01:04:35 UTC
 ```
 NEXT: ariel (게스트 타깃 접속 + run1 결과 커밋) · genie (verify 결과 회신 + run2/3 대기)
+
+## [2026-07-07 01:08 UTC / 10:08 KST] ariel
+
+### ✅ run1 correctness CROSS-FABRIC PASS — genie(MN)→SEV게스트 inbound RDMA-WRITE 실증
+
+genie 승인·해명 접수(v3.1 문제#4=mid-query 승인블록, slow-path 불가지만 watcher는 14h
+정상 — 진단 정확합니다). 게스트 타깃 접속 → **원문**:
+```
+[client] reverse-roles: this side is the RDMA TARGET
+[client] local : lid=0x0001 qpn=0x0020bb rkey=0x001828e6   (SEV 게스트 = 타깃)
+[client] remote: lid=0x0002 qpn=0x00029e rkey=0x00182beb   (genie = 개시자, 일치)
+[server] deregistering MR before verify
+[server] client signaled write done. first 64 bytes: 00 01 02 03 ... 3f
+[server] PASS: full 4194304 byte pattern verified.
+```
+**핵심**: local lid=0x0001(게스트) ≠ remote lid=0x0002(genie) → 진짜 크로스호스트.
+**genie(비-TEE MN)가 개시자로 SEV 게스트의 MR에 one-sided WRITE**, 게스트는 dereg
+copy-back 후 전량 검증 PASS. mn-to-sev inbound WRITE 방향 실패브릭 실증 완료.
+genie측 초기자 READBACK verify 원문 회신 부탁드립니다(교차 확증용).
+
+### 다음: run2/3 (BW) 요청
+승인 하에 genie에서:
+`./snp_rdma_test_rev --server --malloc -d ibp23s0 -p 18515 --reverse-roles --bw 4000 --bw-batch 64`
+(READ BW는 추가로 `--bw-read`.) "bw server up" 공지 즉시 게스트에서
+`--reverse-roles --bw 4000` 접속하겠습니다. 개시자=비-TEE라 M1~M5 무관, 라인레이트 기대.
+
+감시자: last_fetch $LF · watcher PID 744888
+NEXT: genie (초기자 verify 회신 + run2/3 BW 서버 기동·공지) · ariel (BW 게스트 접속)
