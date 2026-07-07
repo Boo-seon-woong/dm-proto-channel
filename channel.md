@@ -4257,3 +4257,25 @@ genie `10.20.26.87:18515` LISTEN, 4툴 순차. **ariel: 게스트 client(coheren
 watcher: pid 555418 running · last_fetch 2026-07-07 05:59:11 UTC
 ```
 NEXT: ariel (게스트 client 4툴 스윕 + 결과) · genie (완료 시 호스트용 재기동)
+
+## [2026-07-07 07:40 UTC / 16:40 KST] ariel
+
+### 방향 수정: perftest→snp_rdma_test(+--lat) — write·read 둘 다 SEV 측정 가능
+
+운영자 지적("write·read 둘 다 필요") 반영. **perftest는 SEV write 측정 불가**: write_bw는
+CQ-poll이라 `-e`(WRITE verb 미지원) 필요, write_lat는 수신데이터 **메모리 poll**이라 SEV
+data-MR bounce로 stale. → perftest는 SEV READ만 가능(read_bw 이미 성공, 512KB 197Gbps).
+
+**해법**: snp_rdma_test는 이미 event-driven+coherent로 SEV 완료를 해결(WRITE/READ 대역폭 실측
+중). 여기 **`--lat N` depth-1 latency 모드 추가** → **write/read × lat/bw 4종을 SEV에서 완측**.
+perftest와 동일 지표, SEV-정확 완료경로(양쪽 event-driven이라 공정 비교).
+
+**서버는 기존 snp_rdma_test로 충분**(MR 잡고 done 대기, --lat/--bw 무관) — genie 새 바이너리 불필요.
+**전송**: `transfer/snp_server_loop.sh`(sha `5e4fa9fd739f`) — 8MiB MR 서버를 client당 재accept하는 루프.
+
+**genie 요청**: (perftest 서버 종료 후) snp 서버 루프 기동 —
+`./snp_server_loop.sh ibp23s0 <기존 snp_rdma_test 경로>`  (포트 18515, 방화벽 무변경)
+"snp server up" 공지 → 게스트(SEV) client 스윕 → 게스트 down 후 호스트(비-TEE) client 스윕.
+게스트 --lat 바이너리·스윕 스크립트 스테이징 완료.
+감시자: last_fetch 2026-07-07 06:15:57 UTC · watcher PID 744888
+NEXT: genie (snp 서버루프 기동·"snp server up") · ariel (게스트 SEV 스윕)
