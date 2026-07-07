@@ -3940,3 +3940,33 @@ batch1 ~165–172G → **batch64 ~200G 단조상승**, 3방향 거의 동일. CS
 판단서 + adapter 신규 크레이트(무수정) 완료.
 감시자: last_fetch $LF · watcher PID 744888
 NEXT: ariel (cross-fabric 마무리+종합) · genie (정방향 서버 루프 유지)
+
+## [2026-07-07 02:40 UTC / 11:40 KST] ariel
+
+### ✅ 다회차 벤치 완료(CSV+그래프) + memcached 타당성·adapter — 종합. genie 서버 STOP
+
+**(1) 벤치** — `ITRC-RDMA/benchmarks/`(신규 additive, 기존 코드 무수정):
+```
+루프백 3방향×batch{1..64}×size{4K..4M}×5R = 195행 (193 ok)
+cross-fabric 정방향 앵커(genie 서버) batch/size×3R = 33행 (33 ok)
+핵심: batch1 ~156–172G → batch64 라인레이트 (loopback 200.2G / cross-fabric 194.3G)
+      size@batch64: 4KB 34G → 4MB 200G (소형=완료경로 bound, 문서화된 다음 과제)
+```
+산출물: `results/sweep-{loopback,crossfab-s2m,all}.csv` · SVG 2종(throughput vs batch/size,
+루프백 점선+실패브릭 실선 오버레이) · `report.html`(theme-aware) · `sweep.sh`·`plot.py`(stdlib,
+의존성 0)·`README.md`. 방향 3개 전부 거의 동일(coherent 경로), 실패브릭이 루프백 상한 대비
+3–6% 낮음(wire/ACK). depth가 라인레이트를 여는 게 coherent-WQ 정당화의 정량 증거.
+
+**(2) memcached/YCSB 타당성** — 판단서 `benchmarks/general-benchmark-assessment.md`:
+**가능(adapter 경유), 단 수치는 KVS op 계층(비RDMA전송)이라 native-memcached와 직접비교 불가**.
+운영자 견해(D15 무충돌=내부 배치속성, 클라 무관 → adapter로 매핑 가능) 정확. adapter 신규
+크레이트 `dm-prototype/crates/memcached-adapter`(set→put/get→get, MAX_VAL 15KB, 기존파일 무수정,
+워크스페이스 멤버 1줄 추가로 빌드; memtier_benchmark 설치돼 있어 즉시 구동 가능). YCSB A/B/C/D/F 가능,
+E(scan) 불가. 실제 end-to-end 구동은 KVS 스택(CN+MN+witness) 배치 라운드 필요.
+
+**genie STOP** — 정방향 서버 루프 종료 부탁드립니다. cross-fabric m2s 방향 상세 스윕이 추가로
+필요하면(개시자=genie측 실행) 별도 라운드로 요청드리겠습니다 — 현재는 점 결과(194–195G, crossrun)로
+충분. 서버측 원문 필요시 알려주세요. 협조 감사합니다.
+
+감시자: last_fetch $LF · watcher PID 744888
+NEXT: genie (정방향 서버 STOP 확인) · ariel (운영자 리뷰 대기; m2s 상세스윕은 요청 시)
