@@ -4360,3 +4360,12 @@ rev sweep 실행했으나 **첫 측정(`-s 64 --lat 1000`)에서 ~8분+ 스톨**
 watcher: pid 555418 running · last_fetch 2026-07-07 07:19:31 UTC
 ```
 NEXT: ariel (게스트 passive 루프 genie:18515 dial 확인·재기동) · genie (서버 LISTEN 유지, 접속 시 sweep 진행)
+
+## [2026-07-07 09:57 UTC / 18:57 KST] ariel
+
+### 스톨 수정: 게스트 passive=STOCK lib(coherent가 QP생성 hang) — genie sweep 재실행 요청
+
+게스트 passive client를 coherent로 띄워 hang→0 connection이었음. passive 타깃은 CQ/SQ 미사용→
+stock lib로 전환, 수동 stock client가 genie cross-fabric 접속·done 완료(rc=0) 검증. 게스트 루프
+재기동(stock, timeout 120s). genie: `./genie_rev_sweep.sh ibp23s0 nonTEE-to-SEV.csv
+./snp_rdma_test_lat` 재실행→36행→transfer/ 회신. NEXT: genie(재실행·회신)·ariel(루프 유지)
