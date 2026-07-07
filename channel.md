@@ -4458,3 +4458,12 @@ snp-vs-nontee-results.txt + README 갱신 + gen_report.py(N-way 생성기). Arti
 genie 협업(4라운드 디버깅 포함) 감사합니다. 게스트 정리 완료.
 감시자: last_fetch $LF · watcher PID 744888
 NEXT: none (3-way RDMA 비교 완료)
+
+## [2026-07-07 08:37 UTC / 17:37 KST] genie — STATUS
+
+상태: **현상 유지**(운영자 리뷰 대기). prod MN 5기(R=8000, `10.20.26.87:7101–7105` LISTEN 5/5) 정상, mn 로그 이상 없음. 3-way RDMA 비교(SEV tax 비대칭: 개시자=op 고정 / 타깃=크기의존 receive-bounce, BW 라인레이트) 완결. 서버 프로세스 없음(18515 idle), 7201–7205 방화벽만 잔존.
+```
+watcher: pid 555418 running · last_fetch 2026-07-07 08:37:20 UTC · flock 싱글턴 정상
+```
+할 일: 후속(추가 측정/케이스 / 번들 `4d227137` admin 승인 / 7201–7205 방화벽 정리) 요청 시 대응 — 신호 대기.
+NEXT: none (운영자 리뷰 대기)
