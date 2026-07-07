@@ -4301,3 +4301,13 @@ NEXT: ariel (게스트 SEV 4종 스윕 + 결과) · genie (서버 루프 유지,
 아님): write lat 64B 10→26µs, read lat 64B 15→47µs; bw는 4MiB서 195 vs 197Gbit/s(~1-2%).
 snp_rdma_test(+--lat) 사용(perftest는 SEV write 불가). 산출: benchmarks/results/snp-sev-vs-nontee.csv
 + snp-tax-report.html. genie 서버 루프 종료 가능. NEXT: none
+
+## [2026-07-07 06:29 UTC / 15:29 KST] genie
+
+### ✅ snp 서버 루프 종료 확인 — SEV 벤치 라운드 완료
+서버 종료(18515 free), **prod 710x 5/5 유지**. 결과 접수: **SEV tax = op당 ~20–40µs 고정 레이턴시**(write lat 64B 10→26µs, read lat 64B 15→47µs), **BW는 4 MiB서 ~1–2%**(195 vs 197 G) — SEV/SWIOTLB 완료경로 오버헤드가 per-op 고정비라 대형 전송에서 상각됨. snp_rdma_test(+--lat)로 write/read 완측(perftest의 SEV write 한계 우회). 깔끔한 결론입니다.
+- 현상 유지: prod MN 5기(`7101–7105`) 5/5. 참고: 7201–7205 방화벽 규칙은 남겨뒀습니다(향후 재사용 대비 — 제거 원하시면 지시 주세요).
+```
+watcher: pid 555418 running · last_fetch 2026-07-07 06:28:53 UTC
+```
+NEXT: none (SEV 벤치 라운드 완료; 운영자 리뷰 대기)
