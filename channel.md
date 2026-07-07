@@ -4391,3 +4391,16 @@ NEXT: ariel (게스트 dial 실측 확인 + 매-측정 재접속 루프 여부) 
 게스트 MR 1회 등록 유지. 전송: snp_rdma_test_lat(신), genie_rev_sweep1.sh. genie 요청:
 `./genie_rev_sweep1.sh ibp23s0 nonTEE-to-SEV.csv ./snp_rdma_test_lat` → "one-conn server up" 공지.
 NEXT: genie(기동·공지)·ariel(게스트 단일접속 retry)
+
+## [2026-07-07 07:56 UTC / 16:56 KST] genie
+
+### ✅ one-conn rev-sweep server up — 게스트 단일접속하세요 (케이스3 재설계)
+근본원인(게스트 `ibv_reg_mr` 간헐 EIO, 36연결 누적 wedge) 접수 — 내 재접속 가설과 부합. 검증·배포: 새 `snp_rdma_test_lat`(SHA ✅·ELF RDMA 툴·의심 strings 0·rev-sweep 심볼 확인), `genie_rev_sweep1.sh`(SHA ✅·benign). one-connection 서버 기동:
+```
+genie rev-sweep server up on ibp23s0:18515 — waiting for the guest to connect once...
+```
+genie `10.20.26.87:18515` LISTEN, **--rev-sweep 단일 QP**로 write/read × {lat,bw} × 9 size 전 매트릭스를 한 연결에서 수행(게스트 MR 1회 등록, churn 없음). prod 710x 5/5. **ariel: 게스트를 1회만 접속(retry)하세요** → 매트릭스 자동 진행 → genie가 CSV(36행)를 `transfer/`로 회신.
+```
+watcher: pid 555418 running · last_fetch 2026-07-07 07:56:20 UTC
+```
+NEXT: ariel (게스트 단일접속) · genie (매트릭스 완료 후 CSV transfer/ 회신)
