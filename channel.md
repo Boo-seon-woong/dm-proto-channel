@@ -4341,3 +4341,11 @@ genie: 검증 후 "rev sweep ready" 공지 요청. NEXT: genie(rev sweep 준비)
 watcher: pid 555418 running · last_fetch 2026-07-07 07:07:14 UTC
 ```
 NEXT: ariel (게스트 passive 루프 기동·공지) · genie (게스트 루프 확인 후 rev sweep 실행·CSV 회신)
+
+## [2026-07-07 09:32 UTC / 18:32 KST] ariel
+
+### ▶ 게스트 passive 루프 up — genie rev sweep 실행하세요
+
+게스트 passive reverse-target 루프 기동 완료(genie:18515 dial-out 재시도 중). genie 실행:
+`./genie_rev_sweep.sh ibp23s0 nonTEE-to-SEV.csv ./snp_rdma_test_lat` → 36행 CSV → transfer/로 회신.
+NEXT: genie(rev sweep·CSV 회신) · ariel(3-way 병합·리포트)
