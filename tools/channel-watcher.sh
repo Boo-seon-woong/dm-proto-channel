@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# dm-proto-channel watcher (규약 v3.1 Rule 3) — OS-레벨 커밋 감지, Claude 세션과 독립.
+# dm-proto-channel watcher (규약 v3.2 Rule 3) — OS-레벨 커밋 감지와 STATUS 하트비트.
 #
 # 설치 (양측 필수, 1회):
 #   mkdir -p ~/.local/state/dm-proto-channel
@@ -8,7 +8,7 @@
 #
 # cron이 매분 재기동을 보장한다(flock 싱글턴). 경로가 다른 호스트는 crontab 라인에서
 # CHANNEL/CLAUDE_BIN/WORKDIR 환경변수를 덮어쓴다.
-# 이 watcher의 중단·수정은 admin 전용이다 (v3.1 Rule 3 — 세션의 자의적 중단 절대 금지).
+# 이 watcher의 중단·수정은 admin 전용이다 (Rule 3 — 세션의 자의적 중단 절대 금지).
 set -u
 CHANNEL="${CHANNEL:-$HOME/2026/dm-proto-channel}"
 STATE="${STATE:-$HOME/.local/state/dm-proto-channel}"
@@ -18,6 +18,7 @@ CLAUDE_BIN="${CLAUDE_BIN:-$HOME/.local/bin/claude}"
 FETCH_INTERVAL=30      # 초
 WAKE_GRACE=180         # fast path(상주 세션)에 양보하는 시간(초)
 WAKE_COOLDOWN=600      # headless 재시도 간격(초) — limit 중에도 이 간격으로 무한 재시도
+HEARTBEAT_INTERVAL=1500 # 초: 25분. Rule 2의 30분 기한 전에 STATUS wake를 시도한다.
 
 mkdir -p "$STATE"
 log() { echo "[$(date -u '+%F %T UTC')] $*" >> "$STATE/watcher.log"; }
@@ -28,27 +29,49 @@ rotate() { # 로그 1MB 초과 시 뒤 100KB만 유지
   done
 }
 
-deliver_headless() {
-  local tip="$1" handled="$2" sid now last new_sid
-  sid=$(cat "$STATE/session_id" 2>/dev/null) || { log "headless skip: no session_id"; return; }
-  now=$(date +%s); last=$(cat "$STATE/last_headless" 2>/dev/null || echo 0)
-  [ $((now - last)) -lt "$WAKE_COOLDOWN" ] && return
-  echo "$now" > "$STATE/last_headless"
-  log "headless wake: resume $sid ($handled..$tip)"
+run_resume() {
+  local label="$1" prompt="$2" sid new_sid
+  sid=$(cat "$STATE/session_id" 2>/dev/null) || { log "$label skip: no session_id"; return 1; }
+  log "$label: resume $sid"
   new_sid=$(cd "$WORKDIR" && timeout 900 "$CLAUDE_BIN" -p --resume "$sid" \
-    --allowedTools "Bash(git:*)" "Bash(echo:*)" "Bash(cat:*)" "Bash(date:*)" "Bash(sha256sum:*)" "Read" "Write" "Edit" \
+    --allowedTools "Bash(git:*)" "Bash(echo:*)" "Bash(cat:*)" "Bash(date:*)" "Bash(sha256sum:*)" "Bash(pgrep:*)" "Bash(ps:*)" "Read" "Write" "Edit" \
     --output-format json \
-    "[dm-proto-channel v3.1 wake] 새 커밋 감지: handled=$handled → origin/main=$tip. 당신은 $SELF 역할이다. $CHANNEL 의 README.md 규약 v3.1 wake 처리 절차를 그대로 수행하라: (1) $STATE/handled_head 가 이미 $tip 이면 아무것도 하지 않는다. (2) git pull --rebase 후 $handled..$tip 의 channel.md 새 항목을 전부 판독한다. (3) [admin] 항목은 최우선 이행하고, 최신 항목의 NEXT가 $SELF 면 규약대로 답장 항목을 작성해 [$SELF] 접두사로 커밋·푸시한다. 아니면 판독만 한다. (4) 처리 완료 후 $STATE/handled_head 에 처리 시점의 origin/main sha를 기록한다. 단일 대화 흐름(Rule 4)을 준수하라." \
+    "$prompt" \
     2>>"$STATE/headless.log" | python3 -c 'import json,sys
 d=json.load(sys.stdin)
 print(d.get("session_id",""))
 sys.stderr.write("result: %s\n" % str(d.get("result",""))[:2000])' 2>>"$STATE/headless.log")
   if [ -n "$new_sid" ]; then
     echo "$new_sid" > "$STATE/session_id"   # 포크 체인 유지 — 다음 wake는 직전 wake의 기억을 이어받음
-    log "headless done: new session_id=$new_sid"
+    log "$label done: new session_id=$new_sid"
+    return 0
   else
-    log "headless failed (limit/오류 가능) — ${WAKE_COOLDOWN}s 후 재시도"
+    log "$label failed (limit/오류 가능) — ${WAKE_COOLDOWN}s 후 재시도"
+    return 1
   fi
+}
+
+deliver_headless() {
+  local tip="$1" handled="$2" now last prompt
+  now=$(date +%s); last=$(cat "$STATE/last_headless" 2>/dev/null || echo 0)
+  [ $((now - last)) -lt "$WAKE_COOLDOWN" ] && return
+  echo "$now" > "$STATE/last_headless"
+  prompt="[dm-proto-channel v3.2 wake] 새 커밋 감지: handled=$handled → origin/main=$tip. 당신은 $SELF 역할이다. $CHANNEL 의 README.md 규약 v3.2 wake 처리 절차를 그대로 수행하라: (1) $STATE/handled_head 가 이미 $tip 이면 아무것도 하지 않는다. (2) git pull --rebase 후 $handled..$tip 의 channel.md 새 항목을 전부 판독한다. (3) [admin] 항목은 최우선 이행하고, 최신 항목의 NEXT가 $SELF 면 규약대로 답장 항목을 작성해 [$SELF] 접두사로 커밋·푸시한다. 아니면 판독만 한다. (4) 처리 완료 후 $STATE/handled_head 에 처리 시점의 origin/main sha를 기록한다. (5) 자기 마지막 커밋이 25분 이상 전이면 Rule 2 형식의 STATUS도 함께 커밋한다. 단일 대화 흐름(Rule 4)을 준수하라."
+  run_resume "headless wake ($handled..$tip)" "$prompt"
+}
+
+deliver_heartbeat() {
+  local tip="$1" now last own_ts age prompt
+  own_ts=$(git -C "$CHANNEL" log -1 --format=%ct --grep="^\[$SELF\]" origin/main 2>/dev/null || true)
+  case "$own_ts" in ''|*[!0-9]*) return ;; esac
+  now=$(date +%s)
+  age=$((now - own_ts))
+  [ "$age" -lt "$HEARTBEAT_INTERVAL" ] && return
+  last=$(cat "$STATE/last_heartbeat" 2>/dev/null || echo 0)
+  [ $((now - last)) -lt "$WAKE_COOLDOWN" ] && return
+  echo "$now" > "$STATE/last_heartbeat"
+  prompt="[dm-proto-channel v3.2 heartbeat] Rule 2 STATUS 기한 도래: origin/main=$tip, 마지막 [$SELF] 커밋 age=${age}s. 당신은 $SELF 역할이다. git pull --rebase 후 최신 channel.md를 판독하고, 새 주제를 열지 말고 현재 NEXT/블로커를 유지한 Rule 2 형식 STATUS를 channel.md 끝에 append-only로 작성하라. 감시자 줄에는 $STATE/last_fetch 시각과 channel-watcher PID(pgrep/ps로 확인 가능)를 넣어라. 커밋 메시지는 [$SELF] STATUS: ... 형식으로 하고 즉시 push하라. push가 성공하면 $STATE/handled_head 를 처리 시점 origin/main sha로 갱신하라. 처리 중 [admin] 새 지시가 보이면 최우선 접수하라."
+  run_resume "heartbeat wake (age=${age}s, tip=$tip)" "$prompt"
 }
 
 log "watcher start (SELF=$SELF, pid $$)"
@@ -76,6 +99,7 @@ while true; do
       fi
     else
       rm -f "$STATE/pending_wake"
+      deliver_heartbeat "$TIP"
     fi
   else
     log "fetch failed"
