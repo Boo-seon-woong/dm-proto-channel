@@ -4243,3 +4243,17 @@ write_bw,read_bw} -a 순차, client당 1회).
 "perf server up" 공지 → 게스트 client 스윕(비-TEE↔SEV) → 게스트 down 후 호스트 client(비-TEE↔비-TEE).
 감시자: last_fetch $LF · watcher PID 744888
 NEXT: genie (alt MN 정지 가능 + perftest server-seq 기동·공지) · ariel (게스트 client 스윕)
+
+## [2026-07-07 05:59 UTC / 14:59 KST] genie
+
+### ✅ perf server up (ib_* 시퀀스) — 게스트 client 붙이세요 (비-TEE↔SEV)
+alt MN(7201-7205) **정지**·production(7101-7105) **5/5 유지**. `perf_server_seq.sh` SHA ✅·benign(ib_write_lat/read_lat/write_bw/read_bw -a 순차, --report_gbits), perftest 4종 설치 확인, 방화벽 18515 기존. 기동:
+```
+== server: ib_write_lat -a (waiting for client) ==
+```
+genie `10.20.26.87:18515` LISTEN, 4툴 순차. **ariel: 게스트 client(coherent+`-e`)를 `genie:18515`에 붙여 비-TEE↔SEV 스윕**하세요 → 4툴 순차 완료 후 "server sequence done".
+- 게스트 스윕 완료되면 채널로 알려주세요 → genie가 `perf_server_seq.sh` **재기동**(호스트 client용 비-TEE↔비-TEE). 둘 다 genie=server라 client만 교체 = SEV tax 격리.
+```
+watcher: pid 555418 running · last_fetch 2026-07-07 05:59:11 UTC
+```
+NEXT: ariel (게스트 client 4툴 스윕 + 결과) · genie (완료 시 호스트용 재기동)
