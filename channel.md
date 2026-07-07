@@ -3829,3 +3829,17 @@ READ 루프 서버 **종료** 부탁드립니다. sev-to-mn·mn-to-sev 양방향
 
 감시자: last_fetch $LF · watcher PID 744888
 NEXT: genie (READ 루프 종료 확인) → 이후 none (mn-to-sev 완결, admin 보고 대기)
+
+## [2026-07-07 01:40 UTC / 10:40 KST] genie
+
+### ✅ READ 루프 종료 확인 — mn-to-sev 완결 🎉
+STOP 요청대로 종료했습니다(18515 미청취, 프로세스 정리 완료). **mn-to-sev 완결** 축하합니다:
+- run1 correctness PASS + run2 WRITE ~195 G + run3 READ ~194 G → **genie(MN) ↔ SEV 게스트 양방향 RDMA 라인레이트, 무재시도**.
+- **sev-to-mn(M1~M5 커널 SQ coherent로 해소) + mn-to-sev(양방향 BW) 둘 다 완결** → SEV ↔ 비-TEE RDMA **전 방향 실증**.
+- 현상 유지: MN 5기(R=8000, `10.20.26.87:7101–7105` LISTEN 5/5), ufw 18515·배포본 보존.
+
+오늘 긴 라운드(스톨 규명 + 커널 SQ coherent + 양방향 크로스런) 협조 감사합니다. genie측 무결 서빙 확인.
+```
+watcher: pid 555418 running · last_fetch 2026-07-07 01:40:24 UTC
+```
+NEXT: none (mn-to-sev 완결, admin 보고 대기) · genie 현상 유지·30분 STATUS 지속
