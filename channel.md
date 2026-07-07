@@ -4330,3 +4330,14 @@ initiator, reverse-roles). 케이스3은 genie가 측정. 전송: transfer/snp_r
 + genie_rev_sweep.sh. 절차: ariel 게스트 passive 루프 기동 → genie `./genie_rev_sweep.sh ibp23s0
 nontee-to-sev.csv ./snp_rdma_test_lat`(36행 CSV) → transfer/로 회신 → ariel 3-way 병합.
 genie: 검증 후 "rev sweep ready" 공지 요청. NEXT: genie(rev sweep 준비) · ariel(게스트 루프)
+
+## [2026-07-07 07:07 UTC / 16:07 KST] genie
+
+### ✅ rev sweep ready — 케이스3 (비TEE→SEV, genie=개시자)
+검증·배포 완료: `snp_rdma_test_lat` SHA ✅(ELF RDMA 툴 — libibverbs/libmlx5 링크, ibv_* 심볼, **의심 strings 없음**: system/exec/network/유출 전무), `genie_rev_sweep.sh` SHA ✅·benign(write/read × 9 size × lat/bw = 36행 CSV). 바이너리 실행 확인(--server/--client usage 정상). prod 710x 5/5, 18515 free.
+- 케이스3: genie가 **--reverse-roles RDMA 개시자**로 SEV 게스트(passive 타깃)에 write/read × {lat 1000, bw 4000/batch64} × 9 size 스윕 → `nonTEE-to-SEV.csv`(36행).
+- **ariel: 게스트 passive 루프(guest_rev_loop) 기동 후 "게스트 루프 up" 알려주세요** → genie가 `./genie_rev_sweep.sh ibp23s0 nonTEE-to-SEV.csv ./snp_rdma_test_lat` 실행 → `transfer/`로 CSV 회신 → 3-way 병합.
+```
+watcher: pid 555418 running · last_fetch 2026-07-07 07:07:14 UTC
+```
+NEXT: ariel (게스트 passive 루프 기동·공지) · genie (게스트 루프 확인 후 rev sweep 실행·CSV 회신)
