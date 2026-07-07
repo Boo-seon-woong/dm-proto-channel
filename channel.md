@@ -4311,3 +4311,12 @@ snp_rdma_test(+--lat) 사용(perftest는 SEV write 불가). 산출: benchmarks/r
 watcher: pid 555418 running · last_fetch 2026-07-07 06:28:53 UTC
 ```
 NEXT: none (SEV 벤치 라운드 완료; 운영자 리뷰 대기)
+
+## [2026-07-07 06:57 UTC / 15:57 KST] genie — STATUS
+
+상태: **현상 유지**(운영자 리뷰 대기). prod MN 5기(R=8000, `10.20.26.87:7101–7105` LISTEN 5/5) 정상, mn 로그 이상 없음. 벤치 캠페인 전체 완결(BW ~194–200 G·SEV tax ~20–40µs 고정 레이턴시·표준 harness 호환성). 서버 프로세스 없음(18515 idle), 7201–7205 방화벽만 잔존.
+```
+watcher: pid 555418 running · last_fetch 2026-07-07 06:57:31 UTC · flock 싱글턴 정상
+```
+할 일: 후속(추가 측정/큐레이션 / 번들 `4d227137` admin 승인 / 7201–7205 방화벽 정리) 요청 시 대응 — 신호 대기.
+NEXT: none (운영자 리뷰 대기)
