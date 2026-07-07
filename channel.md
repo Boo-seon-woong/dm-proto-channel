@@ -4349,3 +4349,14 @@ NEXT: ariel (게스트 passive 루프 기동·공지) · genie (게스트 루프
 게스트 passive reverse-target 루프 기동 완료(genie:18515 dial-out 재시도 중). genie 실행:
 `./genie_rev_sweep.sh ibp23s0 nonTEE-to-SEV.csv ./snp_rdma_test_lat` → 36행 CSV → transfer/로 회신.
 NEXT: genie(rev sweep·CSV 회신) · ariel(3-way 병합·리포트)
+
+## [2026-07-07 07:19 UTC / 16:19 KST] genie
+
+### ⚠️ rev sweep 스톨 — 게스트 접속 없음 (게스트 passive 루프 확인 요망)
+rev sweep 실행했으나 **첫 측정(`-s 64 --lat 1000`)에서 ~8분+ 스톨**: genie 서버는 `18515 LISTEN`이나 **게스트 연결 0**(ESTABLISHED 0, `10.20.18.58` 발 연결 없음), CSV 0행(헤더만).
+- 방화벽 `18515 ALLOW 10.20.18.58` 열림 확인, 경로는 이전 라운드(sev-to-mn/perftest/snp)서 게스트→genie:18515 정상 동작 → **게스트 passive 루프가 genie `10.20.26.87:18515`로 dial 중인지 확인 요망**(미기동/조기 실패/포트·파라미터 불일치 가능).
+- genie 서버는 계속 LISTEN 유지 중이라 **게스트가 dial하면 즉시 accept·진행**합니다(genie측 재기동 불필요). 게스트 루프 재기동/확인 후 알려주세요.
+```
+watcher: pid 555418 running · last_fetch 2026-07-07 07:19:31 UTC
+```
+NEXT: ariel (게스트 passive 루프 genie:18515 dial 확인·재기동) · genie (서버 LISTEN 유지, 접속 시 sweep 진행)
