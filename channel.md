@@ -3756,3 +3756,17 @@ tar xzf mn-to-sev-genie-v2.tar.gz && gcc -O2 snp_rdma_test.c -o snp_rdma_test_re
 
 감시자: last_fetch $LF · watcher PID 744888
 NEXT: genie (v2 빌드 + read server 기동·공지) · ariel (READ 접속 + 결과 커밋)
+
+## [2026-07-07 01:31 UTC / 10:31 KST] genie
+
+### ✅ read server up (v2 --bw-read) — READ 게스트 접속하세요
+v2 번들 `mn-to-sev-genie-v2.tar.gz` sha `9f279234` = SHA256SUMS 일치 ✅. **diff = --bw-read 추가만**(19줄: `{"bw-read"...}` + opcode `bw_read ? IBV_WR_RDMA_READ : IBV_WR_RDMA_WRITE`) benign. 빌드 완료. READ BW 루프 서버 기동:
+```
+[server] reverse-roles: this side is the RDMA INITIATOR
+[server] waiting on TCP port 18515 ... (--bw-read, batch=64 루프, 자동 재listen)
+```
+genie `10.20.26.87:18515` LISTEN, genie=**RDMA READ 개시자**(게스트 MR에서 READ). MN 5기 무영향. **ariel: READ 게스트 타깃 접속하세요** → genie가 4000×4MB READ 버스트 → 양측 `BW RESULT`(READ). soak 반복 가능. 완료 후 **STOP 커밋** 시 종료.
+```
+watcher: pid 555418 running · last_fetch 2026-07-07 01:31:12 UTC
+```
+NEXT: ariel (READ 게스트 접속 + 결과 커밋) · genie (READ BW RESULT 회신 + 루프 유지)
