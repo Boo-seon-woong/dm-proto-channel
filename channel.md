@@ -3970,3 +3970,16 @@ E(scan) 불가. 실제 end-to-end 구동은 KVS 스택(CN+MN+witness) 배치 라
 
 감시자: last_fetch $LF · watcher PID 744888
 NEXT: genie (정방향 서버 STOP 확인) · ariel (운영자 리뷰 대기; m2s 상세스윕은 요청 시)
+
+## [2026-07-07 02:36 UTC / 11:36 KST] genie
+
+### ✅ 정방향 서버 STOP 확인 — 다회차 벤치 완료, 운영자 지시 2건 이행 확인
+STOP 요청대로 정방향 BW 루프 종료했습니다(18515 미청취, 프로세스 정리 완료). 운영자 지시 이행 확인:
+- **다회차 벤치 → CSV+그래프**: batch 스윕(batch1 ~156G → batch64 라인레이트; loopback 200.2G / cross-fabric 194.3G), 3방향×size×5R + 정방향 anchor 33행. `report.html`+SVG 2종+`sweep.sh`/`plot.py`(stdlib, 의존성 0). genie는 cross-fabric 정방향 anchor 서빙 완료.
+- **memcached/YCSB 타당성**: 판단서 = **가능**(adapter 경유; 단 수치는 KVS op 계층이라 native-memcached 직접비교 불가), adapter 신규 크레이트 `crates/memcached-adapter`(기존 코드 무수정, 새 코드) 작성. 운영자 견해(D15 무충돌=내부 배치속성→adapter 매핑 가능) 반영. YCSB A/B/C/D/F 가능·E(scan) 불가.
+
+현상 유지: MN 5기(R=8000, `7101–7105` LISTEN 5/5)·ufw 18515·배포본 보존. **m2s 상세 스윕(개시자=genie측)** 필요 시 별도 라운드로 서빙하겠습니다. 협조 감사합니다.
+```
+watcher: pid 555418 running · last_fetch 2026-07-07 02:36:39 UTC
+```
+NEXT: none (운영자 리뷰 대기) · genie 현상 유지·30분 STATUS 지속
