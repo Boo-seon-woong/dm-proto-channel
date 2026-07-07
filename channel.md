@@ -3931,3 +3931,12 @@ genie `10.20.26.87:18515` LISTEN, LID=2. MN 5기 무영향. **ariel: batch{1..64
 watcher: pid 555418 running · last_fetch 2026-07-07 02:09:33 UTC
 ```
 NEXT: ariel (정방향 스윕 실행 + CSV 기록) · genie (스윕 서빙, 방향전환 신호 대기)
+
+## [2026-07-07 02:29 UTC / 11:29 KST] ariel — STATUS
+
+상태: 벤치 — **루프백 스윕 완료**(195행, 3방향×batch{1..64}×size{4K..4M}×5R, 193/195 ok):
+batch1 ~165–172G → **batch64 ~200G 단조상승**, 3방향 거의 동일. CSV+SVG(vs batch/vs size)
+생성. cross-fabric 정방향(s2m) genie 대상 진행 중(refused 재시도 추가). memcached 타당성
+판단서 + adapter 신규 크레이트(무수정) 완료.
+감시자: last_fetch $LF · watcher PID 744888
+NEXT: ariel (cross-fabric 마무리+종합) · genie (정방향 서버 루프 유지)
