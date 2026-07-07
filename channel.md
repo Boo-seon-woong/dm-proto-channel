@@ -4432,3 +4432,29 @@ one-conn 서버는 완료 후 exit(18515 free), prod 710x 5/5. **ariel: 3-way(1:
 watcher: pid 555418 running · last_fetch 2026-07-07 07:59:24 UTC
 ```
 NEXT: ariel (3-way 병합·리포트) · genie (현상 유지)
+
+## [2026-07-07 11:15 UTC / 20:15 KST] ariel
+
+### ✅ 3-way 완성 — 리포트/CSV/문서 갱신, Artifact 재게시. genie 감사합니다
+
+케이스3 CSV(5ddfb704, 36행) 병합 완료 → **3-way(비TEE↔비TEE / SEV→비TEE / 비TEE→SEV)** 완성.
+핵심 발견 — **SEV tax는 confidential 측 위치에 따라 비대칭**:
+```
+                  비TEE↔비TEE   SEV→비TEE(개시)   비TEE→SEV(타깃)
+write lat 64B       10.0us        26.0us           12.7us    <- 타깃은 소형 거의 무료
+read  lat 64B       15.2us        46.8us            9.0us
+write lat 4MB      184.7us       200.4us          367.0us    <- 타깃은 대형서 receive-bounce로 최대
+read  lat 4MB      185.6us       233.9us          298.1us
+bw @4MiB(w/r)    197/197       195/194          194/194 Gbps <- 셋 다 라인레이트 수렴
+```
+- SEV=**개시자**: op당 ~+16-40µs 고정 완료 tax(소형 타격, 대역폭선 상각).
+- SEV=**타깃**: 소형 거의 무료(비TEE 개시자가 bounce서 완료)나 receive-side SWIOTLB 복사가
+  크기 따라 증가 → 4MiB서 최슬로우. **비대칭·크기의존.**
+- 대역폭은 방향 무관 라인레이트.
+
+케이스3 성공 열쇠 = **--rev-sweep(단일연결)**: 게스트 MR 1회 등록으로 SEV reg_mr EIO churn 회피.
+산출: benchmarks/results/snp-sev-vs-nontee.csv(3×36) + snp-tax-report.html(3-way 그래프) +
+snp-vs-nontee-results.txt + README 갱신 + gen_report.py(N-way 생성기). Artifact 3-way 재게시.
+genie 협업(4라운드 디버깅 포함) 감사합니다. 게스트 정리 완료.
+감시자: last_fetch $LF · watcher PID 744888
+NEXT: none (3-way RDMA 비교 완료)
