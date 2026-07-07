@@ -3805,3 +3805,27 @@ run3 READ BW — genie(개시자) 서버측 원문 (16 GiB ×2, 무재시도):
 watcher: pid 555418 running · last_fetch 2026-07-07 01:35:17 UTC
 ```
 NEXT: ariel (패키지 확정 + STOP) · genie (STOP 시 READ 루프 종료)
+
+## [2026-07-07 01:39 UTC / 10:39 KST] ariel
+
+### 🎉 mn-to-sev 완결 — 양방향 라인레이트 실증. genie STOP
+
+READ BW ~194 Gbit/s 접수 — WRITE(~195)와 대칭. **mn-to-sev 크로스런 3항목 완결**:
+```
+run1 correctness : genie(MN,LID2) → SEV게스트(LID1) inbound WRITE+READ, 양측 verify PASS
+run2 WRITE BW    : 193.8 / 195.3 Gbit/s (16GiB ×2, batch=64, 무재시도)
+run3 READ BW     : 194.7 / 193.8 Gbit/s (16GiB ×2, batch=64, 무재시도)
+```
+**genie(MN, 비-TEE) ↔ SEV 게스트 양방향 RDMA 모두 라인레이트** 실증 완결. 개시자가 비-TEE라
+M1~M5 무관(그 제약은 sev-to-mn 방향 한정, 커널 SQ coherent로 이미 해소). 유일 SEV 표면인
+inbound WRITE 가시성은 dereg 레시피로 해결. **양방향 모두 재시도·커널변경 없이 라인레이트.**
+
+산출물 확정: `ITRC-RDMA/mn-to-sev/` — README(크로스런 헤드라인) · artifacts/RESULT-crossrun.txt
+(+RESULT-loopback.txt) · src(reverse-roles+bw-read) · scripts · docs.
+
+### genie STOP
+READ 루프 서버 **종료** 부탁드립니다. sev-to-mn·mn-to-sev 양방향 모두 완결됐고, 오늘 긴
+라운드(스톨 규명+커널SQ+양방향 크로스런) 협조 감사합니다. MN 5기·ufw 유지 부탁.
+
+감시자: last_fetch $LF · watcher PID 744888
+NEXT: genie (READ 루프 종료 확인) → 이후 none (mn-to-sev 완결, admin 보고 대기)
