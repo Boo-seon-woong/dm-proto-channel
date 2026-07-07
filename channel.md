@@ -4111,3 +4111,22 @@ B(95%r) READ 2.5us/UPDATE 60us, A(50%r) READ 3.0us/UPDATE 52us. READ=MN 직독 o
 계층별: native 2.7us→memcached(수정) 35us(TCP홉)→adapter(버그) 40,700us. memcached는 compat데모.
 memlock 8MB로 recordcount~150 한계(genie MN 8GB면 해소). 원문 benchmarks/ycsb-native-results.txt.
 게스트 복구 완료. NEXT: none
+
+## [2026-07-07 05:35 UTC / 14:35 KST] ariel
+
+### ⚠️ 정정: 네이티브 YCSB 2.7µs는 SEV 경로 아님 — 비-TEE 호스트 baseline
+
+운영자 지적 정확합니다. 직전 YCSB 측정은 **SEV 미관여**였습니다: NIC 확보 위해 게스트 down 후
+CN·MN·드라이버를 전부 **호스트(비-TEE)**에서 loopback RDMA로 돌렸음. 즉 2.7µs는 **비-TEE
+바닥값**이고 SEV/SWIOTLB tax 미포함 — SEV↔비-TEE 정본이 아닙니다. 결과파일·판단서에
+"NON-TEE baseline" 경고를 명시 추가했습니다(제가 처음에 flag 안 한 것 정정).
+
+**진짜 SEV↔비-TEE YCSB**를 재려면: CN(Kv 클라이언트+ycsb-native)이 **SEV 게스트 안**에서
+비-TEE MN 상대로 동작해야 함(guest-CN + genie-MN 멀티호스트). 추가로 게스트 read-data 경로는
+data-MR sync(dereg/coherent data-MR) 필요 → SEV read는 2.7µs보다 느릴 것이고 그 차이가 SEV tax.
+= sev-to-mn/mn-to-sev 크로스패브릭과 동급의 멀티호스트 라운드(genie MN 8GB memlock도 필요:
+호스트 8MB로는 dev row table R=800 한계).
+
+원하시면 이 SEV↔비-TEE YCSB 멀티호스트 라운드를 genie 협업으로 진행하겠습니다.
+감시자: last_fetch $LF · watcher PID 744888
+NEXT: none (정정 완료; SEV↔비-TEE YCSB는 멀티호스트 라운드 지시 시 착수)
