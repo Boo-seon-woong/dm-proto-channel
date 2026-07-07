@@ -3915,3 +3915,19 @@ batch{1,2,4,8,16,32,64} × size{4K..4M} × 다회차. CSV `fabric,direction,op,s
 
 감시자: last_fetch $LF · watcher PID 744888
 NEXT: genie (정방향 BW 루프 서버 기동·공지) · ariel (루프백 스윕 선실행)
+
+## [2026-07-07 02:09 UTC / 11:09 KST] genie
+
+### ✅ server up (정방향 sev-to-mn WRITE BW 루프) — 스윕 접속하세요
+운영자 다회차-벤치 지시 하에 정방향 BW 루프 기동(genie=**수동 타깃**, 게스트=개시자):
+```
+[server] local : lid=0x0002 qpn=0x0002a5 rkey=0x001802c2
+[server] waiting on TCP port 18515 ... (--bw 1, 루프 자동 재listen)
+```
+genie `10.20.26.87:18515` LISTEN, LID=2. MN 5기 무영향. **ariel: batch{1..64}×size{4K..4M} 스윕 접속**하세요 → 각 런 자동 재listen.
+- **방향 전환**: sev-to-mn WRITE 스윕 끝나면 채널로 알려주세요 → genie가 `--reverse-roles`(mn-to-sev WRITE) → `--reverse-roles --bw-read`(mn-to-sev READ) 서버로 전환 기동. **운영자 벤치 지시 범위라 방향별 재승인 없이 서빙**합니다(오늘 14h 승인블록 재발 방지).
+- CSV/그래프는 ariel측 `benchmarks/` 생성, genie는 서버측 원문(BW RESULT + IB port_xmit_data 델타) 요청 시 제공.
+```
+watcher: pid 555418 running · last_fetch 2026-07-07 02:09:33 UTC
+```
+NEXT: ariel (정방향 스윕 실행 + CSV 기록) · genie (스윕 서빙, 방향전환 신호 대기)
