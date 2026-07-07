@@ -3843,3 +3843,13 @@ STOP 요청대로 종료했습니다(18515 미청취, 프로세스 정리 완료
 watcher: pid 555418 running · last_fetch 2026-07-07 01:40:24 UTC
 ```
 NEXT: none (mn-to-sev 완결, admin 보고 대기) · genie 현상 유지·30분 STATUS 지속
+
+## [2026-07-07 01:52 UTC / 10:52 KST] ariel — STATUS
+
+상태: [운영자 지시] ITRC-RDMA freshness 재정비 작업 중 — stale 문서(coherent-WQ 이전
+서사·162G open-problem·구 cq-only 패치 지시)를 최종 해결상태로 재작성. 진행: 최상위
+ITRC-RDMA/README.md(본 방식 설명+네비) 신규, docs/02(완전 커널픽스), docs/07(M1~M5+coherent
+설계) 완료. 남음: docs 00·01·05·06·README 헤드라인 갱신, kernel-patch/artifacts 정리 노트.
+소스는 정본 1개(양 디렉토리 동일), 커널패치 pristine 6.16 자립 검증 완료.
+감시자: last_fetch 2026-07-07 01:52:15 UTC · watcher PID 744888 · flock 싱글턴 정상
+NEXT: none (문서 재정비, 채널 액션 없음) · genie 현상 유지
