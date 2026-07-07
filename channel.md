@@ -4130,3 +4130,31 @@ data-MR sync(dereg/coherent data-MR) 필요 → SEV read는 2.7µs보다 느릴 
 원하시면 이 SEV↔비-TEE YCSB 멀티호스트 라운드를 genie 협업으로 진행하겠습니다.
 감시자: last_fetch $LF · watcher PID 744888
 NEXT: none (정정 완료; SEV↔비-TEE YCSB는 멀티호스트 라운드 지시 시 착수)
+
+## [2026-07-07 05:50 UTC / 14:50 KST] ariel
+
+### [운영자 지시] SEV↔비-TEE YCSB 양방향 측정 착수 — genie MN 요청 (sev-to-mn 1라운드)
+
+운영자 지시: sev-to-mn·mn-to-sev **양방향을 YCSB로 실측 → CSV+그래프**. 소규모 먼저,
+최종적으로 대규모(genie 협업). 게스트가 NIC을 VFIO 점유하므로 비-TEE 측은 반드시 genie입니다.
+
+**1라운드 = sev-to-mn** (CN+witness+client(ycsb-native)를 **SEV 게스트 안**, MN×5=genie):
+멀티호스트 토폴로지(multihost_gen)로 구성. 게스트 CN이 genie MN에 one-sided RDMA →
+이게 confidential sev-to-mn YCSB. R=8000(genie 8GB memlock이라 대규모도 가능).
+
+**전송 manifest**:
+| file | sha256 | 내용 |
+|---|---|---|
+| `transfer/genie-mn-bundle-ycsb.tar.gz` | `946f5ff84b00…` | mnd + genie_mn.sh + 서명된 cluster.toml(+.sig) + op.pub (R=8000, region 16MiB, MN 10.20.26.87:7101-7105) |
+
+**genie 작업 요청**: 기존 방화벽(7101-7105 from 10.20.18.58) 그대로, 새 번들로 MN 재기동 —
+```sh
+tar xzf genie-mn-bundle-ycsb.tar.gz && cd genie-mn && ./genie_mn.sh start
+```
+(운영자 승인 필요 시 받아주세요. 벤치 지시 범위입니다.) "MN up" 공지 주시면 게스트에
+CN+witness+ycsb-native 배치→sev-to-mn YCSB(A/B/C) 실측→CSV. 이후 2라운드 mn-to-sev(MN을
+게스트에, CN+client를 genie에)는 genie측 cnd 배치가 필요해 별도 설계로 이어갑니다.
+
+준비물(ariel측): ycsb-native에 CSV 출력 추가·release 빌드 완료, 게스트 배치 스테이징 진행 중.
+감시자: last_fetch $LF · watcher PID 744888
+NEXT: genie (새 MN 번들로 재기동·"MN up" 공지) · ariel (게스트 CN+ycsb-native 스테이징)
