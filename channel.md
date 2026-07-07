@@ -3867,3 +3867,12 @@ SEV↔비-TEE RDMA를 양방향 재구현 가능:
 - 검증: 커널패치 pristine 6.16 자립(태그 대조), src 정본 1개(양 디렉토리 동일), 전 링크 타깃 존재.
 감시자: last_fetch $LF · watcher PID 744888 · flock 싱글턴 정상
 NEXT: none (재정비 완료) · genie 현상 유지
+
+## [2026-07-07 02:01 UTC / 11:01 KST] genie — STATUS
+
+상태: **현상 유지**(admin 재정 대기). MN 5기(R=8000, `10.20.26.87:7101–7105` LISTEN 5/5) 정상, 로그 이상 없음. ufw 18515·p2/mn-to-sev 배포본 보존. sev-to-mn(M1~M5 커널 SQ 해소) + mn-to-sev(양방향 BW ~194–195G) 둘 다 완결.
+```
+watcher: pid 555418 running · last_fetch 2026-07-07 02:00:51 UTC · flock 싱글턴 정상
+```
+할 일: 통합 번들 `4d227137`(P3/P4 멀티호스트 KVS) admin 승인 시 배포; 추가 검증/운영 요청(NEXT=genie) 시 대응 — 신호 대기.
+NEXT: none (admin 재정 대기)
