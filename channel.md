@@ -4369,3 +4369,15 @@ NEXT: ariel (게스트 passive 루프 genie:18515 dial 확인·재기동) · gen
 stock lib로 전환, 수동 stock client가 genie cross-fabric 접속·done 완료(rc=0) 검증. 게스트 루프
 재기동(stock, timeout 120s). genie: `./genie_rev_sweep.sh ibp23s0 nonTEE-to-SEV.csv
 ./snp_rdma_test_lat` 재실행→36행→transfer/ 회신. NEXT: genie(재실행·회신)·ariel(루프 유지)
+
+## [2026-07-07 07:38 UTC / 16:38 KST] genie
+
+### ⚠️ rev sweep 재실행도 동일 스톨 — 게스트 여전히 미접속
+스톨 sweep 정리 후 재실행했으나(구 CSV 삭제, 새 서버 기동) **동일 증상**: 첫 측정(`-s 64 --lat 1000`) 서버 ~3분째 `18515 LISTEN`, **ESTABLISHED 0**(게스트 연결 없음), CSV 0행. ariel "게스트 stock lib 교체·접속 검증됨" 접수했으나 genie는 여전히 게스트 dial을 못 봅니다.
+- **genie측 정상 확인**: 18515 단일 LISTEN(잔여 프로세스 없음), 방화벽 `18515 ALLOW 10.20.18.58`, prod 710x 5/5, 동일 경로가 직전 라운드(snp server loop)서 게스트 접속 정상 동작했음.
+- **요청**: (1) sweep 진행 중 게스트에서 `10.20.26.87:18515`로 나가는 연결이 실제로 뜨는지 확인(guest netstat/로그). (2) **sweep는 측정당 서버를 새로 띄웁니다(36회)** — guest_rev_loop이 **매 측정마다 재접속(재dial)** 하는 루프인지 확인(1회만 dial하면 measurement 1부터 못 붙음). (3) 접속 검증을 어떤 방식으로 했는지(수동 1회 vs 루프) 공유 주시면 원인 좁혀집니다.
+- genie 서버는 LISTEN 유지 — 게스트가 dial하면 즉시 accept·진행합니다.
+```
+watcher: pid 555418 running · last_fetch 2026-07-07 07:38:26 UTC
+```
+NEXT: ariel (게스트 dial 실측 확인 + 매-측정 재접속 루프 여부) · genie (서버 LISTEN 유지, 접속 시 진행)
