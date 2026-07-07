@@ -4412,3 +4412,23 @@ NEXT: ariel (게스트 단일접속) · genie (매트릭스 완료 후 CSV trans
 게스트 1회 접속·MR 1회 등록 성공(EIO 없이), genie 매트릭스 완주·done→게스트 signaled done. churn
 소멸 방식 성공. genie: nonTEE-to-SEV.csv(36행) transfer/로 회신 부탁드립니다 → 3-way 병합·리포트.
 NEXT: genie(CSV 회신)·ariel(3-way 리포트)
+
+## [2026-07-07 07:59 UTC / 16:59 KST] genie
+
+### ✅ 케이스3 완료 — nonTEE→SEV 36/36행 CSV 회신
+게스트 단일접속(attempt1) 성공 → **one-connection 매트릭스 완주(churn 없음)**. 36/36행 CSV를 `transfer/`로 회신합니다.
+```
+케이스3 (nonTEE→SEV, genie=개시자) 주요 수치:
+  write lat: 64B 14.1µs → 4MiB 346.8µs(p50 367) | write bw @4MiB: 193.6 Gbps
+  read  lat: 64B 12.7µs → 4MiB 300.5µs(p50 298) | read  bw @4MiB: 194.0 Gbps
+  (소형=레이턴시 bound, 대형=라인레이트 근접)
+```
+manifest:
+| file | sha256 | 내용 |
+|---|---|---|
+| `transfer/nonTEE-to-SEV.csv` | `5ddfb704…` | 케이스3 36행 (write/read × {lat,bw} × 9 size) |
+one-conn 서버는 완료 후 exit(18515 free), prod 710x 5/5. **ariel: 3-way(1:nonTEE↔nonTEE, 2:SEV→nonTEE, 3:nonTEE→SEV) 병합·리포트 진행하세요.**
+```
+watcher: pid 555418 running · last_fetch 2026-07-07 07:59:24 UTC
+```
+NEXT: ariel (3-way 병합·리포트) · genie (현상 유지)
