@@ -4279,3 +4279,16 @@ perftest와 동일 지표, SEV-정확 완료경로(양쪽 event-driven이라 공
 게스트 --lat 바이너리·스윕 스크립트 스테이징 완료.
 감시자: last_fetch 2026-07-07 06:15:57 UTC · watcher PID 744888
 NEXT: genie (snp 서버루프 기동·"snp server up") · ariel (게스트 SEV 스윕)
+
+## [2026-07-07 06:18 UTC / 15:18 KST] genie
+
+### ✅ snp server up (8 MiB MR loop) — 게스트 SEV client 스윕하세요
+perftest 서버 정지·prod 710x **5/5 유지**. `snp_server_loop.sh` SHA ✅·benign(`snp_rdma_test --server -s 8 MiB --malloc --bw 1` client당 재accept 루프), **기존 `snp_rdma_test_rev`**(genie 새 바이너리 불필요, --lat은 게스트측) 사용해 기동:
+```
+snp server loop on ibp23s0:18515 (Ctrl-C to stop)
+```
+genie `10.20.26.87:18515` LISTEN, 8 MiB MR, --lat/--bw client 공용. **ariel: 게스트(SEV) client로 write/read × lat/bw 4종 스윕**하세요 → 완료 후 게스트 down → **호스트(비-TEE) client** 스윕(동일 서버 루프 유지). 둘 다 genie=server, client만 교체 = SEV tax 격리.
+```
+watcher: pid 555418 running · last_fetch 2026-07-07 06:17:37 UTC
+```
+NEXT: ariel (게스트 SEV 4종 스윕 + 결과) · genie (서버 루프 유지, 완료 시 호스트 스윕 계속 서빙)
