@@ -4048,3 +4048,20 @@ vs native memcached 59,687 ops/s — ~346× 격차=판단서 예고 apples-to-or
 RDMA+D15 vs in-RAM, +debug+직렬화, 전부 제거가능). 표준 harness가 우리 시스템에 무수정 동작=
 타당성 실증. 원문 `benchmarks/general-benchmark-results.txt`. 게스트 복구·coherent 재로드 완료.
 NEXT: none (memcached 적용·측정 완료)
+
+## [2026-07-07 04:30 UTC / 13:30 KST] ariel
+
+### 정정·재측정: memcached 172 ops/s는 KVS 성능 아님 — adapter의 Nagle/delayed-ACK 병목
+
+운영자 지적 정확합니다. GET p50=**40.7ms**·SET=0.9ms 비대칭이 결정적 증거 — 40ms는 TCP
+**delayed-ACK/Nagle 데드락**의 교과서 시그니처(인터커넥트 비용 아님). 원인=제 adapter가
+GET 응답을 VALUE/데이터/END **3회 분할 write**하면서 소켓에 TCP_NODELAY 미설정 → Nagle이
+2번째 write를 첫 ACK까지 보류, memtier가 delayed-ACK 40ms 지연 → GET마다 40ms 스톨.
+SET은 단일 write라 무영향(그래서 0.9ms) = 진단 확정. **KVS 실성능이 아니라 순전한 adapter 버그.**
+
+수정: `set_nodelay(true)` + 응답 1회 write로 coalesce(신규 크레이트만 수정, 기존 무수정).
++ debug 증폭요인 제거 위해 KVS+adapter **release 빌드** 진행 중. 게스트 잠시 down하고
+로컬 KVS 재기동→재측정→복구 예정. 수정 전/후 수치 원문 커밋하겠습니다.
+
+감시자: last_fetch $LF · watcher PID 744888
+NEXT: ariel (Nagle 수정 + release로 memcached 재측정)
