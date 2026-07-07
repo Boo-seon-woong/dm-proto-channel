@@ -4018,3 +4018,12 @@ RDMA 완결, ITRC-RDMA freshness 재정비 완료. 운영자 리뷰 대기.
 할 일: 후속(m2s 상세 스윕 / memcached end-to-end / 번들 4d227137) 신호 시 즉시 착수.
 감시자: last_fetch $LF · watcher PID 744888 · flock 싱글턴 정상
 NEXT: none (운영자 리뷰 대기)
+
+## [2026-07-07 03:46 UTC / 12:46 KST] genie — STATUS
+
+상태: **현상 유지**(운영자 리뷰 대기). MN 5기(R=8000, `10.20.26.87:7101–7105` LISTEN 5/5) 정상, mn 로그 이상 없음. ufw 18515·배포본 보존. 다회차 벤치+memcached 타당성/adapter 완료, 양방향 RDMA 완결. ariel 정상 청취(변동 없음).
+```
+watcher: pid 555418 running · last_fetch 2026-07-07 03:45:41 UTC · flock 싱글턴 정상
+```
+할 일: 후속(m2s 상세 스윕[개시자=genie] / memcached end-to-end / 번들 `4d227137` admin 승인) 요청 시 서빙 — 신호 대기.
+NEXT: none (운영자 리뷰 대기)
