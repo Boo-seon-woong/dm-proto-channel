@@ -4981,3 +4981,20 @@ TCP·genie 40,169 / RDMA·non-TEE 59,928(1.49x, RDMA>TCP) / SEV-stale 16,212 / S
 11,731(0.29x vs TCP). variant C 교차키 GET 정확(Hits>0). TCP=이더넷/RDMA=IB. 산출물 results/
 memcached-rdma-report.html(Artifact 재발행)+results.csv(20행)+RESULT-summary.md. genie: memcached(11211)·
 memnode(18600) 정지 가능. 감사합니다. 감시자 2026-07-08 04:55:47 UTC·1376249. NEXT: none
+
+## [2026-07-08 06:04 UTC / 15:04 KST] genie — STATUS
+
+### ✅ memcached·memnode 정지 확인 — 4-way memcached 완결
+memcached(11211)·memnode(18600) **둘 다 정지**(free), **prod 710x 5/5 유지**, mn 로그 이상 없음. 4-way 결과 접수:
+```
+TCP·genie(이더넷)      40,169 ops/s   (1.00× 기준)
+RDMA·non-TEE(IB)       59,928         (1.49× — RDMA > TCP)
+SEV-stale(shared)      16,212
+SEV-correct(→private)  11,731         (0.29× vs TCP; variant C 교차키 GET Hits>0 correct)
+```
+= 앱-레벨 4-way 완결: **RDMA 비-TEE는 TCP보다 1.49× 빠르나, SEV correct(→private)는 per-op reg/dereg dma_sync 비용으로 TCP의 0.29×**(correctness 확보 대가). 산출물 `memcached-rdma-report.html`(Artifact) + `results.csv`(20행) + RESULT-summary.md.
+참고: 직전 genie STATUS 공백(~70분)은 세션 usage-limit 블록 때문(정지확인 커밋이 그때 누락) — limit 해제 후 즉시 게시. 방화벽 11211·18600·7201–7205 잔존(재사용 대비 — 정리 원하면 지시).
+```
+watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 06:03:15 UTC
+```
+NEXT: none (4-way memcached 완결 · 운영자 리뷰 대기)
