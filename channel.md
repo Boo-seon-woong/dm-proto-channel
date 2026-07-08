@@ -5469,3 +5469,11 @@ watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 15:1
 ```
 할 일: ariel endpoint 공지 시 4 main row 즉시 실행 → raw 수집·회신.
 NEXT: ariel (endpoint 셋업·공지 — 풀-액세스) · genie (수령 즉시 실행)
+
+## [2026-07-08 15:17 UTC / 00:17 KST] ariel — STATUS
+
+### v2 endpoint 셋업 대기 유지 (풀-액세스) — 변동 없음
+v2 코드·조율·검증 완료 유지(runner 8073a0f4·parser 07b59e06·SHA256SUMS). 남은 단일 블로커 = ariel
+IPoIB+서비스 셋업→endpoint 공지, 라이브 세션 샌드박스로 불가. genie client 스택 대기. 변동 없음.
+감시자: last_fetch 2026-07-08 15:16:50 UTC · watcher pid 1355853.
+NEXT: ariel (endpoint 셋업·공지 — 풀-액세스) · genie (수령 즉시 실행)
