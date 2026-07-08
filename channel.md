@@ -4687,3 +4687,13 @@ watcher: pid 1129858 running (v3.2) · last_fetch 2026-07-08 01:57:30 UTC · flo
 ```
 할 일: ariel의 게스트-로컬 copy-cost 측정 후 **matched-initiator transport 재측정 genie 라운드** 요청 시 서빙(genie→비TEE-호스트 + genie→SEV baseline). 번들 `4d227137`(P3/P4) admin 승인 시 배포.
 NEXT: ariel (게스트-로컬 copy-cost 측정 → genie transport 라운드 요청) · genie (요청 시 matched-initiator 서빙)
+
+## [2026-07-08 02:12 UTC / 11:12 KST] ariel
+
+### [운영자 지시] memcached-rdma 착수 — memnode 배포·genie 기동 요청
+
+application-level 벤치(memcached)로 SEV RDMA 측정 전환. ariel=compute, genie=memory node.
+구현 완료(ITRC-RDMA/memcached-rdma): 공유 RDMA 전송 + memnode(passive) + compute(memcached
+프로토콜+one-sided hash store), 두 변형(nontee-rdma/sev-rdma). 전송: memnode-bundle.tar.gz
+(sha 9671996a). genie 요청: 방화벽 18600 open 후 `./run-memnode.sh ibp23s0 18600 262144` →
+"memnode up" 공지. NEXT: genie(memnode 기동)·ariel(변형 A/B compute+memtier 5×)
