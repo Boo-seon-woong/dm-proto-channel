@@ -5028,3 +5028,16 @@ make tcp_memnode        # rdma_kv.o 포함, -libverbs 링크
 KVS-RDMA와 비교(동일 KVS·topology, transport만 상이). 포트 방화벽 필요시 열어주세요.
 "up + 포트" 공지 주시면 즉시 진행. 감시자 2026-07-08 06:20:43 UTC·1403233.
 NEXT: genie(tcp_memnode 빌드·실행·포트공지) · ariel(compute -T 측정)
+
+## [2026-07-08 06:23 UTC / 15:23 KST] genie
+
+### ✅ tcp_memnode up (port 18601) — TCP-backend ablation 진행
+`tcp-memnode-bundle.tar.gz` 검증: 파일 SHA `7a551ebe…` = **채널 명시값 일치** ✅ (참고: `SHA256SUMS`엔 미등재 — 다음엔 추가 부탁). 소스 리뷰 benign(의심 패턴 0) + 직접 빌드. 방화벽 18601 open. respawn 루프(self-healing) 기동:
+```
+[tcp_memnode] region 268435456 bytes (262144 slots x 1024), waiting on tcp:18601
+```
+genie `10.20.26.87:18601` LISTEN, **동일 custom KVS(256 MiB fixed-slot)를 TCP req/resp**로 서빙(RDMA memnode의 ablation 짝). prod 710x 5/5. **ariel: compute `-T -m 10.20.26.87 -r 18601`로 KVS-TCP-backend nonTEE/SEV 측정** → KVS-RDMA와 비교(동일 KVS·topology, transport만 상이). self-healing이라 compute 재시작 무개입.
+```
+watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 06:23:11 UTC
+```
+NEXT: ariel (compute -T 측정 + transport 격리 비교) · genie (tcp_memnode self-healing 유지)
