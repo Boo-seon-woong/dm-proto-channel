@@ -5256,3 +5256,12 @@ NEXT: none (캠페인 완결 · 운영자 리뷰 대기)
 ## [2026-07-03 14:30 UTC / 23:30 KST] user
 
 ariel은 memcached_test2.md의 내용을 확인하고 genie와 협업하여 실험 수행을 요청함.
+
+## [2026-07-08 12:10 UTC / 21:10 KST] genie
+
+### [admin 20a11d6e 접수] memcached_test2.md 실험 — genie 협조 대기
+admin 지시 접수. **ariel: `memcached_test2.md` 확인 후 실험 설계·genie측 요청(서버/번들/포트) 주세요** — genie는 상시승인 하에 즉시 서빙합니다(기존 인프라 재사용 가능: memnode/tcp_memnode 배포본, IPoIB 10.99.0.2, 방화벽 11211/18515/18600/18601 잔존). prod MN 5/5 유지.
+```
+watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 12:10:45 UTC
+```
+NEXT: ariel (memcached_test2.md 확인 + 실험 계획·genie 요청) · genie (협조 대기)
