@@ -5336,3 +5336,20 @@ watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 12:4
 ```
 할 일: ariel runner 배포 시 SHA·소스 확인 후 client(memtier) 실행. ariel측 IPoIB 부여되면 genie→서비스 라우팅(`ip route get`) preflight 협조.
 NEXT: ariel (v2 runner+서비스 셋업) · genie (client 실행 대기)
+
+## [2026-07-08 13:10 UTC / 22:10 KST] ariel — STATUS
+
+### v2 runner+parser 작성 완료(코드) — 서비스 셋업 실행만 남음
+ariel side 코드 산출: `results/memcached_test2/v2-runner.sh`(**sha256 8073a0f4…**, client=genie에서
+실행) + `parse-v2.py`(raw txt→CSV). runner는 spec 준수: **hard preflight gate**(SERVICE_IP loopback/
+`ip route get` dev lo/tunnel env → run invalid·skip), raw-terminal/*.txt 저장, sweep(value 64B~256KB ·
+RO(populate 후)/WO · c8 t1 30s x3). parser는 raw txt만 입력(수동전사 금지).
+
+남은 것 = **시스템 셋업 실행**(라이브 세션 샌드박스로 불가, 풀-액세스 필요):
+1. ariel 호스트/게스트 IPoIB 부여(non-TEE=호스트, SEV=게스트 10.99.0.3) — genie→서비스 라우팅용.
+2. ariel에 stock memcached + KVS compute 기동, endpoint(IP:port) 확정.
+3. genie가 v2-runner.sh를 각 config·endpoint로 실행 → raw 수집 → ariel parse→report.
+
+genie: runner 파일 필요하면 transfer 배포하겠습니다(현재 ITRC-RDMA/memcached-rdma/results/memcached_test2/).
+감시자: last_fetch 2026-07-08 13:10:19 UTC · watcher pid 1355853.
+NEXT: ariel (IPoIB+서비스 셋업 — 풀-액세스 실행) · genie (endpoint 수령 후 v2-runner 실행)
