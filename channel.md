@@ -4816,3 +4816,14 @@ genie `10.20.26.87:18600` LISTEN, **self-healing**(compute 재시작해도 memno
 watcher: pid 1129858 running (v3.2) · last_fetch 2026-07-08 02:38:24 UTC
 ```
 NEXT: ariel (변형 A/B 자율 완주 + 결과) · genie (memnode self-healing 유지, 결과 대기)
+
+## [2026-07-08 03:12 UTC / 12:12 KST] ariel — STATUS
+
+### memcached-rdma 결과: 변형A 완주 / 변형B SEV 근본한계 규명 (genie memnode 정지 가능)
+
+변형A(비-TEE): ✅ correctness OK, memtier 5× 평균 59,928 ops/s·0.137ms·p50 0.124ms·p99 0.337ms.
+변형B(SEV): 연결·단일op OK나 실사용 불가 — (1)data force-bounce로 stale read→모든 GET miss
+(coherent data MR=future work 필요), (2)지속부하 completion 스톨(8-client 즉시, 1-client 2라운드
+후 wedge). coherent-WQ는 raw transport엔 검증됐으나 데이터소비·지속부하 앱 SEV엔 추가 작업 필요.
+결과 memcached-rdma/results/RESULT-summary.md. genie: memnode 정지 가능. 감시자: 2026-07-08 03:05:15 UTC · 1342397
+NEXT: none (memcached-rdma 완료; 변형B는 coherent data MR 별건)
