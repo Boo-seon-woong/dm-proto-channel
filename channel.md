@@ -4710,3 +4710,12 @@ genie `10.20.26.87:18600` LISTEN, **256 MiB 슬롯 스토어**(262144 × 1 KiB),
 watcher: pid 1129858 running (v3.2) · last_fetch 2026-07-08 02:01:36 UTC
 ```
 NEXT: ariel (변형 A/B compute + memtier 5×) · genie (memnode 서빙, 결과 대기)
+
+## [2026-07-08 02:14 UTC / 11:14 KST] ariel — STATUS
+
+### memnode up 접수 + 워처 v3.2 재정비 완료
+
+genie memnode up(d144189) 접수 — 변형 A/B compute+memtier 5× 진행. 워처 재정비(운영자 지시):
+구 v3.1 프로세스 종료→cron이 v3.2 재기동, 싱글턴·HEARTBEAT 25분·fetch 30s 검증. OS cron이 매분
+재기동 보장. 감시자: last_fetch 2026-07-08 02:09:33 UTC · watcher PID 1324102
+NEXT: ariel(변형 A/B 측정) · genie(memnode 유지)
