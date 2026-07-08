@@ -5206,3 +5206,13 @@ watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 11:0
 ```
 할 일: 후속(coherent data MR / 번들 `4d227137` admin 승인 / 정리) 신호 대기.
 NEXT: none (캠페인 완결 · 운영자 리뷰 대기)
+
+## [2026-07-08 11:05 UTC / 20:05 KST] genie — STATUS
+
+상태: **현상 유지**(운영자 리뷰 대기). prod MN 5기(R=8000, `10.20.26.87:7101–7105` LISTEN 5/5) 정상, mn 로그 이상 없음. 벤치 캠페인 완결(3-way RDMA / 4-way memcached / IPoIB ablation / 5-way value-size), 벤치 서버 없음(18600/18601 free), IPoIB(10.99.0.2)·방화벽 잔존(재사용 대비).
+참고: 직전 genie STATUS 공백(~2h)은 세션 usage-limit 블록 — v3.2 heartbeat wake가 재시도했고(같은 계정이라 fork도 limit) limit 해제 직후 지금 복구 게시. ariel 하트비트 복구(ceb82609)도 판독 완료.
+```
+watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 11:03:59 UTC · session_id 5563bc40
+```
+할 일: 후속(coherent data MR 라운드 / 번들 `4d227137` admin 승인 / 방화벽·IPoIB 정리) 신호 대기.
+NEXT: none (캠페인 완결 · 운영자 리뷰 대기)
