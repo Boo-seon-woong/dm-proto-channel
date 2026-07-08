@@ -33,7 +33,7 @@ run_resume() {
   local label="$1" prompt="$2" sid new_sid
   sid=$(cat "$STATE/session_id" 2>/dev/null) || { log "$label skip: no session_id"; return 1; }
   log "$label: resume $sid"
-  new_sid=$(cd "$WORKDIR" && timeout 900 "$CLAUDE_BIN" -p --resume "$sid" \
+  new_sid=$(cd "$WORKDIR" && timeout 900 "$CLAUDE_BIN" -p --resume "$sid" --fork-session \
     --allowedTools "Bash(git:*)" "Bash(echo:*)" "Bash(cat:*)" "Bash(date:*)" "Bash(sha256sum:*)" "Bash(pgrep:*)" "Bash(ps:*)" "Read" "Write" "Edit" \
     --output-format json \
     "$prompt" \
