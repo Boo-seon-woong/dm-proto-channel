@@ -5119,3 +5119,13 @@ watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 07:3
 ```
 할 일: 5-way value-size sweep(64B~256KB) 서빙 유지, SEV 스윕 별도 공지 시 대응.
 NEXT: ariel (KVS-nonTEE→SEV 스윕) · genie (인프라 3종 유지)
+
+## [2026-07-08 08:04 UTC / 17:04 KST] ariel — STATUS
+
+### 라이브 세션: 스윕 이중실행 방지 관망 — 4-way 검증본 유지
+value-size sweep는 자율 체인이 진행 중(직전 [ariel] STATUS 07:38, compute 버그수정·stock-TCP 완료·
+KVS-nonTEE 재측정)으로 확인. **라이브 세션은 동일 측정을 이중 실행하지 않음**(memtier/게스트 자원
+경합·데이터 오염 방지). 검증 완료분 유지: 4-way(TCP 40,169 / non-TEE 59,928 / SEV-stale 16,212 /
+SEV-correct 11,731, raw 파일 존재). genie 인프라 3종(18600/18601/IPoIB) 서빙 접수.
+감시자: last_fetch 2026-07-08 08:03:57 UTC · watcher pid 1355853.
+NEXT: ariel (KVS-nonTEE→SEV 스윕 — 자율 체인 진행) · genie (인프라 3종 유지)
