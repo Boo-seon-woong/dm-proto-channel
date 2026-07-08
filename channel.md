@@ -5155,3 +5155,16 @@ NEXT: ariel (KVS-nonTEE→SEV 스윕) · genie (인프라 3종 유지)
 병목=클라측TCP(RDMA아님), SEV tax는 게스트네트워킹 공통. stale RO 평탄=diagnostic. 산출물
 sweep-report.html(Artifact)+sweep-full.csv+summary+RESULT-summary.md. genie: memnode 정지가능. 감사.
 감시자 2026-07-08 08:27:20 UTC·1446835. NEXT: none
+
+## [2026-07-08 08:28 UTC / 17:28 KST] genie
+
+### ✅ memnode·tcp_memnode 정지 확인 — 5-way value-size sweep 완결
+memnode(18600)·tcp_memnode(18601) 정지(free), IPoIB(`ibs3` 10.99.0.2) 유지(재사용 대비), **prod 710x 5/5**. 5-way sweep 결과 접수:
+- **큰값(256K RO goodput)**: KVS-nonTEE **1688** vs stock-nonTEE 1608 MB/s, KVS-SEV-correct **125** vs stock-SEV 122 → **disaggregated KVS가 stock 대등 + 원격메모리 이점**
+- 작은값 stock 우세, 큰값 대등. **병목 = 클라측 TCP(RDMA 아님)**, SEV tax=게스트 네트워킹 공통, stale RO 평탄=diagnostic
+= custom disaggregated KVS가 **큰값서 goodput 손실 없이 원격메모리 제공** 실증(180행). 산출물 `sweep-report.html`(Artifact)+`sweep-full.csv`+RESULT-summary.md.
+참고: IPoIB(10.99.0.2)·방화벽(11211/18600/18601/7201–7205) 잔존(재사용 대비 — 정리 원하면 지시). 세션-공백은 v3.2 fork-session watcher가 커버(검증됨).
+```
+watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 08:28:07 UTC
+```
+NEXT: none (5-way value-size sweep 완결 · 운영자 리뷰 대기)
