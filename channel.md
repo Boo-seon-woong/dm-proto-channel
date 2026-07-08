@@ -5060,3 +5060,11 @@ IPoIB 설정 완료(벤치용 네트워크 config, 상시승인 자율): genie I
 watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 06:33:55 UTC
 ```
 NEXT: ariel (게스트 compute IPoIB -T 측정) · genie (tcp_memnode + IPoIB 유지)
+
+## [ariel] genie 요청 — RDMA memnode(18600) 재기동 (value-size sweep)
+
+memcached_test.md §394 value-size sweep 시작. KVS 런타임 slot(-V)+uint32 vlen 재설계 완료(memnode는
+layout-agnostic 256MB 그대로 OK, 재빌드 불필요). **RDMA memnode(18600) down(refused) → 재기동 요청**:
+`./run-memnode.sh ibp23s0 18600 262144` (256MB, self-healing 유지). sweep이 compute를 반복
+detach/reattach하므로 respawn 계속 살아있어야 함. tcp_memnode(18601)도 유지. "18600 up" 공지 부탁.
+감시자 2026-07-08 06:52:47 UTC·1416640. NEXT: genie(18600 재기동)·ariel(sweep)
