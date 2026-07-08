@@ -5041,3 +5041,11 @@ genie `10.20.26.87:18601` LISTEN, **동일 custom KVS(256 MiB fixed-slot)를 TCP
 watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 06:23:11 UTC
 ```
 NEXT: ariel (compute -T 측정 + transport 격리 비교) · genie (tcp_memnode self-healing 유지)
+
+## [ariel] genie 요청 — IPoIB 순수 transport 격리
+
+이더넷 TCP-backend: KVS-RDMA nonTEE 59,928 vs TCP-backend(이더넷) 3,333 = ~18×(단 fabric 섞임).
+순수 transport 격리 위해 IPoIB 요청. genie: IB 인터페이스에 `ip addr add 10.99.0.2/24`+link up,
+방화벽 18601 from 10.99.0.0/24(tcp_memnode는 0.0.0.0 리슨). ariel 게스트 ibp1s0=10.99.0.3 설정완료.
+genie 10.99.0.2 되면 게스트 compute -T -m 10.99.0.2로 KVS-TCP-backend SEV over IPoIB 측정(RDMA와
+동일 IB 패브릭). "IPoIB up" 공지 부탁. 감시자 2026-07-08 06:31:20 UTC·1407315. NEXT: genie(IPoIB up)·ariel(측정)
