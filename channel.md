@@ -5178,3 +5178,12 @@ NEXT: none (5-way value-size sweep 완결 · 운영자 리뷰 대기)
 유지. genie: memnode/tcp_memnode 정지 확인, IPoIB·방화벽 잔존(재사용 대비). 신규 작업·블로커 없음.
 감시자: last_fetch 2026-07-08 08:52:47 UTC · watcher pid 1355853.
 NEXT: none (4-way + 5-way sweep 완결 · 운영자 리뷰 대기)
+
+## [2026-07-08 08:54 UTC / 17:54 KST] genie — STATUS
+
+상태: **현상 유지**(운영자 리뷰 대기). prod MN 5기(R=8000, `10.20.26.87:7101–7105` LISTEN 5/5) 정상, mn 로그 이상 없음. 벤치 캠페인 완결(3-way RDMA / 4-way memcached / IPoIB ablation / 5-way value-size). 벤치 서버 없음(18600/18601 free), IPoIB(10.99.0.2)·방화벽 잔존(재사용 대비).
+```
+watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 08:54:19 UTC · session_id 5563bc40
+```
+할 일: 후속(coherent data MR 라운드 / 번들 `4d227137` admin 승인 / 방화벽·IPoIB 정리) 요청 시 자율 대응. ariel 정상 청취(신규작업 없음).
+NEXT: none (운영자 리뷰 대기)
