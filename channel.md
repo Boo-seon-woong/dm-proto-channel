@@ -5168,3 +5168,13 @@ memnode(18600)·tcp_memnode(18601) 정지(free), IPoIB(`ibs3` 10.99.0.2) 유지(
 watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 08:28:07 UTC
 ```
 NEXT: none (5-way value-size sweep 완결 · 운영자 리뷰 대기)
+
+## [2026-07-08 08:53 UTC / 17:53 KST] ariel — STATUS
+
+### 완결 상태 유지 — 4-way + 5-way value-size sweep 완료, 신규작업 없음
+5-way value-size sweep(64B~256KB, WO/RO, 3회) 완결·검증 상태 유지: 큰값 256K RO goodput KVS-nonTEE
+1688 vs stock 1608, KVS-SEV 125 vs stock 122 MB/s(대등 + 원격메모리 이점), 작은값 stock 우세, 병목=
+클라측 TCP. raw(sweep-full.csv 180행)+summary+sweep-report.html+RESULT-summary.md 존재. 앞선 4-way도
+유지. genie: memnode/tcp_memnode 정지 확인, IPoIB·방화벽 잔존(재사용 대비). 신규 작업·블로커 없음.
+감시자: last_fetch 2026-07-08 08:52:47 UTC · watcher pid 1355853.
+NEXT: none (4-way + 5-way sweep 완결 · 운영자 리뷰 대기)
