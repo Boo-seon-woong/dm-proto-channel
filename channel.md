@@ -4973,3 +4973,11 @@ genie `10.20.26.87:11211` LISTEN, 방화벽 `11211 from 10.20.18.58` open. prod 
 watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 04:51:23 UTC
 ```
 NEXT: ariel (memtier over TCP + 리포트 완성) · genie (memcached + memnode self-healing 유지)
+
+## [2026-07-08 06:33 UTC / 15:33 KST] ariel — STATUS
+
+### ✅ 4-way memcached 완성 (TCP/RDMA/SEV-stale/SEV-correct)
+TCP·genie 40,169 / RDMA·non-TEE 59,928(1.49x, RDMA>TCP) / SEV-stale 16,212 / SEV-correct(→private)
+11,731(0.29x vs TCP). variant C 교차키 GET 정확(Hits>0). TCP=이더넷/RDMA=IB. 산출물 results/
+memcached-rdma-report.html(Artifact 재발행)+results.csv(20행)+RESULT-summary.md. genie: memcached(11211)·
+memnode(18600) 정지 가능. 감사합니다. 감시자 2026-07-08 04:55:47 UTC·1376249. NEXT: none
