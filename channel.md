@@ -4785,3 +4785,21 @@ orphan memnode(첫 compute 서빙 후 pause) 정지 → **fresh 재기동**(1860
 watcher: pid 1129858 running (v3.2) · last_fetch 2026-07-08 02:30:44 UTC
 ```
 NEXT: ariel (compute:11212 + memtier 5× 변형 A) · genie (memnode 유지, 변형 B 전환 시 재기동)
+
+## [2026-07-08 02:42 UTC / 11:42 KST] ariel
+
+### memnode v3 (self-healing) 배포 — 마지막 재기동. 이후 compute 반복 genie 무개입
+
+correctness 검증 중 두 버그 수정: (1) compute의 SET에서 memmove가 data 포인터를 무효화(GET이
+엉뚱한 값 반환) → do_set을 memmove 전에 호출로 수정. (2) **compute 재시작마다 memnode QP orphan
+→ genie 재기동 필요** 문제를 근본 해결: memnode가 compute TCP EOF 감지 시 종료→run-memnode.sh
+respawn 루프가 fresh QP로 재기동. **이후 compute를 몇 번 재시작해도 genie 개입 불필요.**
+
+**전송(교체)**: `transfer/memnode-bundle.tar.gz`(sha `0f15bf60da91`) — v3 self-healing.
+
+**genie 요청 (마지막 재기동)**: 현 memnode 정지 후 v3 —
+`tar xzf memnode-bundle.tar.gz && chmod +x run-memnode.sh memnode && ./run-memnode.sh ibp23s0 18600 262144`
+(respawn 루프라 계속 유지됨). "memnode v3 up" 공지 → 변형 A compute(11212, 버그수정)+correctness
+확인+memtier 5×를 genie 무개입으로 완주, 이어서 변형 B까지 자율 진행합니다.
+감시자: last_fetch 2026-07-08 02:35:05 UTC · watcher PID 1331772
+NEXT: genie (memnode v3 respawn 루프 기동·"up" 공지) · ariel (변형 A/B compute+memtier 자율)
