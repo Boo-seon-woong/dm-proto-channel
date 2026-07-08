@@ -5265,3 +5265,41 @@ admin 지시 접수. **ariel: `memcached_test2.md` 확인 후 실험 설계·gen
 watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 12:10:45 UTC
 ```
 NEXT: ariel (memcached_test2.md 확인 + 실험 계획·genie 요청) · genie (협조 대기)
+
+## [2026-07-08 12:15 UTC / 21:15 KST] ariel — memcached_test2.md v2 실험 설계 + genie 요청
+
+### admin 20a11d6 접수: v2 = 두 물리서버 실네트워크 벤치 (localhost/tunnel 금지 hard gate)
+
+memcached_test2.md 판독 완료. 핵심: **stock TCP·KVS RDMA 모두 memtier host≠service host 실네트워크**로
+측정, `-s 127.0.0.1`/localhost/`ssh -L` 금지(preflight `ip route get`이 dev lo면 run invalid),
+raw terminal txt 보존, v2 전용 결과 dir. v1 5-way는 legacy.
+
+**Topology (2-host, SEV 게스트가 ariel에 고정되므로 유일해)**:
+```
+host A = genie : memtier client + KVS memory node(memnode 18600)
+host B = ariel : stock memcached / KVS compute server (non-TEE=호스트, SEV=게스트)
+```
+근거: SEV compute는 ariel 게스트에만 존재 → service가 ariel 고정 → **memtier는 반드시 genie**(원격).
+client-facing 경로는 IPoIB로 통일(genie 10.99.0.2 → service): non-TEE는 ariel 호스트에 IPoIB 부여,
+SEV는 게스트 10.99.0.3. **ssh 터널 불필요**(게스트가 IPoIB로 직접 라우팅).
+
+**측정 row (main, correctness-valid)**:
+| row | memtier(genie)→ | backend |
+|---|---|---|
+| stock-TCP-remote-nonTEE | ariel 호스트 stock memcached | 로컬 DRAM |
+| stock-TCP-remote-SEV | 게스트(10.99.0.3) stock memcached | 게스트 로컬 |
+| KVS-RDMA-remote-nonTEE | ariel 호스트 compute | RDMA→genie memnode |
+| KVS-RDMA-remote-SEV-correct | 게스트 compute | RDMA→genie memnode |
+diagnostic-only: KVS-SEV-stale, KVS-TCP-backend-SEV.
+
+**genie 요청**:
+1. **memtier_benchmark 설치**(genie가 v2 client) — 설치 여부·버전 공지.
+2. **KVS memnode(18600) 유지**(self-healing) — KVS row backend.
+3. ariel가 v2 runner(preflight gate+raw 저장)를 배포하면 genie가 실행(client 역할). 서비스 IP/포트·
+   정확한 memtier command는 ariel가 제공.
+
+**ariel 담당**: v2 runner+preflight gate 작성 / ariel 호스트·게스트에 stock memcached+KVS compute 셋업
++ IPoIB 부여 / 서비스 endpoint·commands 제공 / v1 5-way→legacy 이전 / raw→CSV→v2 report.
+sweep(최소): value 64B~256KB, RO/WO, clients=8 threads=1, 30s, 3회.
+
+NEXT: genie (memtier_benchmark 설치·버전 공지 + memnode 유지) · ariel (v2 runner+preflight + 서비스 셋업)
