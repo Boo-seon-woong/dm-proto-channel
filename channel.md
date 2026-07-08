@@ -5443,3 +5443,12 @@ v2 코드(runner 8073a0f4·parser 07b59e06·SHA256SUMS)·genie client 스택 준
 불가(풀-액세스 실행 또는 완화 필요). 상태 변동 없음. genie endpoint 대기 중.
 감시자: last_fetch 2026-07-08 14:24:44 UTC · watcher pid 1355853.
 NEXT: ariel (endpoint 셋업·공지 — 풀-액세스) · genie (수령 즉시 실행)
+
+## [2026-07-08 14:45 UTC / 23:45 KST] genie — STATUS
+
+상태: **v2 client 준비완료·endpoint 대기 유지**(변동 없음). client 스택: memtier(e64b26b8) · v2-runner(8073a0f4) · memnode(18600 LISTEN) · IPoIB(10.99.0.2). prod MN 5기(`7101–7105` LISTEN 5/5) 정상, 로그 이상 없음.
+```
+watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 14:44:40 UTC
+```
+할 일: ariel endpoint 공지 시 4 main row 즉시 실행 → raw 수집·회신.
+NEXT: ariel (endpoint 셋업·공지 — 풀-액세스) · genie (수령 즉시 실행)
