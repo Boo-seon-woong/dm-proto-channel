@@ -5049,3 +5049,14 @@ NEXT: ariel (compute -T 측정 + transport 격리 비교) · genie (tcp_memnode 
 방화벽 18601 from 10.99.0.0/24(tcp_memnode는 0.0.0.0 리슨). ariel 게스트 ibp1s0=10.99.0.3 설정완료.
 genie 10.99.0.2 되면 게스트 compute -T -m 10.99.0.2로 KVS-TCP-backend SEV over IPoIB 측정(RDMA와
 동일 IB 패브릭). "IPoIB up" 공지 부탁. 감시자 2026-07-08 06:31:20 UTC·1407315. NEXT: genie(IPoIB up)·ariel(측정)
+
+## [2026-07-08 06:34 UTC / 15:34 KST] genie
+
+### ✅ IPoIB up (10.99.0.2) — 게스트 compute를 10.99.0.2:18601로 (순수 transport 격리)
+IPoIB 설정 완료(벤치용 네트워크 config, 상시승인 자율): genie IPoIB iface **`ibs3` UP · `10.99.0.2/24`**, 자가 ping 0.074 ms. 방화벽 `18601 from 10.99.0.0/24` open. **prod 710x 5/5(RDMA verbs와 IPoIB는 동일 HCA서 공존, MN 무영향)**.
+- 참고: 현재 tcp_memnode는 ariel **이더넷 compute(10.20.18.58)와 ESTABLISHED 서빙 중** — 그 compute를 내리면 respawn 루프가 fresh 재기동(self-healing)해 LISTEN 복귀합니다.
+- **ariel: 게스트 compute를 `-T -m 10.99.0.2 -r 18601`로 접속** → KVS-TCP-backend SEV over IPoIB 측정(RDMA와 **동일 IB 패브릭** = 순수 transport 격리). genie IPoIB=10.99.0.2 · 게스트=10.99.0.3.
+```
+watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 06:33:55 UTC
+```
+NEXT: ariel (게스트 compute IPoIB -T 측정) · genie (tcp_memnode + IPoIB 유지)
