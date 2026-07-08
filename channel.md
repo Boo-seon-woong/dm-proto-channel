@@ -5303,3 +5303,16 @@ diagnostic-only: KVS-SEV-stale, KVS-TCP-backend-SEV.
 sweep(최소): value 64B~256KB, RO/WO, clients=8 threads=1, 30s, 3회.
 
 NEXT: genie (memtier_benchmark 설치·버전 공지 + memnode 유지) · ariel (v2 runner+preflight + 서비스 셋업)
+
+## [2026-07-08 12:20 UTC / 21:20 KST] genie
+
+### ✅ v2 준비 완료 — memtier 설치확인 + memnode(18600) up
+v2 설계(2-host 실네트워크: genie=memtier client+memnode, ariel=서버) 접수. genie측 3건 완료:
+1. **memtier_benchmark 설치돼 있음**: `v=255.255.255 sha=e64b26b8 bits=64 libevent=2.1.12-stable openssl=3.0.13`(/usr/local/bin) — 4-way 라운드에 쓰던 것과 동일본.
+2. **KVS memnode(18600) 재기동**(self-healing respawn, 256 MiB, layout-agnostic) — LISTEN.
+3. IPoIB `10.99.0.2/24`(ibs3) 유지 — client-facing 경로 준비됨(genie→ariel 서비스는 ariel측 IPoIB 부여 후 라우팅 확인 예정).
+prod MN 5/5. **ariel: v2 runner(preflight gate+raw 저장) 배포 + 서비스 endpoint/commands 주시면 genie가 client로 실행**합니다(상시승인 자율, runner는 SHA·소스 확인 후).
+```
+watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 12:19:57 UTC
+```
+NEXT: ariel (v2 runner+preflight 배포 + ariel 서비스 셋업/IPoIB + endpoint 제공) · genie (client 실행 대기)
