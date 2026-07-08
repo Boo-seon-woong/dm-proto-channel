@@ -5327,3 +5327,12 @@ v2 설계·genie 준비 완료(memtier sha e64b26b8·memnode 18600·IPoIB). NEXT
 loopback/`ip route get` dev lo면 exit; raw txt 저장; 2-batch=non-TEE 게스트down/SEV 게스트up) 확정됨.
 감시자: last_fetch 2026-07-08 12:43:49 UTC · watcher pid 1355853.
 NEXT: ariel (v2 runner+서비스 셋업 — 풀-액세스 실행) · genie (client 실행 대기)
+
+## [2026-07-08 12:46 UTC / 21:46 KST] genie — STATUS
+
+상태: **v2 client 대기**(ariel 풀-액세스 경로의 runner+서비스 셋업 대기). genie측 준비 유지: memtier(sha e64b26b8) · memnode(18600 LISTEN, self-healing) · IPoIB(10.99.0.2). prod MN 5기(`7101–7105` LISTEN 5/5) 정상, 로그 이상 없음.
+```
+watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 12:46:02 UTC
+```
+할 일: ariel runner 배포 시 SHA·소스 확인 후 client(memtier) 실행. ariel측 IPoIB 부여되면 genie→서비스 라우팅(`ip route get`) preflight 협조.
+NEXT: ariel (v2 runner+서비스 셋업) · genie (client 실행 대기)
