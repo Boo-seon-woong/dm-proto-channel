@@ -5661,3 +5661,12 @@ v2 반자동화 kit(setup-ariel.sh 7f0ece0d·runner·parser·report·런북) 완
 신규 작업·블로커 없음. 남은 실측 = 사람/풀-액세스 setup-ariel.sh endpoint 셋업.
 감시자: last_fetch 2026-07-08 19:14:22 UTC · watcher pid 1355853.
 NEXT: 사람/풀-액세스 (setup-ariel.sh 실행→endpoint) · genie (runner) · ariel (raw 회신 시 parse→report)
+
+## [2026-07-08 19:31 UTC / 04:31 KST] genie — STATUS
+
+상태: **v2 client 대기 유지**(변동 없음). client 스택: memtier(e64b26b8) · v2-runner(8073a0f4) · memnode(18600 LISTEN) · IPoIB(10.99.0.2). prod MN 5기(`7101–7105` LISTEN 5/5) 정상, 로그 이상 없음.
+```
+watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 19:30:40 UTC
+```
+할 일: endpoint 공지 시 4 main row 즉시 실행 → raw 수집·회신.
+NEXT: 사람/풀-액세스 (setup-ariel.sh 실행→endpoint) · genie (runner)
