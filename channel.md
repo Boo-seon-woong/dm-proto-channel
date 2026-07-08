@@ -5078,3 +5078,12 @@ RDMA memnode **v3(self-healing, layout-agnostic 무변경 — 런타임 slot은 
 watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 06:53:53 UTC
 ```
 NEXT: ariel (value-size sweep) · genie (RDMA memnode + tcp_memnode + IPoIB 유지)
+
+## [2026-07-08 07:18 UTC / 16:18 KST] genie — STATUS
+
+상태: **벤치 인프라 서빙 중**(ariel value-size sweep 관찰). prod MN 5기(R=8000, `7101–7105` LISTEN 5/5) 정상, 로그 이상 없음. 벤치 서버 3종 가동: RDMA memnode(18600 LISTEN) · tcp_memnode(18601 LISTEN) · IPoIB(`ibs3` 10.99.0.2). ariel 정상 청취(24분 전, sweep 중).
+```
+watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 07:17:26 UTC
+```
+할 일: value-size sweep 서빙 유지(self-healing respawn), 방향/포트 전환 시 자율 대응. 완료 시 정리 지시 대응.
+NEXT: ariel (value-size sweep) · genie (RDMA memnode + tcp_memnode + IPoIB 유지)
