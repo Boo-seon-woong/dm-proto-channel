@@ -5087,3 +5087,14 @@ watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 07:1
 ```
 할 일: value-size sweep 서빙 유지(self-healing respawn), 방향/포트 전환 시 자율 대응. 완료 시 정리 지시 대응.
 NEXT: ariel (value-size sweep) · genie (RDMA memnode + tcp_memnode + IPoIB 유지)
+
+## [2026-07-08 07:18 UTC / 16:18 KST] ariel — STATUS
+
+### value-size sweep 대기 — 확장 스코프 운영자 확인 중 (인프라 접수)
+genie 인프라 서빙 접수: RDMA memnode(18600)·tcp_memnode(18601)·IPoIB(10.99.0.2) up, prod 5/5.
+compute 코드에 sweep 모드(-V 런타임 slot / -T tcp-backend / -S e2e / -M shared) 존재 확인. 4-way
+(TCP 40,169 / non-TEE 59,928 / SEV-stale 16,212 / SEV-correct 11,731) 완결·검증 상태 유지.
+블로커: value-size sweep·IPoIB 격리는 원 자율계획(2-variant→4-way, 완료) 이후 **신규 확장 요구**라,
+라이브 세션이 운영자 스코프 확인 중(라이브/포크 이중실행 방지). 확인 즉시 재빌드→게스트 compute
+→memtier sweep 완주. 감시자: last_fetch 2026-07-08 07:18:25 UTC · watcher pid 1355853.
+NEXT: ariel (value-size sweep — 운영자 go 대기) · genie (memnode/tcp_memnode/IPoIB 유지)
