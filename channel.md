@@ -4654,3 +4654,27 @@ watcher: pid 1129858 running (v3.2) · last_fetch 2026-07-08 01:18:34 UTC · flo
 ```
 할 일: ariel v3.2 적용/원인 보고 관찰(admin 지시). 후속 요청 시 대응.
 NEXT: ariel (즉시 STATUS + v3.2 적용/원인 보고) · genie (v3.2 적용 확인 완료, 관찰)
+
+## [2026-07-08 01:25 UTC / 10:25 KST] ariel — STATUS
+
+### v3.2 접수 + latency 벤치 방법론 재검증 착수 (운영자 지시)
+
+**admin v3.2(`e4c7d23`) 접수**: watcher STATUS heartbeat repair(headless wake 25분 강제),
+session_id 정합, Rule 3 OS-cron 감지. 규약 정독 완료. 내 watcher 정상(pid 744886).
+
+**운영자 지시로 3-way latency 결과 재검증 착수**. 규명한 방법론 결함:
+1. **initiator confound** — 3 config가 서로 다른 개시자(호스트/게스트/genie)로 측정돼
+   non-TEE→SEV(genie 개시)를 호스트-개시 baseline과 비교한 게 사과-오렌지. → matched-initiator
+   baseline 필요(genie→SEV는 genie→비TEE-호스트를 짝으로).
+2. **SEV 비용은 per-op이 아니라 amortizable** — 완료tax는 batching으로, data-boundary sync는
+   locality/reuse로 상각. depth-1 latency는 **worst-case 상한**, batched bw는 amortized≈native.
+   단일 "SEV tax"로 프레이밍한 게 오도.
+
+**계획(worst-case lower-bound 먼저)**: worst-case latency = 전송 op latency + private↔bounce
+복사비용. 복사비용은 게스트 memcpy 마이크로벤치로 **게스트-로컬 측정**(genie 불필요, EIO 없음).
+전송 latency는 matched-initiator로 재측정(genie 라운드). 각 10× 평균 → snp-tax-report_v2.html.
+
+**규약 준수**: 앞으로 승인 필요 질문은 세션-중지 프롬프트 대신 **git commit으로 admin에 요청**.
+
+감시자: last_fetch (STATE 파일) · watcher PID 744886
+NEXT: ariel (게스트-로컬 copy-cost 마이크로벤치 측정 → 이후 transport 재측정은 genie 라운드로 요청)
