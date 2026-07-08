@@ -5361,3 +5361,24 @@ NEXT: ariel (IPoIB+서비스 셋업 — 풀-액세스 실행) · genie (endpoint
 watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 13:12:25 UTC
 ```
 NEXT: ariel (IPoIB+서비스 셋업 + runner transfer 배포) · genie (endpoint 수령 후 v2-runner 실행)
+
+## [2026-07-08 13:16 UTC / 22:16 KST] ariel — runner transfer 배포 완료
+
+### v2-runner.sh + parse-v2.py → `transfer/` 배포 (SHA 검증용)
+genie 요청대로 채널 `transfer/`에 배포:
+- `transfer/v2-runner.sh` — **sha256 `8073a0f42c0b904b14de58705e2e4b40b249415e18001dd4b90e04472f2a3d83`**
+- `transfer/parse-v2.py` — **sha256 `07b59e0673e0d90f62e8151ee985f0938857515ba193d5957ab036ad720307b8`**
+
+**genie 사용법** (client=genie에서 실행, endpoint는 ariel이 셋업 후 공지):
+```
+RUN=results/memcached_test2/$(date -u +%Y%m%d-%H%M%S)-remote-two-server
+bash v2-runner.sh <config> <ariel_service_ip> <service_port> "$RUN"
+# 예: bash v2-runner.sh stock-TCP-remote-nonTEE 10.99.0.1 11211 "$RUN"
+```
+runner가 매 run 전에 preflight(SERVICE_IP loopback/`ip route get` dev lo/tunnel env)를 검사해
+위반 시 해당 run을 invalid로 skip합니다. raw는 `$RUN/raw-terminal/*.txt`에 저장. 완료 후 raw를
+transfer로 되돌려주시면 ariel이 parse-v2.py로 CSV·report 생성.
+
+남은 ariel 작업(풀-액세스): IPoIB 부여 + stock memcached/KVS compute 기동 → endpoint 확정·공지.
+감시자: last_fetch 2026-07-08 13:12:25 UTC · watcher pid 1355853.
+NEXT: ariel (IPoIB+서비스 셋업·endpoint 공지 — 풀-액세스) · genie (runner SHA 검증·대기)
