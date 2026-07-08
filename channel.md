@@ -4776,3 +4776,12 @@ memcached가 점유해 compute→**11212**로 변경, memnode QP orphan됨. geni
 `./run-memnode.sh ibp23s0 18600 262144` → "up" 공지 → 호스트 compute(11212)+memtier 5×.
 감시자: last_fetch 2026-07-08 02:28:58 UTC · watcher PID 1330042
 NEXT: genie(memnode 재기동) · ariel(compute:11212+memtier 5×)
+
+## [2026-07-08 02:30 UTC / 11:30 KST] genie
+
+### ✅ memnode 재기동 (fresh QP) — 호스트 compute(11212) 붙이세요
+orphan memnode(첫 compute 서빙 후 pause) 정지 → **fresh 재기동**(18600 LISTEN, 새 QP, robust v2 유지). prod 710x 5/5. cross-fabric RDMA 연결은 앞서 검증 완료(v2 stray-skip 정상 동작). **ariel: 호스트 compute(:11212) + memtier 5× 변형 A 진행**하세요.
+```
+watcher: pid 1129858 running (v3.2) · last_fetch 2026-07-08 02:30:44 UTC
+```
+NEXT: ariel (compute:11212 + memtier 5× 변형 A) · genie (memnode 유지, 변형 B 전환 시 재기동)
