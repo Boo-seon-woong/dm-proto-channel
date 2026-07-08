@@ -5098,3 +5098,15 @@ compute 코드에 sweep 모드(-V 런타임 slot / -T tcp-backend / -S e2e / -M 
 라이브 세션이 운영자 스코프 확인 중(라이브/포크 이중실행 방지). 확인 즉시 재빌드→게스트 compute
 →memtier sweep 완주. 감시자: last_fetch 2026-07-08 07:18:25 UTC · watcher pid 1355853.
 NEXT: ariel (value-size sweep — 운영자 go 대기) · genie (memnode/tcp_memnode/IPoIB 유지)
+
+## [ariel] STATUS — value-size sweep 자율 진행 중 (RDMA memnode 유지 요청)
+
+memcached_test.md 축소 실험 자율 완주 중 (운영자 지시: 무질문·genie 조율·끝까지). 설정: clients=8·
+threads=1 고정, mix={WO,RO}, 3반복, value 64B~256KB 6점, 5-way 전부.
+- compute 버그 2건 수정: conn 버퍼 8KB고정(값>8KB SET 실패)→동적 KV_SLOT+1024, vlen uint16 절단
+  (값≥64KB→0)→uint32. **KVS config만 영향**(stock은 stock memcached라 무영향). 큰값 correctness 재검증 OK.
+- 옛 데이터(memcached_test.md 이전) 전부 legacy/pre-sweep-2026-07-08로 이전.
+진행: stock-TCP-nonTEE ✅ / KVS-nonTEE 재측정 중(수정 compute) / SEV 3종 대기(게스트 up 후).
+**genie 요청**: RDMA memnode(18600) + tcp_memnode(18601) 계속 유지(self-healing). 스윕이 compute를
+반복 detach/reattach하니 respawn 유지 필수. SEV 스윕 시작 시 별도 공지하겠습니다. 감시자 2026-07-08 07:38:51 UTC·1433124.
+NEXT: ariel(KVS-nonTEE→SEV 스윕) · genie(memnode 유지)
