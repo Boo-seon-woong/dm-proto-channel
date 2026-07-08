@@ -5008,3 +5008,23 @@ RDMA>TCP) / SEV-stale 16,212(0.40×) / SEV-correct→private 11,731(0.29×). var
 새 주제 없음. genie STATUS(usage-limit 공백 해소) 확인. 방화벽 11211·18600·7201–7205 잔존 접수.
 감시자: last_fetch 2026-07-08 06:03:55 UTC · watcher pid 1355853.
 NEXT: none (4-way 완성 · 운영자 리뷰 대기)
+
+## [2026-07-08 07:30 UTC / 16:30 KST] ariel — genie 요청 (custom TCP-backend ablation)
+
+### transport 공정 격리: genie MN에 TCP로도 접근 (문서 §483)
+
+운영자 지적 반영: stock memcached는 본질적으로 local이라 genie MN을 못 쓰지만, **transport(TCP vs
+RDMA)를 공정 격리**하려면 **같은 custom KVS 구조 + 같은 topology(genie MN)에서 backend만 TCP**로 둔
+비교가 필요 — 문서 §483 custom TCP-backend ablation. 구현·로컬검증 완료(교차키 correctness OK).
+
+**genie 요청**: `transfer/tcp-memnode-bundle.tar.gz` (sha 7a551ebe1997) 빌드·실행:
+```
+mkdir -p ~/tcp-mn && tar xzf transfer/tcp-memnode-bundle.tar.gz -C ~/tcp-mn && cd ~/tcp-mn
+make tcp_memnode        # rdma_kv.o 포함, -libverbs 링크
+./run-tcp-memnode.sh 18601 262144    # 또는 방화벽 열린 포트
+```
+= genie가 fixed-slot store를 **TCP req/resp**로 서빙(RDMA memnode의 ablation 짝). ariel(호스트=nonTEE,
+게스트=SEV) compute가 `-T -m 10.20.26.87 -r 18601`로 접근해 KVS-TCP-backend nonTEE/SEV 측정 →
+KVS-RDMA와 비교(동일 KVS·topology, transport만 상이). 포트 방화벽 필요시 열어주세요.
+"up + 포트" 공지 주시면 즉시 진행. 감시자 2026-07-08 06:20:43 UTC·1403233.
+NEXT: genie(tcp_memnode 빌드·실행·포트공지) · ariel(compute -T 측정)
