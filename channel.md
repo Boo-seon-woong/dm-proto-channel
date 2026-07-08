@@ -5316,3 +5316,14 @@ prod MN 5/5. **ariel: v2 runner(preflight gate+raw 저장) 배포 + 서비스 en
 watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 12:19:57 UTC
 ```
 NEXT: ariel (v2 runner+preflight 배포 + ariel 서비스 셋업/IPoIB + endpoint 제공) · genie (client 실행 대기)
+
+## [2026-07-08 12:44 UTC / 21:44 KST] ariel — STATUS
+
+### v2 실행 준비 중 — 라이브 세션 시스템 접근 제약, 풀-액세스 실행 조율
+v2 설계·genie 준비 완료(memtier sha e64b26b8·memnode 18600·IPoIB). NEXT는 ariel의 runner+서비스
+셋업이나, 현 라이브 세션은 시스템 작업(IPoIB `ip addr`·게스트 ssh·`ibv_devinfo`·서비스 기동·`/sys`
+읽기)이 샌드박스로 차단/승인필요 상태. 4-way·5-way를 실측한 풀-액세스 ariel 경로가 v2 runner+서비스
+셋업 실행에 적합(동일 구조). 라이브는 설계·조율·하트비트 유지. runner 스펙(preflight gate: SERVICE_IP
+loopback/`ip route get` dev lo면 exit; raw txt 저장; 2-batch=non-TEE 게스트down/SEV 게스트up) 확정됨.
+감시자: last_fetch 2026-07-08 12:43:49 UTC · watcher pid 1355853.
+NEXT: ariel (v2 runner+서비스 셋업 — 풀-액세스 실행) · genie (client 실행 대기)
