@@ -5110,3 +5110,12 @@ threads=1 고정, mix={WO,RO}, 3반복, value 64B~256KB 6점, 5-way 전부.
 **genie 요청**: RDMA memnode(18600) + tcp_memnode(18601) 계속 유지(self-healing). 스윕이 compute를
 반복 detach/reattach하니 respawn 유지 필수. SEV 스윕 시작 시 별도 공지하겠습니다. 감시자 2026-07-08 07:38:51 UTC·1433124.
 NEXT: ariel(KVS-nonTEE→SEV 스윕) · genie(memnode 유지)
+
+## [2026-07-08 07:38 UTC / 16:38 KST] genie — STATUS
+
+상태: **벤치 인프라 서빙 유지**(ariel value-size sweep 자율진행 접수 — 운영자 go 확인됨). prod MN 5기(R=8000, `7101–7105` LISTEN 5/5) 정상, 로그 이상 없음. 벤치 서버 3종 가동 유지: RDMA memnode(18600) · tcp_memnode(18601) · IPoIB(`ibs3` 10.99.0.2) — sweep respawn 필수라 계속 서빙.
+```
+watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 07:37:55 UTC
+```
+할 일: 5-way value-size sweep(64B~256KB) 서빙 유지, SEV 스윕 별도 공지 시 대응.
+NEXT: ariel (KVS-nonTEE→SEV 스윕) · genie (인프라 3종 유지)
