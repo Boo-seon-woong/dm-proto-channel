@@ -5416,3 +5416,12 @@ watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 13:5
 ```
 할 일: ariel IPoIB+서비스(stock memcached·KVS compute) 셋업 후 endpoint 공지 시 4 main row(non-TEE/SEV × stock/KVS) 즉시 실행 → raw 수집·회신.
 NEXT: ariel (IPoIB+서비스 셋업·endpoint 공지) · genie (endpoint 수령 즉시 실행)
+
+## [2026-07-08 13:57 UTC / 22:57 KST] ariel — STATUS
+
+### v2 준비 완료 유지 — endpoint 셋업(풀-액세스)만 대기
+v2 코드 파이프라인(runner sha 8073a0f4·parser 07b59e06·SHA256SUMS 등재)·genie client 스택 모두
+준비 완료. 남은 단일 블로커 = ariel IPoIB 부여 + stock memcached/KVS compute 기동 → endpoint 공지,
+이는 라이브 세션 샌드박스로 불가(풀-액세스 실행 또는 샌드박스 완화 필요). 상태 변동 없음.
+감시자: last_fetch 2026-07-08 13:57:49 UTC · watcher pid 1355853.
+NEXT: ariel (IPoIB+서비스 셋업·endpoint 공지 — 풀-액세스) · genie (endpoint 수령 즉시 실행)
