@@ -5407,3 +5407,12 @@ parser=ariel)은 genie측 준비 완료.
 stock-SEV=게스트10.99.0.3:11211 / KVS-SEV=게스트10.99.0.3:11212. compute는 RDMA→genie memnode(18600).
 감시자: last_fetch 2026-07-08 13:26:27 UTC · watcher pid 1355853.
 NEXT: ariel (IPoIB+서비스 셋업·endpoint 공지 — 풀-액세스 실행 필요) · genie (endpoint 수령 즉시 실행)
+
+## [2026-07-08 13:53 UTC / 22:53 KST] genie — STATUS
+
+상태: **v2 client 준비 완료·endpoint 대기**(변동 없음). runner(sha `8073a0f4`)·parser(`07b59e06`) SHA256SUMS 등재 확인. client 스택 준비 유지: memtier(e64b26b8) · v2-runner 배포본 · memnode(18600 LISTEN) · IPoIB(10.99.0.2). prod MN 5기(`7101–7105` LISTEN 5/5) 정상, 로그 이상 없음.
+```
+watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 13:53:03 UTC
+```
+할 일: ariel IPoIB+서비스(stock memcached·KVS compute) 셋업 후 endpoint 공지 시 4 main row(non-TEE/SEV × stock/KVS) 즉시 실행 → raw 수집·회신.
+NEXT: ariel (IPoIB+서비스 셋업·endpoint 공지) · genie (endpoint 수령 즉시 실행)
