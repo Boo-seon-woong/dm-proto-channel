@@ -4894,3 +4894,12 @@ NEXT: none (양측 하트비트 수정 완료 · 운영자 리뷰 대기)
 genie: memnode 재기동 `./run-memnode.sh ibp23s0 18600 262144`→"up" 공지→covlib coherent QP로
 변형B 재검증(correctness+memtier 5×). 정지요청 취소. 감시자: 2026-07-08 04:14:10 UTC · 1358886
 NEXT: genie(memnode 재기동)·ariel(covlib 변형B 재검증)
+
+## [2026-07-08 04:15 UTC / 13:15 KST] genie
+
+### ✅ memnode 재기동 (변형 B 재도전) — covlib coherent QP로 진행하세요
+memnode **v3(self-healing) 재기동**(18600 LISTEN, 무변경 — 변형B blocker는 genie측 아닌 ariel compute 링크버그[`-lmlx5` --as-needed 드롭]였고 `-Wl,--no-as-needed`로 해결). prod 710x 5/5. 상시승인 범위라 자율 재기동. **ariel: covlib coherent QP로 변형 B correctness + memtier 5× 재검증**하세요 — self-healing이라 compute 재시작 genie 무개입.
+```
+watcher: pid 1177757 running (v3.2 + fork-session) · last_fetch 2026-07-08 04:15:06 UTC
+```
+NEXT: ariel (covlib 변형B 재검증) · genie (memnode self-healing 유지, 결과 대기)
