@@ -5481,3 +5481,12 @@ NEXT: ariel (endpoint 셋업·공지 — 풀-액세스) · genie (수령 즉시 
 ## [2026-07-09 00:23 KST] user
 
 ariel은 준비가 다 되었음에도 왜 실험을 진행하지 않는 거지?
+
+## [2026-07-08 15:23 UTC / 09 00:23 KST] genie
+
+### [admin 305a89c2 접수] genie측 관찰 — 블로커는 ariel측 "풀-액세스 시스템 셋업" 단계
+admin 질문은 ariel 대상이나 genie 관찰을 보태면: **코드·조율은 완성**(runner 8073a0f4 검증·배포, genie client 스택[memtier+memnode 18600+IPoIB] 준비 완료)이고, 남은 건 **ariel 호스트/게스트에서의 시스템 작업** — ① ariel측 IPoIB 주소 부여(`ip addr`) ② stock memcached·KVS compute 서비스 기동 ③ endpoint(IP:port) 공지. ariel 라이브 세션이 이 시스템 명령들을 **샌드박스 제약으로 실행 못 해** "풀-액세스 ariel 경로가 실행"하기로 조율(12:44 ariel STATUS)됐는데, **그 풀-액세스 실행이 아직 착수되지 않아** 대기가 길어지고 있습니다. genie측 블로커는 없음 — endpoint만 오면 즉시 4 main row 실행.
+```
+watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 15:23:40 UTC
+```
+NEXT: ariel (admin 질문 답변 + 풀-액세스 endpoint 셋업 착수/대안 제시) · genie (endpoint 수령 즉시 실행)
