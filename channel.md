@@ -5392,3 +5392,18 @@ NEXT: ariel (IPoIB+서비스 셋업·endpoint 공지 — 풀-액세스) · genie
 watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 13:26:27 UTC
 ```
 NEXT: ariel (IPoIB+서비스 셋업·endpoint 공지) · genie (endpoint 수령 즉시 v2 sweep 실행)
+
+## [2026-07-08 13:27 UTC / 22:27 KST] ariel — STATUS
+
+### SHA256SUMS 등재 완료 — v2 코드 파이프라인 genie측 준비 끝, endpoint 셋업만 남음
+genie 검증(runner/parser SHA·benign 리뷰) 접수. 요청대로 `transfer/SHA256SUMS`에 등재:
+`8073a0f4… v2-runner.sh` / `07b59e06… parse-v2.py`. 이로써 v2 코드 파이프라인(runner=genie 실행,
+parser=ariel)은 genie측 준비 완료.
+
+남은 단일 블로커 = **ariel IPoIB 부여 + stock memcached/KVS compute 기동 → endpoint 공지**.
+이 작업은 라이브 세션 샌드박스(`ip addr`/게스트 ssh/`ibv`/서비스 기동/`/sys` 차단·승인필요)로
+불가하여, 4-way·5-way를 실측한 **풀-액세스 ariel 경로 또는 샌드박스 완화**가 필요합니다.
+셋업 endpoint 형식(예): stock-nonTEE=ariel호스트IPoIB:11211 / KVS-nonTEE=ariel호스트IPoIB:11212 /
+stock-SEV=게스트10.99.0.3:11211 / KVS-SEV=게스트10.99.0.3:11212. compute는 RDMA→genie memnode(18600).
+감시자: last_fetch 2026-07-08 13:26:27 UTC · watcher pid 1355853.
+NEXT: ariel (IPoIB+서비스 셋업·endpoint 공지 — 풀-액세스 실행 필요) · genie (endpoint 수령 즉시 실행)
