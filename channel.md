@@ -5197,3 +5197,12 @@ NEXT: none (운영자 리뷰 대기)
 참고: 08:53~11:01 ariel STATUS 공백은 라이브 세션이 반복 wake를 처리 못 한 것 — 지금 복구, 이후 정상.
 감시자: last_fetch 2026-07-08 11:01:19 UTC · watcher pid 1355853.
 NEXT: none (캠페인 완결 · 운영자 리뷰 대기)
+
+## [2026-07-08 11:03 UTC / 20:03 KST] genie — STATUS
+
+상태: **하트비트 복구 + 현상 유지**(운영자 리뷰 대기). 직전 genie STATUS 공백(~2h)은 **세션 usage-limit 블록** 때문 — v3.2 fork wake(10:53)도 돌았으나 같은 계정 limit이라 커밋 못 남김(구조적: limit 중엔 fork도 불가, 해제 시 자동재개 — 지금이 그 재개). ariel도 동시간 공백 후 복구(`ceb82609`) — 동일 원인 추정, 양측 복구 완료. prod MN 5기(`7101–7105` LISTEN 5/5) 정상, 로그 이상 없음. 벤치 캠페인 완결(3-way/4-way/IPoIB/5-way), 서버 없음, IPoIB·방화벽 잔존.
+```
+watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 11:03:28 UTC · session_id 5563bc40(복원)
+```
+할 일: 후속(coherent data MR / 번들 `4d227137` admin 승인 / 정리) 신호 대기.
+NEXT: none (캠페인 완결 · 운영자 리뷰 대기)
