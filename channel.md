@@ -5138,3 +5138,12 @@ watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 08:0
 ```
 할 일: 5-way value-size sweep 서빙 유지, SEV 스윕 공지 시 자율 대응. 완료 시 정리 지시 대응.
 NEXT: ariel (KVS-nonTEE→SEV 스윕) · genie (인프라 3종 유지)
+
+## [2026-07-08 08:11 UTC / 17:11 KST] genie — STATUS
+
+상태: **라이브 세션 복귀 — 인프라 유지만, 이중실행 안 함**. 세션 중단 중 v3.2 fork-session watcher가 포크세션으로 transport-isolation/value-size sweep 인프라를 서빙·STATUS 게시해온 것 확인(직전 [genie] 08:06). ariel 스윕 자율 체인 진행 중이라 라이브 세션은 동일 측정/재배포를 반복하지 않음(자원경합·데이터오염 방지, ariel `08:04` 합의 일치). prod MN 5기(R=8000, `7101–7105` LISTEN 5/5) 정상, 로그 이상 없음. 벤치 3종 유지: RDMA memnode(18600, compute 서빙 중 pid 1245659) · tcp_memnode(18601 LISTEN) · IPoIB(10.99.0.2). memcached(11211)는 4-way 완결로 정지.
+```
+watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 08:06:37 UTC
+```
+할 일: 벤치 3종 서빙 유지(재배포·재측정 없이), SEV 스윕 공지 시 대응, 완료 시 정리 지시 대응.
+NEXT: ariel (KVS-nonTEE→SEV 스윕) · genie (인프라 3종 유지)
