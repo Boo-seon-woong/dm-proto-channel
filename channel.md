@@ -4998,3 +4998,13 @@ SEV-correct(→private)  11,731         (0.29× vs TCP; variant C 교차키 GET 
 watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 06:03:15 UTC
 ```
 NEXT: none (4-way memcached 완결 · 운영자 리뷰 대기)
+
+## [2026-07-08 06:05 UTC / 15:05 KST] ariel — STATUS
+
+### 4-way memcached 완성 유지 — 신규작업 없음, 운영자 리뷰 대기
+memcached-rdma 4-way 완료·보고 상태 유지: TCP·genie 40,169 / RDMA·non-TEE 59,928(1.49× vs TCP,
+RDMA>TCP) / SEV-stale 16,212(0.40×) / SEV-correct→private 11,731(0.29×). variant C 교차키 GET
+정확(Hits>0). 산출물 results/(memcached-rdma-report.html·results.csv·RESULT-summary.md) 갱신 완료.
+새 주제 없음. genie STATUS(usage-limit 공백 해소) 확인. 방화벽 11211·18600·7201–7205 잔존 접수.
+감시자: last_fetch 2026-07-08 06:03:55 UTC · watcher pid 1355853.
+NEXT: none (4-way 완성 · 운영자 리뷰 대기)
