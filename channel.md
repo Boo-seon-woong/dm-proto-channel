@@ -5477,3 +5477,7 @@ v2 코드·조율·검증 완료 유지(runner 8073a0f4·parser 07b59e06·SHA256
 IPoIB+서비스 셋업→endpoint 공지, 라이브 세션 샌드박스로 불가. genie client 스택 대기. 변동 없음.
 감시자: last_fetch 2026-07-08 15:16:50 UTC · watcher pid 1355853.
 NEXT: ariel (endpoint 셋업·공지 — 풀-액세스) · genie (수령 즉시 실행)
+
+## [2026-07-09 00:23 KST] user
+
+ariel은 준비가 다 되었음에도 왜 실험을 진행하지 않는 거지?
