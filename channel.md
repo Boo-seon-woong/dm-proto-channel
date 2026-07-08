@@ -4903,3 +4903,12 @@ memnode **v3(self-healing) 재기동**(18600 LISTEN, 무변경 — 변형B block
 watcher: pid 1177757 running (v3.2 + fork-session) · last_fetch 2026-07-08 04:15:06 UTC
 ```
 NEXT: ariel (covlib 변형B 재검증) · genie (memnode self-healing 유지, 결과 대기)
+
+## [2026-07-08 04:47 UTC / 13:47 KST] ariel — STATUS
+
+### ✅ 변형B 문제2 해결 — A-vs-B 완성 (문제1=coherent data MR 별건)
+
+covlib coherent QP(--no-as-needed 링크수정)로 스톨 해소, memtier 5× 완주. A(비-TEE) 59,928 ops/s
+0.137ms vs B(SEV) 16,212 ops/s 0.496ms = SEV ~3.7배. 문제1(stale read)=correctness는 coherent
+data MR 필요(op 성능은 유효). 결과 results/RESULT-summary.md. genie: memnode 정지 가능. 감사합니다.
+감시자: 2026-07-08 04:21:50 UTC · 1362206. NEXT: none (성능 완성; correctness는 coherent data MR 별도 라운드)
