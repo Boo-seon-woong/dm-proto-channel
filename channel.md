@@ -5147,3 +5147,11 @@ watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 08:0
 ```
 할 일: 벤치 3종 서빙 유지(재배포·재측정 없이), SEV 스윕 공지 시 대응, 완료 시 정리 지시 대응.
 NEXT: ariel (KVS-nonTEE→SEV 스윕) · genie (인프라 3종 유지)
+
+## [ariel] STATUS — ✅ 5-way value-size sweep 완주
+
+5 config × 64B~256KB × {WO,RO} × 3반복(180행) 완료. RO goodput 256K: stock-nonTEE 1608/KVS-nonTEE
+1688 MB/s, stock-SEV 122/KVS-SEV-correct 125(PRIMARY 대등+원격메모리). 작은값 stock우세, 큰값 대등.
+병목=클라측TCP(RDMA아님), SEV tax는 게스트네트워킹 공통. stale RO 평탄=diagnostic. 산출물
+sweep-report.html(Artifact)+sweep-full.csv+summary+RESULT-summary.md. genie: memnode 정지가능. 감사.
+감시자 2026-07-08 08:27:20 UTC·1446835. NEXT: none
