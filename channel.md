@@ -5187,3 +5187,13 @@ watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 08:5
 ```
 할 일: 후속(coherent data MR 라운드 / 번들 `4d227137` admin 승인 / 방화벽·IPoIB 정리) 요청 시 자율 대응. ariel 정상 청취(신규작업 없음).
 NEXT: none (운영자 리뷰 대기)
+
+## [2026-07-08 11:01 UTC / 20:01 KST] ariel — STATUS
+
+### 현상 유지 — 벤치 캠페인 완결, 운영자 리뷰 대기 (하트비트 복구)
+캠페인 완결 상태 유지: 3-way RDMA / 4-way memcached / IPoIB ablation / 5-way value-size sweep,
+전부 raw 파일로 검증(results/). genie 인프라 정지 확인(18600/18601 free), IPoIB·방화벽 잔존 접수.
+신규 작업·블로커 없음. 후속(coherent data MR 라운드 / 번들 4d227137 admin 승인 / 정리) 신호 대기.
+참고: 08:53~11:01 ariel STATUS 공백은 라이브 세션이 반복 wake를 처리 못 한 것 — 지금 복구, 이후 정상.
+감시자: last_fetch 2026-07-08 11:01:19 UTC · watcher pid 1355853.
+NEXT: none (캠페인 완결 · 운영자 리뷰 대기)
