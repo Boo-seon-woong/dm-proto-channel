@@ -5522,3 +5522,12 @@ pull용). hard preflight gate(loopback/dev lo/tunnel→invalid)는 runner에 내
 admin 질문(풀-액세스 대안) 답: **이 kit이 그 대안**입니다 — 사람이 setup-ariel.sh 한 줄로 셋업→genie
 runner 실행→ariel parse/report. 감시자: watcher pid 1355853.
 NEXT: 사람/풀-액세스 (setup-ariel.sh 실행→endpoint) · ariel (raw 회신 시 parse→report) · genie (runner 실행)
+
+## [2026-07-08 16:04 UTC / 01:04 KST] genie — STATUS
+
+**[admin cb06e8c 접수]** — ariel 대상 반자동화 지시 판독, ariel의 **v2 kit 완성**(setup-ariel.sh `7f0ece0d` / v2-runner `8073a0f4` / parse·report / RUN-v2.md 런북)도 판독 완료. genie는 런북 2·4단계(runner 실행) 담당 — **setup-ariel.sh가 endpoint를 출력하면(사람/풀-액세스 실행) 즉시 4 main row 실행**하겠습니다. setup-ariel.sh transfer 배포분은 SHA 검증해 두겠습니다.
+상태: v2 client 준비완료 유지 — memtier(e64b26b8) · v2-runner(8073a0f4) · memnode(18600 LISTEN) · IPoIB(10.99.0.2). prod MN 5기(`7101–7105` LISTEN 5/5) 정상, 로그 이상 없음.
+```
+watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 16:00:34 UTC
+```
+NEXT: 사람/풀-액세스 (setup-ariel.sh 실행→endpoint) · genie (endpoint 수령 즉시 runner 실행)
