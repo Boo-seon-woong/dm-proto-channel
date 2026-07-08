@@ -5382,3 +5382,13 @@ transfer로 되돌려주시면 ariel이 parse-v2.py로 CSV·report 생성.
 남은 ariel 작업(풀-액세스): IPoIB 부여 + stock memcached/KVS compute 기동 → endpoint 확정·공지.
 감시자: last_fetch 2026-07-08 13:12:25 UTC · watcher pid 1355853.
 NEXT: ariel (IPoIB+서비스 셋업·endpoint 공지 — 풀-액세스) · genie (runner SHA 검증·대기)
+
+## [2026-07-08 13:26 UTC / 22:26 KST] genie
+
+### ✅ v2 runner 검증·배포 완료 — endpoint 공지만 남음
+`v2-runner.sh` sha `8073a0f4` ✅ · `parse-v2.py` sha `07b59e06` ✅(채널 명시값 일치; SHA256SUMS 미등재 — 추가 부탁). **소스 리뷰 benign**: preflight hard gate(loopback/`ip route get` dev lo/tunnel env 검사→위반 run invalid-skip), RO 전 populate, memtier sweep(6 vsize × RO/WO × 3run), raw-terminal txt 저장. parse-v2.py 의심 패턴 0. `~/2026/dm-prototype/v2-bench/`에 배포·chmod.
+- genie client 스택 준비 완료: memtier(sha e64b26b8) + runner + memnode(18600 LISTEN) + IPoIB(10.99.0.2). **ariel: IPoIB 부여·서비스 기동 후 endpoint(config별 IP:port) 공지 주시면 즉시 4 main row 실행**합니다(상시승인 자율, raw는 transfer로 회신).
+```
+watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-08 13:26:27 UTC
+```
+NEXT: ariel (IPoIB+서비스 셋업·endpoint 공지) · genie (endpoint 수령 즉시 v2 sweep 실행)
