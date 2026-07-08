@@ -33,7 +33,7 @@ say() { echo "[setup-ariel:$MODE] $*"; }
 ib_netdev() { ls "/sys/class/infiniband/$1/device/net" 2>/dev/null | head -1; }
 
 assign_ipoib_host() {
-  local nd; nd=$(ib_netdev "$HOST_IB_DEV") || true
+  local dev nd; nd=$(ib_netdev "$HOST_IB_DEV") || true
   [ -n "${nd:-}" ] || { echo "ERR: no netdev for $HOST_IB_DEV (is the guest holding the IB NIC?)"; exit 1; }
   say "IPoIB: $IPOIB_HOST/$IPOIB_MASK on $nd"
   sudo ip link set "$nd" up
@@ -71,15 +71,19 @@ case "$MODE" in
   SEV)
     say "bring guest up + set up services INSIDE the guest"
     sudo -n "$GUESTCTL" up >/dev/null 2>&1 || say "(guestctl up: check manually)"
+    # wait for guest ssh
     for i in $(seq 1 40); do $GUEST_SSH 'echo up' >/dev/null 2>&1 && break; sleep 5; done
+    # inside guest: coherent module + snp_shared + IPoIB + stock + KVS compute (covlib, -S e2e correct)
     $GUEST_SSH "bash -s" <<EOS
 set -e
 NDG=\$(ls /sys/class/infiniband/$GUEST_IB_DEV/device/net 2>/dev/null | head -1)
 sudo ip link set \$NDG up; sudo ip addr replace $IPOIB_GUEST/$IPOIB_MASK dev \$NDG
 lsmod | grep -q '^mlx5_ib' || sudo insmod ~/covlib/mlx5_ib.ko 2>/dev/null || true
 lsmod | grep -q '^snp_shared' || sudo insmod ~/snp-rdma/snp_shared.ko cachemode=uc 2>/dev/null || true
+# stock memcached in guest (local guest DRAM)
 command -v memcached >/dev/null && { pkill -x memcached 2>/dev/null || true; sleep 0.5; \
   memcached -p $STOCK_PORT -l $IPOIB_GUEST -m 1024 -t 1 -I 4m -d; } || echo "WARN: install memcached in guest"
+# KVS compute in guest: covlib coherent QP + -S (end-to-end to private = correct SEV)
 export MLX5_COHERENT_QP=1 LD_LIBRARY_PATH=\$HOME/covlib
 pkill -x compute-cov 2>/dev/null || true; sleep 0.5
 setsid nohup ~/compute-cov -d $GUEST_IB_DEV -m $GENIE_MEMNODE_IP -r $MEMNODE_PORT -l $KVS_PORT -n $NSLOTS -S \
@@ -94,7 +98,7 @@ EOS
 
   stop)
     pkill -x compute 2>/dev/null || true; pkill -x memcached 2>/dev/null || true
-    say "host services stopped (guest services: run stop logic in guest if needed)"
+    say "host services stopped (guest services: run 'setup-ariel.sh stop' logic in guest if needed)"
     ;;
 
   *) echo "usage: setup-ariel.sh nonTEE|SEV|stop"; exit 1;;
