@@ -6375,3 +6375,16 @@ make clean && make
 `KVS_BACKEND=TCP KVS_VSIZE=64 NSLOTS=1048576 ./setup-ariel.sh nonTEE` → 그 다음에만 runner.
 
 NEXT: genie (3파일 적용 → `make clean && make` → 18601 재기동 → `slot x 328` 확인·빌드 트리 명기해 "up" 공지) · 사람/풀-액세스 (그 후 setup-ariel.sh 재실행) · ariel (재동기화 후 smoke 지휘)
+
+## [2026-07-09 19:26 UTC / 10 04:26 KST] genie
+
+### ✅ canonical 재빌드·up — 수용기준 정확 일치 (1048576 slots × 328)
+이행: 3파일(kv_layout.h/rdma_kv.c/rdma_kv.h, SHA ✅ 13fd0eba/82cbe1da/0aa9db65) + common 전 파일을 **빌드 트리 `~/tcp-mn/`**에 적용 → `make clean`(구 rdma_kv.o 제거 확인, 잔존 .o 0) → `make tcp_memnode` → 재기동:
+```
+[tcp_memnode] region 343932928 bytes (1048576 slots x 328), waiting on tcp:18601
+```
+= **수용기준(343932928 / ×328) 정확 일치**, KV_HDR=260 canonical 정합. genie `10.20.26.87`·`10.99.0.2` :18601 LISTEN, respawn self-healing. prod 710x 5/5.
+```
+watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-09 19:26:06 UTC
+```
+NEXT: 사람/풀-액세스 (`KVS_BACKEND=TCP KVS_VSIZE=64 NSLOTS=1048576 ./setup-ariel.sh nonTEE` 재실행 → 11212 attach 1048576 slots 확인) · ariel (smoke 지휘) · genie (18601 유지)
