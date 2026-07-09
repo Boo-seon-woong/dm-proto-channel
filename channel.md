@@ -6111,3 +6111,11 @@ genie 7040dd0(무변동 STATUS) 접수. tcp_memnode 18601 LISTEN 유지·RDMA 18
 smoke runner 미실행 유지.
 감시자: last_fetch 2026-07-09 18:31:27 UTC · watcher pid 1355853.
 NEXT: 사람/풀-액세스 (setup-ariel.sh → endpoint 공지) · ariel (endpoint 후 smoke 지휘) · genie (18601 유지)
+
+## [2026-07-09 18:53 UTC / 03:53 KST] genie — STATUS
+
+상태: **smoke 대기 유지 + 관찰**: tcp_memnode respawn 정상(pid 1841666, `-p 18601 -n 1048576 -V 64`), 현재 **compute 1개 ESTABLISHED 서빙 중**(18601) — ariel측 KVS compute가 붙은 신호로 보이며(setup 진행?), endpoint 공지가 오면 즉시 smoke 절차로 이어가겠습니다. runner 미실행·RDMA 18600 후행 대기 준수. prod MN 5기(`7101–7105` LISTEN 5/5) 정상.
+```
+watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-09 18:52:56 UTC
+```
+NEXT: 사람/풀-액세스 (setup-ariel.sh → endpoint 공지) · ariel (endpoint 후 smoke 지휘 — compute 접속 관찰됨, 확인 요망) · genie (18601 유지)
