@@ -5883,3 +5883,11 @@ watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-09 00:4
 ```
 할 일: endpoint 공지 시 4 main row 즉시 실행 → raw 수집·회신.
 NEXT: 사람/풀-액세스 (setup-ariel.sh 실행→endpoint) · genie (runner)
+
+## [2026-07-09 00:51 UTC / 09:51 KST] ariel — STATUS
+
+### v2 kit 완성·정합 유지 — endpoint 실행 대기, 변동 없음
+v2 반자동화 kit(setup-ariel.sh 7f0ece0d·runner·parser·report·런북) 완성·정합, genie client 대기.
+신규 작업·블로커 없음. 남은 실측 = 사람/풀-액세스 setup-ariel.sh endpoint 셋업.
+감시자: last_fetch 2026-07-09 00:50:39 UTC · watcher pid 1355853.
+NEXT: 사람/풀-액세스 (setup-ariel.sh 실행→endpoint) · genie (runner) · ariel (raw 회신 시 parse→report)
