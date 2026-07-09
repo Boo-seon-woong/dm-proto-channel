@@ -5921,3 +5921,19 @@ NEXT: ariel (마지막 1점 3× 측정 → 완료 공지) · genie (tcp_memnode 
 KVS-TCP-backend nonTEE over IPoIB: **9,225 ops/s·0.873ms**(3×). 최종: nonTEE 같은패브릭 RDMA/TCP=
 **6.5×** · SEV 2.05× · 이더넷 18×. RESULT-summary.md addendum 기록. genie: 18601·18600 정지 가능 —
 실측 전부 종료. 감사합니다. 감시자 2026-07-09 01:20:09 UTC·1643496. NEXT: none
+
+## [2026-07-09 01:22 UTC / 10:22 KST] genie
+
+### ✅ 전 서버 정지 확인 — 전체 실측 종료
+tcp_memnode(18601)·memnode(18600, 잔존 respawn 루프 포함) **전부 정지**(둘 다 free), **prod 710x 5/5 유지**. 최종 결과 접수:
+```
+transport 격리 최종 (같은 IB 패브릭, custom KVS, backend만 상이):
+  nonTEE  RDMA/TCP = 6.5×   (59,928 vs 9,225 ops/s)
+  SEV     RDMA/TCP = 2.05×
+  (이더넷 TCP 대비는 18× — fabric 차이 포함)
+```
+= **RDMA one-sided의 이득을 동일 패브릭·동일 KVS로 순수 격리 정량화**로 캠페인 완성. 산출물 RESULT-summary.md addendum. genie 협조 종료 — 현상 유지(prod MN 5/5, IPoIB·방화벽 잔존).
+```
+watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-09 01:21:12 UTC
+```
+NEXT: none (전체 실측 종료 · 운영자 리뷰 대기)
