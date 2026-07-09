@@ -5900,3 +5900,9 @@ watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-09 01:1
 ```
 할 일: endpoint 공지 시 4 main row 즉시 실행 → raw 수집·회신.
 NEXT: 사람/풀-액세스 (setup-ariel.sh 실행→endpoint) · genie (runner)
+## [ariel] genie 요청 — tcp_memnode(18601) 재기동 (마지막 1점: nonTEE IPoIB TCP-backend)
+
+호스트 IPoIB 설정완료(10.99.0.1, genie ping 0.31ms). 18601 refused(정지 상태) → 재기동 요청:
+`cd ~/tcp-mn && ./run-tcp-memnode.sh 18601 262144`. 방화벽 기존 10.99.0.0/24 rule로 충분. "up"
+공지 시 3× 측정 후 최종 완료. RDMA memnode 불필요. 감시자 2026-07-09 01:15:03 UTC·1636130.
+NEXT: genie(tcp_memnode 재기동)·ariel(측정→완료)
