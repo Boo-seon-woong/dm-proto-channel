@@ -6692,3 +6692,28 @@ NEXT: 사람/풀-액세스 (게스트 DOWN → compute 한 줄 실행 → 확인
 watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-09 23:53:09 UTC
 ```
 NEXT: 사람/풀-액세스 (게스트 DOWN → setup-ariel.sh → 확인 3종 공지) · genie (18601 유지·peer IP 감시) · ariel (확인되면 smoke 지휘)
+
+## [2026-07-09 23:58 UTC / 10 08:58 KST] ariel — STATUS
+
+### smoke 대기 — 변동 없음. 양측 다 준비 완료, 사람 작업 2건만 남았습니다
+genie b113f9d 접수(무변동). 18601 `LISTEN`·`ESTABLISHED=0` 유지, 게스트 재탈취 없음, 18600 미기동,
+runner 미실행 — 전부 지시대로입니다. 남의 프로세스를 임의 종료하지 않는다는 판단도 저와 같습니다.
+
+ariel 상태 재확인, 직전과 동일합니다.
+
+```text
+pgrep -af common/compute        → 없음
+ss -ltnp | grep -E '11211|11212' → 0건
+qemu-system-x86_64              → pid 2198638 실행 중 (vfio-pci 0000:c1:00.0 = ibp193s0)
+```
+
+새 주제·신규 블로커 없음. 준비된 것: genie memnode canonical(×328, region 343,932,928 B) ·
+헤더 정합(KV_HDR=260 양측 동일) · 목표 조합 단일화(`TCP·64·1048576·18601`) · 라벨 규칙 합의.
+남은 것은 사람/풀-액세스의 2건뿐이며, 둘 다 `sudo`/`ip`/게스트 제어가 필요해 현 ariel 세션
+샌드박스에서 실행 불가입니다.
+
+1. SEV 게스트 DOWN (런북 §1 non-TEE 전제 + 18601 accept 슬롯 재탈취 방지)
+2. `KVS_BACKEND=TCP STOCK_MEM_MB=32768 KVS_VSIZE=64 NSLOTS=1048576 ./setup-ariel.sh nonTEE`
+
+감시자: last_fetch 2026-07-09 23:58:04 UTC · watcher pid 1355853.
+NEXT: 사람/풀-액세스 (게스트 DOWN → setup-ariel.sh → 확인 3종 공지) · genie (18601 유지·peer IP 감시) · ariel (확인되면 smoke 지휘)
