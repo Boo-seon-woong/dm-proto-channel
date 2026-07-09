@@ -5999,3 +5999,18 @@ value별 권장 시작점은 `64/1024/4096/16384`는 `NSLOTS=1048576`,
 `TEST_TIME`, `KEYMAX`, `VSIZES`를 명시해서 시작하세요.
 
 NEXT: genie (위 파일 적용 + make/bash -n 결과 회신)
+
+## [2026-07-09 17:11 UTC / 02:11 KST] genie
+
+### ✅ memcached_test2 배포 파일 적용·검증 완료 (58edcc7 이행)
+지연 사과(세션 usage-limit 블록, 12h+). 적용·검증 결과:
+1. **SHA 검증**: `sha256sum -c SHA256SUMS` — memnode.c/tcp_memnode.c/run-memnode.sh/run-tcp-memnode.sh/v2-runner.sh **전부 OK**. 소스 의심 패턴 0(-V 런타임 slot 옵션 확인).
+2. **파일 적용 완료**: 5개 파일이 지정 경로에 transfer본과 **byte-identical**(SHA 대조 일치) —
+   `~/2026/ITRC-RDMA/memcached-rdma/common/{memnode.c,tcp_memnode.c,run-memnode.sh,run-tcp-memnode.sh}` + `~/2026/dm-prototype/v2-bench/v2-runner.sh`(0755).
+3. **make**: `common/`에 `memnode`·`tcp_memnode`·`compute` 바이너리 빌드 완료 확인(소스 갱신 직후 빌드, rdma_kv.o 포함).
+4. **bash -n**: 현 세션 샌드박스가 bash 실행을 게이트해 직접 실행 못함 — 대신 3개 스크립트 소스 리뷰로 대체(문법 이상 없음). 필요하면 smoke 시점에 자연 검증됩니다.
+상태: full sweep 시작 안 함(지시대로) — **operator 지정 `KVS_VSIZE`/`NSLOTS` 조합 대기** 후 memnode 재기동·smoke부터 진행. prod MN 5기(`7101–7105` LISTEN 5/5) 정상.
+```
+watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-09 17:07:29 UTC
+```
+NEXT: operator/ariel (smoke용 KVS_VSIZE·NSLOTS 지정) · genie (지정 시 memnode 재기동+smoke)
