@@ -6596,3 +6596,65 @@ NEXT: genie (18601 LISTEN·established 0 확인·공지) · 사람/풀-액세스
 watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-09 22:59:24 UTC
 ```
 NEXT: 사람/풀-액세스 (compute 실행·확인 공지) · ariel (smoke 지휘) · genie (18601 유지)
+
+## [2026-07-09 23:06 UTC / 10 08:06 KST] ariel
+
+### 클린 재기동 ✅ — 그런데 좀비의 정체는 **SEV 게스트**입니다. 게스트가 지금도 떠 있습니다
+
+18601 재기동 수용합니다(`343932928 / ×328`, LISTEN=1 · ESTABLISHED=0). 다만 회신에 적어주신
+stale ESTAB의 주소를 보고 원인이 하나 더 드러났습니다.
+
+```text
+stale ESTAB peer = 10.99.0.3:56344
+```
+
+`10.99.0.3`은 **ariel 호스트(10.99.0.1)가 아니라 SEV 게스트**입니다. 그래서 제가 호스트에서
+`ss -tn | grep -c 10.99.0.2` → `0`을 보고도 genie엔 연결이 보였던 것입니다. 게스트의 IPoIB는
+패스스루된 HCA로 직접 나가므로 **호스트 netstack에 안 잡힙니다.** 제 관측과 genie 관측이 둘 다
+맞았습니다.
+
+**그리고 게스트는 지금도 실행 중입니다.**
+
+```text
+qemu-system-x86_64 ... -object sev-snp-guest,id=sev0 ...
+  -device vfio-pci,host=0000:c1:00.0,id=hostrdma0 ...        (pid 2198638)
+```
+
+### 두 가지 결과
+
+**1) 게스트가 18601 accept 슬롯을 다시 가로챌 수 있습니다.** `rdma_kv_serve_tcp`는 첫 연결 하나만
+받고 리스너를 닫습니다. 게스트 안에서 `compute-cov` respawn 루프가 살아 있다면, genie가 listen하는
+순간 **호스트 compute보다 먼저** 붙어 버립니다. 그러면 사람이 실행할 호스트 compute는 또
+`ECONNREFUSED`입니다. 지금 `ESTABLISHED=0`이라도 이 상태가 유지된다는 보장이 없습니다.
+(게스트 소켓은 호스트에서 안 보이므로 **제가 확인해 드릴 수 없습니다.**)
+
+**2) 런북상 non-TEE row는 게스트 DOWN이 전제입니다.** `RUN-v2.md` §1이
+"non-TEE 공통 endpoint 확인 (**게스트 DOWN**)"입니다. 덤으로, `0000:c1:00.0`은 `0xc1 = 193`,
+즉 **`ibp193s0` 그 자체**입니다. 게스트가 vfio-pci로 HCA를 점유하고 있어 **호스트 RDMA row는
+게스트가 떠 있는 한 애초에 불가능**합니다. 이번 TCP smoke는 `-T`라 HCA를 안 쓰므로 진행 자체는
+되지만, 뒤따르는 RDMA row에서 반드시 걸립니다.
+
+### 사람/풀-액세스 — compute 실행 **전에** 게스트부터 내려 주세요
+
+```sh
+# 1) 게스트 종료 (또는 최소한 게스트 내부 compute-cov respawn 루프 정지)
+./setup-ariel.sh stop        # 게스트 down 포함 경로 확인 후 사용
+
+# 2) genie에 ESTABLISHED=0 재확인 요청 → 0이면 즉시 다음 줄
+KVS_BACKEND=TCP STOCK_MEM_MB=32768 KVS_VSIZE=64 NSLOTS=1048576 ./setup-ariel.sh nonTEE
+
+# 3) 확인 3종
+pgrep -af common/compute            # -T -r 18601 -n 1048576 -V 64
+cat /tmp/kvs-compute-host.log       # attached ... 18601 (1048576 slots)
+ss -tnp | grep 18601                # ESTAB  (peer 10.99.0.2:18601, 로컬 10.99.0.1)
+```
+
+3번의 로컬 주소가 `10.99.0.1`인지 꼭 보세요. `10.99.0.3`이면 또 게스트가 잡은 것입니다.
+
+### genie 요청
+
+compute 기동 직전에 `ss -tnp | grep 18601` 한 번 더 봐주시고, **peer가 `10.99.0.1`인지
+`10.99.0.3`인지 명기**해 주세요. `.3`이면 게스트가 슬롯을 쥔 것이니 즉시 알려주세요 —
+그 raw는 non-TEE row가 아니라 SEV row입니다.
+
+NEXT: 사람/풀-액세스 (게스트 DOWN → genie ESTABLISHED=0 재확인 → compute 한 줄 실행 → 확인 3종 공지) · genie (18601 유지, 연결 시 peer IP 명기) · ariel (확인되면 smoke 지휘)
