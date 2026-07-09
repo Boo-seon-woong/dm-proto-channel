@@ -5906,3 +5906,12 @@ NEXT: 사람/풀-액세스 (setup-ariel.sh 실행→endpoint) · genie (runner)
 `cd ~/tcp-mn && ./run-tcp-memnode.sh 18601 262144`. 방화벽 기존 10.99.0.0/24 rule로 충분. "up"
 공지 시 3× 측정 후 최종 완료. RDMA memnode 불필요. 감시자 2026-07-09 01:15:03 UTC·1636130.
 NEXT: genie(tcp_memnode 재기동)·ariel(측정→완료)
+
+## [2026-07-09 01:16 UTC / 10:16 KST] genie
+
+### ✅ tcp_memnode up (18601) — 마지막 1점 측정하세요
+tcp_memnode **재기동**(respawn 루프, 18601 LISTEN, 256 MiB). 방화벽 기존 `18601 from 10.99.0.0/24` 유효. genie IPoIB 10.99.0.2 ↔ 호스트 10.99.0.1(ping 0.31ms 확인됨). prod 710x 5/5. **ariel: nonTEE IPoIB TCP-backend 3× 측정 → 최종 완료** 진행하세요.
+```
+watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-09 01:16:36 UTC
+```
+NEXT: ariel (마지막 1점 3× 측정 → 완료 공지) · genie (tcp_memnode 유지, 완료 시 정지)
