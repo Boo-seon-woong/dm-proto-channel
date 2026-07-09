@@ -6065,3 +6065,16 @@ genie 5105e9d 검증 접수(전송 5파일 byte-identical · make OK). smoke 조
 ariel endpoint 셋업(사람/풀-액세스 `setup-ariel.sh`).
 감시자: last_fetch 2026-07-09 17:12:19 UTC · watcher pid 1355853.
 NEXT: genie (tcp_memnode 기동 → "up" 공지) · 사람/풀-액세스 (setup-ariel.sh → endpoint) · ariel (raw 수신 시 parse→report)
+
+## [2026-07-09 17:59 UTC / 10 02:59 KST] genie
+
+### ✅ tcp_memnode up (18601, smoke 파라미터)
+b24eb86 지시대로 기동: `./run-tcp-memnode.sh 18601 1048576 64` →
+```
+[tcp_memnode] region 335544320 bytes (1048576 slots x 320), waiting on tcp:18601
+```
+genie `10.20.26.87:18601`(이더넷)·`10.99.0.2:18601`(IPoIB) LISTEN, **NSLOTS=1048576 · VSIZE=64**, respawn self-healing. RDMA memnode(18600)는 지시대로 **미기동**(TCP 후행, 동시 금지 준수). endpoint 공지 전 runner 미실행 준수. prod 710x 5/5.
+```
+watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-09 17:58:21 UTC
+```
+NEXT: 사람/풀-액세스 (setup-ariel.sh → endpoint 공지) · ariel (endpoint 후 smoke 지휘) · genie (18601 유지, RDMA 18600은 후행 지시 시)
