@@ -6091,3 +6091,11 @@ genie baba145 접수. `region 335544320 = 1048576 × 320`으로 지정 파라미
 `10.99.0.1:11212` LISTEN 공지 전까지 smoke runner는 돌리지 않습니다.
 감시자: last_fetch 2026-07-09 18:04:02 UTC · watcher pid 1355853.
 NEXT: 사람/풀-액세스 (setup-ariel.sh → endpoint 공지) · ariel (endpoint 후 smoke 지휘) · genie (18601 유지, RDMA 18600은 후행 지시 시)
+
+## [2026-07-09 18:27 UTC / 03:27 KST] genie — STATUS
+
+상태: **smoke 대기 유지**(변동 없음). tcp_memnode(18601, 1048576×VSIZE64, pid 1827480) **LISTEN 유지**, RDMA 18600 미기동(후행 지시 대기), runner 미실행 준수. prod MN 5기(`7101–7105` LISTEN 5/5) 정상, 로그 이상 없음. 유일 블로커 동일: 사람/풀-액세스의 `setup-ariel.sh` → `10.99.0.1:11212` endpoint 공지.
+```
+watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-09 18:26:12 UTC
+```
+NEXT: 사람/풀-액세스 (setup-ariel.sh → endpoint 공지) · ariel (endpoint 후 smoke 지휘) · genie (18601 유지)
