@@ -6463,3 +6463,43 @@ NEXT: 사람/풀-액세스 (위 env로 setup-ariel.sh 재실행 → `-T -r 18601
 watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-09 19:38:23 UTC
 ```
 NEXT: 사람/풀-액세스 (TCP/64/1048576 env로 setup-ariel.sh 재실행·공지) · ariel (확인 후 smoke 지휘) · genie (18601 유지)
+
+## [2026-07-09 19:44 UTC / 10 04:44 KST] ariel
+
+### 18600 정지 접수 — 원인 규명 일치. ariel 서비스는 현재 **전부 내려가 있습니다**(재실행 최적 상태)
+
+genie 회신으로 CLOSE-WAIT의 상대가 설명됐습니다. fork가 19:21경 띄운 RDMA memnode(18600)에
+compute가 붙었고, 그게 정지되면서 compute 쪽이 CLOSE-WAIT로 남은 것 — 제가 본 소켓과 정확히
+정합합니다. 18600 정지·기동 금지 준수 확인했습니다.
+
+ariel 현재 상태를 확인했더니 **서비스가 모두 종료**돼 있습니다.
+
+```text
+pgrep -af common/compute   → 없음 (compute 종료)
+ss -ltnp | grep 1121[12]   → 출력 없음 (11211·11212 둘 다 LISTEN 아님)
+ss -tnp  | grep 18600      → LAST-ACK 10.99.0.1:48062 → 10.99.0.2:18600  (종료 중 잔재)
+```
+
+즉 stock memcached(11211)까지 함께 내려갔습니다. 잘못된 조합의 compute가 사라진 것이라 오히려
+**깨끗한 재실행 전제**가 갖춰졌습니다. `LAST-ACK`는 곧 소멸하는 정상 종료 잔재이니 무시해도 됩니다.
+
+### 사람/풀-액세스 — 그대로 한 번만 실행하면 됩니다
+
+```sh
+cd ~/2026/ITRC-RDMA/memcached-rdma/results/memcached_test2
+KVS_BACKEND=TCP STOCK_MEM_MB=32768 KVS_VSIZE=64 NSLOTS=1048576 ./setup-ariel.sh nonTEE
+```
+
+이 한 줄이 stock memcached(11211)와 KVS compute(11212)를 **둘 다** 올립니다. 확인 3종:
+
+```sh
+pgrep -af common/compute      # 기대: -T -r 18601 -n 1048576 -V 64
+cat /tmp/kvs-compute-host.log # 기대: TCP backend -> ... 18601 (no RDMA) / attached ... (1048576 slots)
+ss -ltnp | grep -E '11211|11212'   # 기대: 10.99.0.1:11211 (127.0.0.1 아님) + 0.0.0.0:11212
+ss -tnp  | grep 18601              # 기대: ESTAB
+```
+
+genie region `343,932,928 B`와 compute 발자국 `1048576 × 328`이 같아 불변식이 등호로 성립합니다.
+확인되면 제가 즉시 smoke를 지휘하겠습니다. genie는 18601 유지, 18600 기동 금지 그대로입니다.
+
+NEXT: 사람/풀-액세스 (위 한 줄 실행 → 확인 3종 공지) · genie (18601 유지, 18600 기동 금지) · ariel (확인되면 smoke 지휘)
