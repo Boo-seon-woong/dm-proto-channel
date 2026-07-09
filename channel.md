@@ -5937,3 +5937,65 @@ transport 격리 최종 (같은 IB 패브릭, custom KVS, backend만 상이):
 watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-09 01:21:12 UTC
 ```
 NEXT: none (전체 실측 종료 · 운영자 리뷰 대기)
+
+## [2026-07-09 05:22 UTC / 14:22 KST] ariel
+
+### memcached_test2 재보정 배포 요청 — genie client/memnode 파일 갱신
+
+`memcached_test2` 두 서버 실험 재실행 전 genie 쪽 파일 갱신이 필요합니다. 이번 배포는 기존
+transport-격리 캠페인과 별개이며, 목적은 다음 세 가지입니다.
+
+- `v2-runner.sh`: Bash 특수변수 `SECONDS` 사용 제거 → `TEST_TIME` 고정, 기본 `KEYMAX=16384`.
+- `memnode`/`tcp_memnode`: value-size sweep에 맞춰 `-V <value_size>`로 slot 크기 설정.
+- `run-memnode.sh`/`run-tcp-memnode.sh`: `<nslots> <value_size>` 인자를 받아 새 memnode를 실행.
+
+### 전송 파일 manifest
+
+| file | sha256 |
+|---|---|
+| `transfer/memcached_test2-genie/common/memnode.c` | `ceba7c8c7d756030c32df96de6ab934817926cf21ec50890e38bb1d32fd4e217` |
+| `transfer/memcached_test2-genie/common/tcp_memnode.c` | `9adb83ed4c6da51e53063ec182125810b69b889a6044fc7e25f57626792ae4c3` |
+| `transfer/memcached_test2-genie/common/run-memnode.sh` | `0fac4298d8ab23578b88424f0dfdea04e649b4e2507cf19868489d4e1d8ef8d5` |
+| `transfer/memcached_test2-genie/common/run-tcp-memnode.sh` | `d4718de0f27de978d8fead860ec572bb1378e3e3f0861d3ce2fe92ac35bb88b1` |
+| `transfer/memcached_test2-genie/v2-bench/v2-runner.sh` | `74e85102436e8f547d00cceb4ee9f871df1233acf34921705b3ba32ec9269a16` |
+
+### genie 적용 절차
+
+현재 실행 중인 `v2-runner.sh`, `memnode`, `tcp_memnode`가 있으면 먼저 중단한 뒤 아래를 적용하세요.
+
+```sh
+cd ~/2026/dm-proto-channel
+git pull --rebase
+
+install -D -m 0644 transfer/memcached_test2-genie/common/memnode.c \
+  ~/2026/ITRC-RDMA/memcached-rdma/common/memnode.c
+install -D -m 0644 transfer/memcached_test2-genie/common/tcp_memnode.c \
+  ~/2026/ITRC-RDMA/memcached-rdma/common/tcp_memnode.c
+install -D -m 0755 transfer/memcached_test2-genie/common/run-memnode.sh \
+  ~/2026/ITRC-RDMA/memcached-rdma/common/run-memnode.sh
+install -D -m 0755 transfer/memcached_test2-genie/common/run-tcp-memnode.sh \
+  ~/2026/ITRC-RDMA/memcached-rdma/common/run-tcp-memnode.sh
+install -D -m 0755 transfer/memcached_test2-genie/v2-bench/v2-runner.sh \
+  ~/2026/dm-prototype/v2-bench/v2-runner.sh
+
+cd ~/2026/ITRC-RDMA/memcached-rdma/common
+make
+
+bash -n ~/2026/ITRC-RDMA/memcached-rdma/common/run-memnode.sh
+bash -n ~/2026/ITRC-RDMA/memcached-rdma/common/run-tcp-memnode.sh
+bash -n ~/2026/dm-prototype/v2-bench/v2-runner.sh
+```
+
+적용 후에는 아직 full sweep을 바로 시작하지 말고, operator가 지정하는 value별
+`KVS_VSIZE`/`NSLOTS` 조합으로 memnode를 재기동한 뒤 smoke부터 진행합니다. 예:
+
+```sh
+cd ~/2026/ITRC-RDMA/memcached-rdma/common
+KVS_VSIZE=64 ./run-memnode.sh ibp23s0 18600 1048576
+```
+
+value별 권장 시작점은 `64/1024/4096/16384`는 `NSLOTS=1048576`,
+`65536`은 `NSLOTS=262144`, `262144`는 `NSLOTS=98304`입니다. client 실행은 새 runner에서
+`TEST_TIME`, `KEYMAX`, `VSIZES`를 명시해서 시작하세요.
+
+NEXT: genie (위 파일 적용 + make/bash -n 결과 회신)
