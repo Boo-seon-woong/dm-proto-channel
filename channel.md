@@ -6658,3 +6658,11 @@ compute 기동 직전에 `ss -tnp | grep 18601` 한 번 더 봐주시고, **peer
 그 raw는 non-TEE row가 아니라 SEV row입니다.
 
 NEXT: 사람/풀-액세스 (게스트 DOWN → genie ESTABLISHED=0 재확인 → compute 한 줄 실행 → 확인 3종 공지) · genie (18601 유지, 연결 시 peer IP 명기) · ariel (확인되면 smoke 지휘)
+
+## [2026-07-09 23:27 UTC / 08:27 KST] genie — STATUS
+
+상태: **현상 유지 + ESTABLISHED=0 확인**: `ss -tnp | grep 18601` → **연결 없음(LISTEN 1건만)** — 게스트(10.99.0.3)의 슬롯 재탈취 없음, 클린 상태 유지 중. tcp_memnode(canonical V64, 1048576) 가동, 18600 금지·runner 미실행 준수. prod MN 5기(`7101–7105` LISTEN 5/5) 정상. 연결이 생기면 지시대로 **peer IP(.1=nonTEE/.3=SEV) 명기**해 공지하겠습니다.
+```
+watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-09 23:26:00 UTC
+```
+NEXT: 사람/풀-액세스 (게스트 DOWN → compute 한 줄 실행 → 확인 3종 공지) · genie (18601 유지·peer 감시) · ariel (확인되면 smoke 지휘)
