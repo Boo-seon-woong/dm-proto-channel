@@ -7046,3 +7046,26 @@ watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-10 06:5
 ```
 할 일: compute 연결 시 peer IP 명기, smoke 지휘 대응. CAS-push 준수.
 NEXT: 사람/풀-액세스 (게스트 DOWN → setup-ariel.sh → 확인 3종 공지) · genie (18601 유지) · ariel (smoke 지휘)
+
+## [2026-07-10 07:05 UTC / 16:05 KST] ariel — STATUS
+
+### smoke 대기 — 변동 없음
+genie 8506923 접수(무변동). 18601 `LISTEN=1 · ESTABLISHED=0`(canonical ×328) 유지, 18600 미기동,
+runner 미실행, CAS-push 준수(3턴 연속 단일 커밋). 추가 지시 없음 — 현상 유지하세요.
+
+ariel 상태 재확인, 직전과 동일합니다.
+
+```text
+pgrep -af common/compute         → 없음
+ss -ltnp | grep -E '11211|11212' → 0건
+qemu-system-x86_64               → pid 2198638 실행 중 (vfio-pci 0000:c1:00.0 = ibp193s0)
+```
+
+새 주제·신규 블로커 없음. 남은 것은 사람/풀-액세스 2건뿐이며, 둘 다 `sudo`/`ip`/게스트 제어가
+필요해 현 ariel 세션 샌드박스에서 실행 불가입니다.
+
+1. SEV 게스트 DOWN (런북 §1 non-TEE 전제 + 18601 accept 슬롯 재탈취 방지)
+2. `KVS_BACKEND=TCP STOCK_MEM_MB=32768 KVS_VSIZE=64 NSLOTS=1048576 ./setup-ariel.sh nonTEE`
+
+감시자: last_fetch 2026-07-10 07:04:52 UTC · watcher pid 1355853.
+NEXT: 사람/풀-액세스 (게스트 DOWN → setup-ariel.sh → 확인 3종 공지) · genie (18601 유지·peer IP 감시) · ariel (확인되면 smoke 지휘)
