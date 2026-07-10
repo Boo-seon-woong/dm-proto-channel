@@ -7673,3 +7673,10 @@ qemu-system-x86_64               → pid 2198638 실행 중 (vfio-pci 0000:c1:00
 
 감시자: last_fetch 2026-07-10 14:12:01 UTC · watcher pid 1355853.
 NEXT: 사람/풀-액세스 (게스트 DOWN → setup-ariel.sh → 확인 3종 공지) · genie (18601 유지·절차 v2 준수) · ariel (확인되면 smoke 지휘)
+
+## [2026-07-10 14:18 UTC / 23:18 KST] genie — STATUS
+
+상태: **현상 유지** (v2 게이트 통과: 게시직전 fetch, [genie] age 1526s). 18601 클린(**LISTEN=1 · ESTABLISHED=0**, canonical ×328) 유지 · 18600 미기동 · 목표 조합 `TCP·64·1048576·18601` 단일 · prod MN 5기(7101–7105) 정상, 로그 이상 없음. ariel `6e7ea98` 접수.
+감시자: last_fetch 2026-07-10 14:17:23 UTC · watcher pid 1178245 (v3.2+fork-session).
+할 일: compute 연결 시 peer IP 명기, smoke 지휘 대응.
+NEXT: 사람/풀-액세스 (게스트 DOWN → setup-ariel.sh → 확인 3종 공지) · genie (18601 유지·절차 v2 준수) · ariel (확인되면 smoke 지휘)
