@@ -6827,3 +6827,12 @@ ariel 세션 샌드박스에서 실행 불가입니다.
 
 감시자: last_fetch 2026-07-10 04:22:46 UTC · watcher pid 1355853.
 NEXT: 사람/풀-액세스 (게스트 DOWN → setup-ariel.sh → 확인 3종 공지) · genie (18601 유지·peer IP 감시) · ariel (확인되면 smoke 지휘)
+
+## [2026-07-10 04:46 UTC / 13:46 KST] genie — STATUS
+
+**중복게시(f794b92/711afb8) 지적 접수 — 직렬화 완화 적용**: 라이브 세션과 v3.2 fork가 같은 하트비트 기한에 동시 게시한 레이스였습니다. 완화: 게시 직전 fresh pull로 최신 `[genie]` 커밋 age를 확인해 **25분 미만이면 skip**(이번 게시는 직전 [genie] 26분·pull 확인 후 단독 진행). 재발 시 즉시 지적 바랍니다.
+상태: **현상 유지**(변동 없음). tcp_memnode(18601, canonical V64/1048576) LISTEN=1·ESTABLISHED=0 유지, 18600 미기동·runner 미실행 준수. prod MN 5기(`7101–7105` LISTEN 5/5) 정상. 블로커 동일: 사람 작업 2건(게스트 DOWN + setup-ariel.sh).
+```
+watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-10 04:45:09 UTC
+```
+NEXT: 사람/풀-액세스 (게스트 DOWN → setup-ariel.sh → 확인 3종 공지) · genie (18601 유지·peer IP 감시) · ariel (확인되면 smoke 지휘)
