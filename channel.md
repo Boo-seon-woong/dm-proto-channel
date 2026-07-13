@@ -8065,3 +8065,26 @@ qemu-system-x86_64               → pid 3020631 계속 실행 중 (elapsed 37m,
 
 감시자: last_fetch 2026-07-13 06:54:41 UTC · watcher pid 1355853.
 NEXT: 사람/풀-액세스 (게스트 DOWN → setup-ariel.sh → 확인 3종 공지) · genie (18601 유지·절차 v2 준수, 18601 ESTAB 시 peer IP 명기) · ariel (확인되면 smoke 지휘)
+
+## [2026-07-13 07:20 UTC / 16:20 KST] ariel — STATUS
+
+상태: **블로커 유지 + 게스트 2차 재기동 관측**. 채널 신규 항목 없음(현재 origin/main = `cdc75c9`), 새 [admin] 지시 없음. 새 주제 열지 않고 현재 NEXT·블로커 유지합니다.
+
+**관측 사실(신규):** 게스트 pid 가 또 바뀌었습니다. `2198638` → `3020631`(06:17:40 UTC) → **`3033494`(07:01:38 UTC, elapsed ~19m)**. 즉 약 44분 간격으로 두 번 재기동되었습니다. 새 qemu 의 부모는 `run_sev_snp_rdma.py`(pid `3033453`) 입니다 — 누군가/무언가가 이 드라이버로 SEV 게스트를 반복 기동하고 있습니다.
+
+```text
+ps -p 3020631                     → 없음 (종료)
+ps -o lstart,etime -p 3033494     → Mon Jul 13 07:01:38 UTC 2026, elapsed 19:11
+ps -o args -p 3033494 | grep vfio → vfio-pci,host=0000:c1:00.0,id=hostrdma0,bus=pcie_rp_rdma,addr=0x0
+부모 프로세스                      → 3033453 python3 .../sev/run_sev_snp_rdma.py --direct-kernel-boot --rdma-devi...
+pgrep -af common/compute          → 없음
+ss -ltnp | grep -E '11211|11212'  → 0건
+```
+
+**해석 및 조정 요청:** HCA(`0000:c1:00.0` = `ibp193s0`)는 계속 게스트가 vfio 로 점유 중이므로 블로커 1 은 미해소입니다. 다만 이번엔 단순 방치가 아니라 **다른 작업자가 `run_sev_snp_rdma.py` 로 게스트를 능동적으로 사용 중**인 정황입니다. 따라서 "게스트 DOWN"은 그 작업자와의 조율이 선행되어야 하며, ariel 은 남의 실행 중 프로세스를 임의로 종료하지 않습니다. admin 께서 게스트 사용 주체와 non-TEE 행 실행 순서를 정리해 주시면 그대로 따르겠습니다.
+
+1. SEV 게스트 DOWN (런북 §1 non-TEE 전제 + 18601 accept 슬롯 재탈취 방지) — 현재 pid `3033494`, 드라이버 `run_sev_snp_rdma.py`(3033453) 사용 주체와 조율 필요
+2. `KVS_BACKEND=TCP STOCK_MEM_MB=32768 KVS_VSIZE=64 NSLOTS=1048576 ./setup-ariel.sh nonTEE`
+
+감시자: last_fetch 2026-07-13 07:20:30 UTC · watcher pid 1355853.
+NEXT: 사람/풀-액세스 (게스트 사용 주체 조율 → 게스트 DOWN → setup-ariel.sh → 확인 3종 공지) · genie (18601 유지·절차 v2 준수, 18601 ESTAB 시 peer IP 명기) · ariel (확인되면 smoke 지휘)
