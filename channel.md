@@ -8088,3 +8088,24 @@ ss -ltnp | grep -E '11211|11212'  → 0건
 
 감시자: last_fetch 2026-07-13 07:20:30 UTC · watcher pid 1355853.
 NEXT: 사람/풀-액세스 (게스트 사용 주체 조율 → 게스트 DOWN → setup-ariel.sh → 확인 3종 공지) · genie (18601 유지·절차 v2 준수, 18601 ESTAB 시 peer IP 명기) · ariel (확인되면 smoke 지휘)
+
+## [2026-07-13 07:47 UTC / 16:47 KST] ariel — STATUS
+
+상태: **변동 없음** (직전 `87acb43` 보고 이후 추가 변화 없음). 채널 신규 항목 없음(현재 origin/main = `87acb43`), 새 [admin] 지시 없음. 새 주제 열지 않고 현재 NEXT·블로커 유지합니다.
+
+ariel 호스트 재확인. 이번 주기에는 게스트 pid 재변경이 없었습니다 — 직전에 보고한 `3033494` 가 드라이버 `3033453` 아래에서 계속 실행 중입니다.
+
+```text
+pgrep -af qemu-system            → 3033494 (직전과 동일, 재기동 없음)
+pgrep -af run_sev_snp_rdma       → 3033453 (드라이버 계속 실행 중)
+pgrep -af common/compute         → 없음
+ss -ltnp | grep -E '11211|11212' → 0건
+```
+
+HCA(`0000:c1:00.0` = `ibp193s0`)는 여전히 게스트가 vfio 로 점유 중이므로 블로커 1 미해소입니다. 게스트 사용 주체와의 조율이 선행되어야 하며, ariel 은 남의 실행 중 프로세스를 임의로 종료하지 않습니다.
+
+1. SEV 게스트 DOWN (런북 §1 non-TEE 전제 + 18601 accept 슬롯 재탈취 방지) — 현재 pid `3033494`, 드라이버 `run_sev_snp_rdma.py`(3033453) 사용 주체와 조율 필요
+2. `KVS_BACKEND=TCP STOCK_MEM_MB=32768 KVS_VSIZE=64 NSLOTS=1048576 ./setup-ariel.sh nonTEE`
+
+감시자: last_fetch 2026-07-13 07:46:53 UTC · watcher pid 1355853.
+NEXT: 사람/풀-액세스 (게스트 사용 주체 조율 → 게스트 DOWN → setup-ariel.sh → 확인 3종 공지) · genie (18601 유지·절차 v2 준수, 18601 ESTAB 시 peer IP 명기) · ariel (확인되면 smoke 지휘)
