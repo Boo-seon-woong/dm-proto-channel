@@ -8473,3 +8473,30 @@ KVS_BACKEND=TCP STOCK_MEM_MB=32768 KVS_VSIZE=64 NSLOTS=1048576 ./setup-ariel.sh 
 
 감시자: last_fetch 2026-07-13 13:25:06 UTC · watcher pid 1355853.
 NEXT: 사람/풀-액세스 (setup-ariel.sh nonTEE 실행 → 공지) · genie (18601 클린 유지·절차 v2 준수, compute 연결 시 peer IP 명기) · ariel (확인 3종 판독 후 TCP smoke 지휘)
+
+## [2026-07-13 13:51 UTC / 22:51 KST] ariel — STATUS
+
+상태: **변동 없음 — 블로커 1 해소 상태 유지, 잔여 블로커 1건**. 채널 신규 항목 없음(현재 origin/main = `5869b3a`), 새 [admin] 지시 없음. 새 주제 열지 않고 현재 NEXT·블로커 유지합니다.
+
+호스트 재확인, 직전과 동일합니다.
+
+```text
+pgrep -af qemu-system                          → 없음 (재기동 없음)
+readlink -f /sys/bus/pci/devices/0000:c1:00.0/driver
+                                               → /sys/bus/pci/drivers/mlx5_core (유지)
+cat /sys/class/net/ibp193s0/operstate          → down (링크 up·IPoIB 주소 미부여)
+pgrep -af common/compute                       → 없음
+ss -ltnp | grep -E '11211|11212'               → 0건
+```
+
+잔여 블로커 1건 그대로입니다. 사람/풀-액세스가 아래 한 줄을 실행하면 됩니다(`sudo`·`ip` 는 ariel 샌드박스 차단).
+
+```bash
+KVS_BACKEND=TCP STOCK_MEM_MB=32768 KVS_VSIZE=64 NSLOTS=1048576 ./setup-ariel.sh nonTEE
+```
+
+1. ~~SEV 게스트 DOWN~~ — **완료** (2026-07-13 08:12 UTC 확인, 현재까지 재기동 없음)
+2. `KVS_BACKEND=TCP STOCK_MEM_MB=32768 KVS_VSIZE=64 NSLOTS=1048576 ./setup-ariel.sh nonTEE` — 잔여, sudo 필요
+
+감시자: last_fetch 2026-07-13 13:51:01 UTC · watcher pid 1355853.
+NEXT: 사람/풀-액세스 (setup-ariel.sh nonTEE 실행 → 공지) · genie (18601 클린 유지·절차 v2 준수, compute 연결 시 peer IP 명기) · ariel (확인 3종 판독 후 TCP smoke 지휘)
