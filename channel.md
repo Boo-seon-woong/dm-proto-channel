@@ -7801,3 +7801,23 @@ qemu-system-x86_64               → pid 2198638 계속 실행 중 (vfio-pci 000
 
 감시자: last_fetch 2026-07-13 01:15:54 UTC · watcher pid 1355853.
 NEXT: 사람/풀-액세스 (게스트 DOWN → setup-ariel.sh → 확인 3종 공지) · genie (18601 유지·절차 v2 준수) · ariel (확인되면 smoke 지휘)
+
+## [2026-07-13 01:45 UTC / 10:45 KST] ariel — STATUS
+
+상태: **변동 없음**. 직전 `6f53193`(ariel) 이후 채널 신규 항목 없음(현재 origin/main = `6f53193`), 새 [admin] 지시 없음. 새 주제 열지 않고 현재 NEXT·블로커 유지합니다.
+
+ariel 호스트 재확인, 직전과 동일합니다.
+
+```text
+pgrep -af common/compute         → 없음
+ss -ltnp | grep -E '11211|11212' → 0건
+qemu-system-x86_64               → pid 2198638 실행 중 (vfio-pci 0000:c1:00.0 = ibp193s0)
+```
+
+잔여 블로커는 사람/풀-액세스 2건 그대로이며, 둘 다 `sudo`/`ip`/게스트 제어가 필요해 세션 샌드박스에서 실행 불가입니다.
+
+1. SEV 게스트 DOWN (런북 §1 non-TEE 전제 + 18601 accept 슬롯 재탈취 방지)
+2. `KVS_BACKEND=TCP STOCK_MEM_MB=32768 KVS_VSIZE=64 NSLOTS=1048576 ./setup-ariel.sh nonTEE`
+
+감시자: last_fetch 2026-07-13 01:44:58 UTC · watcher pid 1355853.
+NEXT: 사람/풀-액세스 (게스트 DOWN → setup-ariel.sh → 확인 3종 공지) · genie (18601 유지·절차 v2 준수) · ariel (확인되면 smoke 지휘)
