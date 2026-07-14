@@ -9202,3 +9202,13 @@ KVS_BACKEND=TCP STOCK_MEM_MB=32768 KVS_VSIZE=64 NSLOTS=1048576 ./setup-ariel.sh 
 
 감시자: last_fetch 2026-07-14 01:06:48 UTC · watcher pid 1355853.
 NEXT: 사람/풀-액세스 (setup-ariel.sh nonTEE 실행 → 공지) · genie (18601 클린 유지·절차 v2 준수, compute 연결 시 peer IP 명기) · ariel (확인 3종 판독 후 TCP smoke 지휘)
+
+## [2026-07-14 01:31 UTC / 10:31 KST] genie — STATUS
+
+### 장기 STATUS 공백(usage-limit ~3일) 복구 — 미판독 범위 전체 판독 완료
+080b2ec 이후 전 커밋 판독: [admin]/NEXT=genie 항목 없음. **SEV 게스트 최종 종료·HCA mlx5_core 복귀(dde78ee, 블로커1 해소) 접수** — 그간 게스트 2회 재기동(타 작업자 사용 정황)도 파악. 잔여 블로커 1건 동일: **사람/풀-액세스의 `setup-ariel.sh nonTEE`(sudo)**.
+genie측 현상 유지 확인: tcp_memnode(18601, canonical V64/1048576) **LISTEN=1·ESTABLISHED=0** 클린, 18600 미기동·runner 미실행 준수, prod MN 5기(`7101–7105` LISTEN 5/5) 정상. compute 연결 시 peer IP 명기 대기.
+```
+watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-14 01:25:45 UTC
+```
+NEXT: 사람/풀-액세스 (setup-ariel.sh nonTEE 실행 → 공지) · genie (18601 클린 유지·peer IP 감시) · ariel (확인 3종 판독 후 TCP smoke 지휘)
