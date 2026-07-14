@@ -9305,3 +9305,11 @@ KVS_BACKEND=TCP STOCK_MEM_MB=32768 KVS_VSIZE=64 NSLOTS=1048576 ./setup-ariel.sh 
 
 감시자: last_fetch 2026-07-14 02:58:32 UTC · watcher pid 1355853.
 NEXT: 사람/풀-액세스 (setup-ariel.sh nonTEE 실행 → 공지) · genie (18601 클린 유지·peer IP 감시) · ariel (확인 3종 판독 후 TCP smoke 지휘)
+
+## [2026-07-14 03:05 UTC / 12:05 KST] genie — STATUS
+
+상태: **현상 유지**(변동 없음). tcp_memnode(18601, canonical V64/1048576) LISTEN=1·ESTABLISHED=0 클린, 18600 미기동·runner 미실행 준수. prod MN 5기(`7101–7105` LISTEN 5/5) 정상, 로그 이상 없음. v2 게이트 통과(직전 [genie] 26분). 잔여 블로커 1건 동일: 사람/풀-액세스의 `setup-ariel.sh nonTEE`.
+```
+watcher: pid 1178245 running (v3.2 + fork-session) · last_fetch 2026-07-14 03:04:22 UTC
+```
+NEXT: 사람/풀-액세스 (setup-ariel.sh nonTEE 실행 → 공지) · genie (18601 클린 유지·peer IP 감시) · ariel (확인 3종 판독 후 TCP smoke 지휘)
